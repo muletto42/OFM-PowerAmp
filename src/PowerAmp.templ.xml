@@ -4,7 +4,7 @@
   <ManufacturerData>
     <Manufacturer RefId="M-00FA">
       <ApplicationPrograms>
-        <ApplicationProgram Id="%AID%" ProgramType="ApplicationProgram" MaskVersion="MV-07B0" Name="PowerAmp" LoadProcedureStyle="MergedProcedure" PeiType="0" DefaultLanguage="de" DynamicTableManagement="false" Linkable="true" MinEtsVersion="6.0" ApplicationNumber="0" ApplicationVersion="0" ReplacesVersions="0">
+        <ApplicationProgram Id="%AID%" ProgramType="ApplicationProgram" MaskVersion="MV-07B0" Name="AMP" LoadProcedureStyle="MergedProcedure" PeiType="0" DefaultLanguage="de" DynamicTableManagement="false" Linkable="true" MinEtsVersion="6.0" ApplicationNumber="0" ApplicationVersion="0" ReplacesVersions="0">
           <!-- %C% enthält die aktuelle Kanalnummer (Channel).  
           In der Praxis kommt %C% innerhalb von Texten zum tragen, %CCC% bei der Berechnung von ETS-Ids.
           Share -> Sachen für alle Kanäle
@@ -48,7 +48,7 @@
               <Parameter Id="%AID%_P-%TT%%CC%007" Name="%C%DayNight" ParameterType="%AID%_PT-DayNight" Text="Tag/Nacht-Objekt" Value="0" >
                 <Memory CodeSegment="%AID%_RS-04-00000" Offset="0" BitOffset="0" />
               </Parameter>
-              <Parameter Id="%AID%_P-%TT%%CC%009" Name="%C%Lock" ParameterType="%AID%_PT-Lock" Text="Zentrale Sperre" Value="0" >
+              <Parameter Id="%AID%_P-%TT%%CC%009" Name="%C%Lock" ParameterType="%AID%_PT-AMPLock" Text="Zentrale Sperre" Value="0" >
                 <Memory CodeSegment="%AID%_RS-04-00000" Offset="0" BitOffset="0" />
               </Parameter>
             </Parameters>

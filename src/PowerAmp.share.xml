@@ -132,7 +132,7 @@
                   </when>
                 </choose>
               </ParameterBlock>
-              <op:include href="PowerAmp.templ.xml" xpath="//ApplicationProgram/Dynamic/ChannelIndependentBlock/*" type="template" prefix="PowerAmp" IsInner="true" />
+              <op:include href="PowerAmp.templ.xml" xpath="//ApplicationProgram/Dynamic/ChannelIndependentBlock/*" type="template" prefix="AMP" IsInner="true" />
             </Channel>
           </Dynamic>
         </ApplicationProgram>
