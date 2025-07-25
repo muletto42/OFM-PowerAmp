@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-model href="../../../../Organization/knxprod-support/knx_project_20/knx-editor.xsd" type="application/xml" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<KNX xmlns:op="http://github.com/OpenKNX/OpenKNXproducer" xmlns="http://knx.org/xml/project/20" CreatedBy="KNX MT" ToolVersion="5.1.255.16695">
+
+  <op:config name="%AMP_NumChannelsDefault%" value="%N%" />
+
+  <ManufacturerData>
+    <Manufacturer RefId="M-00FA">
+      <ApplicationPrograms>
+          <ApplicationProgram Id="%AID%" ApplicationNumber="300" ApplicationVersion="1" ProgramType="ApplicationProgram" MaskVersion="MV-07B0" Name="AMP" LoadProcedureStyle="MergedProcedure" PeiType="0" DefaultLanguage="de" DynamicTableManagement="false" Linkable="true" MinEtsVersion="6.0">
+            <Static>
+            <!-- Hier in der Share wird der Name des Includes angegeben, das die Teile eines Moduls enthält, die keine Wiederholstrukturen enthalten. -->
+            <ParameterTypes>
+              <ParameterType Id="%AID%_PT-AMPNumChannels" Name="AMPNumChannels">
+                <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="1" maxInclusive="%N%" />
+              </ParameterType>
+              <ParameterType Id="%AID%_PT-ChannelActive" Name="ChannelActive">
+                <TypeRestriction Base="Value" SizeInBit="2">
+                  <Enumeration Text="Inaktiv" Value="0" Id="%ENID%" />
+                  <Enumeration Text="Aktiv" Value="1" Id="%ENID%" />
+                  <Enumeration Text="Funktionslos" Value="2" Id="%ENID%" />
+                </TypeRestriction>
+              </ParameterType>
+              <ParameterType Id="%AID%_PT-Volume" Name="Volume">
+                <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="1" maxInclusive="255" UIHint="Slider" />
+              </ParameterType>
+              <ParameterType Id="%AID%_PT-AMPLock" Name="AMPLock">
+                <TypeRestriction Base="Value" SizeInBit="2">
+                  <Enumeration Text="nicht aktiv" Value="0" Id="%ENID%" />
+                  <Enumeration Text="gesperrt (1) / nicht gesperrt (0)" Value="1" Id="%ENID%" />
+                  <Enumeration Text="gesperrt (0) / nicht gesperrt (1)" Value="2" Id="%ENID%" />
+                </TypeRestriction>
+              </ParameterType>
+              <ParameterType Id="%AID%_PT-DayNight" Name="DayNight">
+                <TypeRestriction Base="Value" SizeInBit="2">
+                  <Enumeration Text="nicht aktiv" Value="0" Id="%ENID%" />
+                  <Enumeration Text="Tag (1) / Nacht (0)" Value="1" Id="%ENID%" />
+                  <Enumeration Text="Tag (0) / Nacht (1)" Value="2" Id="%ENID%" />
+                </TypeRestriction>
+              </ParameterType>
+              <ParameterType Id="%AID%_PT-Source" Name="Source">
+                <TypeRestriction Base="Value" SizeInBit="8">
+                  <Enumeration Text="Netzwerk" Value="0" Id="%ENID%" />
+                  <Enumeration Text="Bluetooth" Value="1" Id="%ENID%" />
+                  <Enumeration Text="USB" Value="2" Id="%ENID%" />
+                  <Enumeration Text="Line-In" Value="3" Id="%ENID%" />
+                  <Enumeration Text="Optical" Value="4" Id="%ENID%" />
+                  <Enumeration Text="Coax" Value="5" Id="%ENID%" />
+                </TypeRestriction>
+              </ParameterType>
+              <ParameterType Id="%AID%_PT-mute" Name="mute">
+                <TypeRestriction Base="Value" SizeInBit="1">
+                  <Enumeration Text="aktiv" Value="0" Id="%ENID%" />
+                  <Enumeration Text="stumm" Value="1" Id="%ENID%" />
+                </TypeRestriction>
+              </ParameterType>
+            </ParameterTypes>
+
+            <Parameters>
+              <Parameter Id="%AID%_P-%TT%00002" Name="CheckForOneChannel" ParameterType="%AID%_PT-CheckBox" Text="" Value="1" Access="None" />
+              <Union SizeInBit="8">
+                <Memory CodeSegment="%AID%_RS-04-00000" Offset="0" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%00001" Name="VisibleChannels" ParameterType="%AID%_PT-AMPNumChannels" Offset="0" BitOffset="0" Text="Verfügbare Kanäle" Value="%AMP_NumChannelsDefault%" SuffixText=" von %N%" />
+                <!-- 7 bits free -->
+              </Union>
+            </Parameters>
+            <ParameterRefs>
+              <ParameterRef Id="%AID%_UP-%TT%00001_R-%TT%0000101" RefId="%AID%_UP-%TT%00001" /> <!-- VisibleChannels -->
+              <ParameterRef Id="%AID%_P-%TT%00002_R-%TT%0000201" RefId="%AID%_P-%TT%00002" /> <!-- CheckForOneChannel -->
+            </ParameterRefs>
+
+              <!-- <Parameters>
+              <Parameter Id="%AID%_P-%TT%00001" Name="Volume" ParameterType="%AID%_PT-Volume" Text="Lautstärke" Value="10">
+                <Memory CodeSegment="%AID%_RS-04-00000" Offset="0" BitOffset="0" />
+              </Parameter>
+              <Parameter Id="%AID%_P-%TT%00002" Name="Source" ParameterType="%AID%_PT-Source" Text="Quelle" Value="0">
+                <Memory CodeSegment="%AID%_RS-04-00000" Offset="1" BitOffset="0" />
+              </Parameter>
+              <Parameter Id="%AID%_P-%TT%00003" Name="mute" ParameterType="%AID%_PT-mute" Text="Mute" Value="0">
+                <Memory CodeSegment="%AID%_RS-04-00000" Offset="0" BitOffset="7" />
+              </Parameter>
+              <Parameter Id="%AID%_P-%TT%00004" Name="daynight" ParameterType="%AID%_PT-daynight" Text="Tag/Nacht Objekt" Value="0">
+                <Memory CodeSegment="%AID%_RS-04-00000" Offset="1" BitOffset="7" />
+              </Parameter>
+            </Parameters> -->
+
+            <!--<ParameterRefs> Wann brauche ich die?
+              <ParameterRef Id="%AID%_P-%TT%00001_R-%TT%0000101" RefId="%AID%_P-%TT%00001" Name="Volume" />
+              <ParameterRef Id="%AID%_P-%TT%00002_R-%TT%0000201" RefId="%AID%_P-%TT%00002" Name="Source" />
+              <ParameterRef Id="%AID%_P-%TT%00003_R-%TT%0000301" RefId="%AID%_P-%TT%00003" Name="mute" />
+              <ParameterRef Id="%AID%_P-%TT%00004_R-%TT%0000401" RefId="%AID%_P-%TT%00004" Name="daynight" />
+            </ParameterRefs>-->
+             <!-- <ComObjectTable>
+              <ComObject Id="%AID%_O-%TT%00001" Name="volume_value" Text="Lautstärke" Number="1" FunctionText="Wert" ObjectSize="1 Byte" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Enabled" ReadOnInitFlag="Disabled" DatapointType="DPST-5-1" /> 
+              <ComObject Id="%AID%_O-%TT%00002" Name="volume_inc" Text="Lautstärke" Number="2" FunctionText="Vol++" ObjectSize="1 Bit" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Enabled" ReadOnInitFlag="Disabled" DatapointType="DPT-1" /> 
+              <ComObject Id="%AID%_O-%TT%00003" Name="volume_dec" Text="Lautstärke" Number="3" FunctionText="Vol_minus" ObjectSize="1 Bit" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Enabled" ReadOnInitFlag="Disabled" DatapointType="DPT-1" /> 
+              <ComObject Id="%AID%_O-%TT%00004" Name="source" Text="Quelle" Number="4" FunctionText="Auswahl" ObjectSize="1 Byte" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Enabled" ReadOnInitFlag="Disabled" DatapointType="DPT-5" /> 
+              <ComObject Id="%AID%_O-%TT%00005" Name="mute_onoff" Text="Mute" Number="5" FunctionText="Mute" ObjectSize="1 Bit" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Enabled" ReadOnInitFlag="Disabled" DatapointType="DPST-1-1" /> 
+              <ComObject Id="%AID%_O-%TT%00006" Name="PlayPause" Text="Track" Number="6" FunctionText="PlayPause" ObjectSize="1 Bit" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Enabled" ReadOnInitFlag="Disabled" DatapointType="DPT-1" /> 
+              <ComObject Id="%AID%_O-%TT%00007" Name="Stop" Text="Track" Number="7" FunctionText="Stop" ObjectSize="1 Bit" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Enabled" ReadOnInitFlag="Disabled" DatapointType="DPT-1" /> 
+              <ComObject Id="%AID%_O-%TT%00008" Name="Next" Text="Track" Number="8" FunctionText="next" ObjectSize="1 Bit" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Enabled" ReadOnInitFlag="Disabled" DatapointType="DPT-1" /> 
+               <ComObject Id="%AID%_O-%TT%00009" Name="Prev" Text="Track" Number="9" FunctionText="prev" ObjectSize="1 Bit" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Enabled" ReadOnInitFlag="Disabled" DatapointType="DPT-1" /> 
+             </ComObjectTable> -->
+            <!-- <ComObjectRefs>
+              <ComObjectRef Id="%AID%_O-%TT%00001_R-%TT%0000101" RefId="%AID%_O-%TT%00001" />
+              <ComObjectRef Id="%AID%_O-%TT%00002_R-%TT%0000201" RefId="%AID%_O-%TT%00002" />
+              <ComObjectRef Id="%AID%_O-%TT%00003_R-%TT%0000301" RefId="%AID%_O-%TT%00003" />
+              <ComObjectRef Id="%AID%_O-%TT%00004_R-%TT%0000401" RefId="%AID%_O-%TT%00004" />
+              <ComObjectRef Id="%AID%_O-%TT%00005_R-%TT%0000501" RefId="%AID%_O-%TT%00005" />
+              <ComObjectRef Id="%AID%_O-%TT%00006_R-%TT%0000601" RefId="%AID%_O-%TT%00006" />
+              <ComObjectRef Id="%AID%_O-%TT%00007_R-%TT%0000701" RefId="%AID%_O-%TT%00007" />
+              <ComObjectRef Id="%AID%_O-%TT%00008_R-%TT%0000801" RefId="%AID%_O-%TT%00008" />
+              <ComObjectRef Id="%AID%_O-%TT%00009_R-%TT%0000901" RefId="%AID%_O-%TT%00009" />
+            </ComObjectRefs>  -->
+          
+          </Static>
+          <Dynamic>
+            <Channel Id="%AID%_CH-%PREFIX%" Number="%PREFIX%" Name="Main" Text="PowerAmp" Icon="speaker">
+              <ParameterBlock Id="%AID%_PB-nnn" Name="Settings" Text="Allgemein" Icon="cog-outline" ShowInComObjectTree="true">
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="PowerAmp Version %ModuleVersion%" UIHint="Headline" />
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
+
+                <ParameterRefRef RefId="%AID%_P-%TT%00002_R-%TT%0000201" /> <!-- CheckForOneChannel -->
+                <choose ParamRefId="%AID%_P-%TT%00002_R-%TT%0000201"> <!-- CheckForOneChannel -->
+                  <when test="!=%N%">
+                    <ParameterSeparator Id="%AID%_PS-nnn" Text="Kanalauswahl" UIHint="Headline" />
+                    <ParameterRefRef RefId="%AID%_UP-%TT%00001_R-%TT%0000101" HelpContext="BASE-Verfuegbare-Kanaele" IndentLevel="1" />
+                    <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
+                  </when>
+                  <when test="%N%">
+                    <Assign TargetParamRefRef="%AID%_UP-%TT%00001_R-%TT%0000101" Value="1" /> <!-- VisibleChannels -->
+                  </when>
+                </choose>
+              </ParameterBlock>
+              <op:include href="PowerAmp.templ.xml" xpath="//ApplicationProgram/Dynamic/ChannelIndependentBlock/*" type="template" prefix="PowerAmp" IsInner="true" />
+            </Channel>
+          </Dynamic>
+        </ApplicationProgram>
+      </ApplicationPrograms>
+      <Baggages>
+        <Baggage TargetPath="" Name="Help_de.zip" Id="%FILE-HELP-de%">
+          <FileInfo TimeInfo="%DATETIME%" />
+        </Baggage>
+        <Baggage TargetPath="" Name="Icons.zip" Id="%FILE-ICONS%">
+          <FileInfo TimeInfo="%DATETIME%" />
+        </Baggage>
+      </Baggages>
+    </Manufacturer>
+  </ManufacturerData>
+</KNX>
