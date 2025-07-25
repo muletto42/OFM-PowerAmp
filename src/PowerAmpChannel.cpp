@@ -149,10 +149,10 @@ void PowerAmpChannel::setup()
 {
     if (_channelIndex == 1)
     {
-        mySerial = &ARYLIC_HARDWARE_SERIAL;
-        ARYLIC_HARDWARE_SERIAL.setRX(SERIAL_RXPINS[_channelIndex]);
-        ARYLIC_HARDWARE_SERIAL.setTX(SERIAL_TXPINS[_channelIndex]);
-        ARYLIC_HARDWARE_SERIAL.begin(BAUD_ARLYIC);
+        mySerial = &AMP_HARDWARE_SERIAL;
+        AMP_HARDWARE_SERIAL.setRX(SERIAL_RXPINS[_channelIndex]);
+        AMP_HARDWARE_SERIAL.setTX(SERIAL_TXPINS[_channelIndex]);
+        AMP_HARDWARE_SERIAL.begin(BAUD_ARLYIC);
         logDebugP("PowerAmpChannel setup: HardwareSerial RX Pin %d, TX Pin %d", SERIAL_RXPINS[_channelIndex], SERIAL_TXPINS[_channelIndex]);
     }
     else

@@ -1,6 +1,6 @@
 #pragma once
 #include "OpenKNX.h"
-#include "ArylicUARTChannel.h"
+#include "PowerAmpChannel.h"
 #include "hardware.h"
 #include "knxprod.h"
 
@@ -17,11 +17,11 @@
 #endif
 
 
-class ArylicUARTModule : public OpenKNX::Module
+class PowerAmpModule : public OpenKNX::Module
 {
     public:
-        ArylicUARTModule();
-        ~ArylicUARTModule();
+        PowerAmpModule();
+        ~PowerAmpModule();
         void processInputKo(GroupObject &ko) override;
         void loop();
         void setup();
@@ -29,7 +29,7 @@ class ArylicUARTModule : public OpenKNX::Module
         const std::string version() override;
            
     private:
-        ArylicUARTChannel *channel[OPENKNX_AMP_CHANNEL_COUNT];
+        PowerAmpChannel *channel[OPENKNX_AMP_CHANNEL_COUNT];
 };
 
-extern ArylicUARTModule openknxArylicUARTModule;
+extern PowerAmpModule openknxPowerAmpModule;
