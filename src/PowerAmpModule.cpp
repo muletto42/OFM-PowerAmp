@@ -48,8 +48,8 @@ void PowerAmpModule::setup()
 {
     for (uint8_t i = 0; i < OPENKNX_AMP_CHANNEL_COUNT; i++)
     {
-        // channel[i] = new SwitchActuatorChannel(i);
-        // channel[i]->setup(configured);
+        channel[i] = new PowerAmpChannel(i);
+        channel[i]->setup();
     }
 }
 
