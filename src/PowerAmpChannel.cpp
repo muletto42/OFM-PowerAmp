@@ -293,6 +293,41 @@ void PowerAmpChannel::setMute(int onoff)
     sendRawCommandToArylic("MUT:" + String(onoff) + ";");
 }
 
+int PowerAmpChannel::getMute(void)
+{
+    return muteStatus; // Gibt den aktuellen Mute-Status zurück
+}
+
+void PowerAmpChannel::setAutoplay(int onoff)
+{
+    sendRawCommandToArylic("APL:" + String(onoff) + ";");
+}
+
+int PowerAmpChannel::getAutoplay(void)
+{
+    return autoplayStatus; // Gibt den aktuellen Autoplay-Status zurück
+}
+
+String PowerAmpChannel::getMetadataTitle(void)
+{
+    return songMetadataTitle;
+}
+
+String PowerAmpChannel::getMetadataArtist(void)
+{
+    return songMetadataArtist;
+}
+
+String PowerAmpChannel::getMetadataAlbum(void)
+{
+    return songMetadataAlbum;
+}
+
+String PowerAmpChannel::getMetadataVendor(void)
+{
+    return songMetadataVendor;
+}
+
 void PowerAmpChannel::handleIncomingData(void)
 {
     // UART-Daten lesen
@@ -393,12 +428,12 @@ void PowerAmpChannel::processReceivedUARTCommand(const String commandType, const
         if (commandValue == "1;")
         {
             ledStatus = true;
-            logDebugP("LED ON");
+            logDebugP("[INFO] LED ON");
         }
         else if (commandValue == "0;")
         {
             ledStatus = false;
-            logDebugP("LED OFF");
+            logDebugP("[INFO]LED OFF");
         }
     }
     else if (commandType == "BTC")
@@ -406,12 +441,12 @@ void PowerAmpChannel::processReceivedUARTCommand(const String commandType, const
         if (commandValue == "1;")
         {
             bluetoothConnected = true;
-            logDebugP("Bluetooth Connected");
+            logDebugP("[INFO] Bluetooth Connected");
         }
         else if (commandValue == "0;")
         {
             bluetoothConnected = false;
-            logDebugP("Bluetooth Disconnect");
+            logDebugP("[INFO] Bluetooth Disconnect");
         }
     }
     else if (commandType == "VBS")
@@ -419,12 +454,12 @@ void PowerAmpChannel::processReceivedUARTCommand(const String commandType, const
         if (commandValue == "1;")
         {
             virtualBassEnabled = true;
-            logDebugP("virtualBass VBS ON");
+            logDebugP("[INFO] virtualBass VBS ON");
         }
         else if (commandValue == "0;")
         {
             virtualBassEnabled = false;
-            logDebugP("virtualBass VBS OFF");
+            logDebugP("[INFO] virtualBass VBS OFF");
         }
     }
     else if (commandType == "BEP")
@@ -432,18 +467,57 @@ void PowerAmpChannel::processReceivedUARTCommand(const String commandType, const
         if (commandValue == "1;")
         {
             beepEnabled = true;
-            logDebugP("BEEP ON");
+            logDebugP("[INFO] BEEP ON");
         }
         else if (commandValue == "0;")
         {
             beepEnabled = false;
-            logDebugP("BEEP OFF");
+            logDebugP("[INFO] BEEP OFF");
         }
     }
     else if (commandType == "STA")
     {
         processSTACommand(commandValue);
         logDebugP("commandValue: %s", commandValue);
+    }
+    else if (commandType == "APL")
+    {
+        autoplayStatus = (bool)commandValue.toInt();
+        logDebugP("[INFO] Autoplay Status:  %d", autoplayStatus);
+    }
+    else if (commandType == "TIT") //notification messages for song metadata title. 
+    {
+        songMetadataTitle = commandValue;
+        logDebugP("[INFO] Titel-Update empfangen: %s", commandValue);
+        KoAMP_ChsongMetadataTitle.valueNoSend(songMetadataTitle.c_str(), DPT_VarString_8859_1); // Update the KO with the title information:VARIABLE LENGTH
+        KoAMP_ChsongMetadataTitle.objectWritten(); // Mark the KO as written to send the update
+    }
+     else if (commandType == "ART") //notification messages for song metadata artist.
+    {
+        songMetadataArtist = commandValue;
+        logDebugP("[INFO] Künstler-Update empfangen: %s", commandValue);
+        KoAMP_ChsongMetadataArtist.valueNoSend(songMetadataArtist.c_str(), DPT_VarString_8859_1); // Update the KO with the artist information: VARIABLE LENGTH
+        KoAMP_ChsongMetadataArtist.objectWritten(); // Mark the KO as written to send the update
+    }
+    else if (commandType == "ALB") //notification messages for song metadata album.
+    {
+        songMetadataAlbum = commandValue;
+        logDebugP("[INFO] Album-Update empfangen: %s", commandValue);
+        KoAMP_ChsongMetadataAlbum.valueNoSend(songMetadataAlbum.c_str(), DPT_VarString_8859_1); // Update the KO with the album information:VARIABLE LENGTH
+        KoAMP_ChsongMetadataAlbum.objectWritten(); // Mark the KO as written to send the update
+    }
+    else if (commandType == "VND") //notification messages for song metadata vendor.
+    {
+        songMetadataVendor = commandValue;
+        //{vendor} will have the following value:
+        //spotify qplay dlna airplay upnp phone usb tidal napster qobuz amazon tunein iheart vtuner http other
+        logDebugP("[INFO] Vendor-Update empfangen: %s", commandValue);
+        KoAMP_ChsongMetadataVendor.valueNoSend(songMetadataVendor.c_str(), DPT_VarString_8859_1); // Update the KO with the vendor information: VARIABLE LENGTH
+        KoAMP_ChsongMetadataVendor.objectWritten(); // Mark the KO as written to send the update
+    }
+    else
+    {
+        logDebugP("[ERROR] Unbekanntes Kommando: %s", commandType);
     }
 }
 

@@ -14,7 +14,7 @@
               <ParameterType Id="%AID%_PT-AMPNumChannels" Name="AMPNumChannels">
                 <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="1" maxInclusive="%N%" />
               </ParameterType>
-              <ParameterType Id="%AID%_PT-ChannelActive" Name="ChannelActive">
+              <ParameterType Id="%AID%_PT-AMPChannelActive" Name="ChannelActive">
                 <TypeRestriction Base="Value" SizeInBit="2">
                   <Enumeration Text="Inaktiv" Value="0" Id="%ENID%" />
                   <Enumeration Text="Aktiv" Value="1" Id="%ENID%" />

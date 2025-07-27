@@ -45,7 +45,17 @@ private:
     void getVolume(void);
 
     void setMute(int onoff);
+    int getMute(void); 
+
     void getDeviceStatus(void); // get device status, available in network playback and bluetooth
+
+    void setAutoplay(int onoff); // AUTOPLAY[:{onoff}] set autoplay
+    int getAutoplay(void);
+
+    String getMetadataTitle(void);
+    String getMetadataArtist(void);
+    String getMetadataAlbum(void);
+    String getMetadataVendor(void);
 
     //  Variablen für Lautstärke und Quelle
     int currentVolume = 0;
@@ -64,6 +74,11 @@ private:
     bool playingStatus = false;
     bool ledStatus = false;
     bool upgradingStatus = false;
+    bool autoplayStatus = false;
+    String songMetadataVendor ="";
+    String songMetadataAlbum ="";
+    String songMetadataArtist ="";
+    String songMetadataTitle ="";
 
     // Private Methode zur Verarbeitung von empfangenen Zeilen
     void handleIncomingData(void);
