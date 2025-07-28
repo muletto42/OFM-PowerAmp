@@ -81,15 +81,18 @@
               <ComObject Id="%AID%_O-%TT%%CC%007" Name="%C%Stop" Text="Track Amp %Z%" Number="%K07%" FunctionText="Stop" ObjectSize="1 Bit" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Enabled" ReadOnInitFlag="Disabled" DatapointType="DPT-1" />
               <ComObject Id="%AID%_O-%TT%%CC%008" Name="%C%Next" Text="Track Amp %Z%" Number="%K08%" FunctionText="next" ObjectSize="1 Bit" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Enabled" ReadOnInitFlag="Disabled" DatapointType="DPT-1" />
               <ComObject Id="%AID%_O-%TT%%CC%009" Name="%C%Prev" Text="Track Amp %Z%" Number="%K09%" FunctionText="prev" ObjectSize="1 Bit" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Enabled" ReadOnInitFlag="Disabled" DatapointType="DPT-1" />
-              <ComObject Id="%AID%_O-%TT%%CC%027" Name="%C%DayNight" Text="Zentral" Number="%K27%" ObjectSize="1 Bit" FunctionText="" ReadFlag="Enabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-1-24" />
-              <ComObject Id="%AID%_O-%TT%%CC%028" Name="%C%Scene" Text="Zentral" Number="%K28%" FunctionText="Szene" ObjectSize="1 Byte" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-18-1" />
-              <ComObject Id="%AID%_O-%TT%%CC%029" Name="%C%Lock" Text="Zentral" Number="%K29%" FunctionText="Sperre" ObjectSize="1 Bit" ReadFlag="Enabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-1-1" />
+              <ComObject Id="%AID%_O-%TT%%CC%027" Name="%C%DayNight" Text="TagNacht %Z%" Number="%K27%" ObjectSize="1 Bit" FunctionText="" ReadFlag="Enabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-1-24" />
+              <ComObject Id="%AID%_O-%TT%%CC%028" Name="%C%Scene" Text="Szene %Z%" Number="%K28%" FunctionText="Szene" ObjectSize="1 Byte" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-18-1" />
+              <ComObject Id="%AID%_O-%TT%%CC%029" Name="%C%Lock" Text="Lock %Z%" Number="%K29%" FunctionText="Sperre" ObjectSize="1 Bit" ReadFlag="Enabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-1-1" />
             
               <!-- Metadaten Title, Album, Artist, Vendor-->
               <ComObject Id="%AID%_O-%TT%%CC%050" Name="Ch%C%songMetadataTitle" Number="%K50%" ObjectSize="14 Bytes" Text="" FunctionText="songMetadataTitle" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-24-1" />
               <ComObject Id="%AID%_O-%TT%%CC%051" Name="Ch%C%songMetadataAlbum" Number="%K51%" ObjectSize="14 Bytes" Text="" FunctionText="songMetadataAlbum" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-24-1" />
               <ComObject Id="%AID%_O-%TT%%CC%052" Name="Ch%C%songMetadataArtist" Number="%K52%" ObjectSize="14 Bytes" Text="" FunctionText="songMetadataArtist" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-24-1" />
               <ComObject Id="%AID%_O-%TT%%CC%053" Name="Ch%C%songMetadataVendor" Number="%K53%" ObjectSize="14 Bytes" Text="" FunctionText="songMetadataVendor" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-24-1" />
+
+              <ComObject Id="%AID%_O-%TT%%CC%054" Name="%C%volume_Status" Text="Lautstärke Status Amp %Z%" Number="%K54%" FunctionText="Wert" ObjectSize="1 Byte" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Enabled" ReadOnInitFlag="Disabled" DatapointType="DPST-5-1" />
+              
 
             </ComObjectTable>
             <ComObjectRefs>
@@ -112,6 +115,7 @@
               <ComObjectRef Id="%AID%_O-%TT%%CC%051_R-%TT%%CC%05101" RefId="%AID%_O-%TT%%CC%051" Text="Kanal %Z%: Album" />
               <ComObjectRef Id="%AID%_O-%TT%%CC%052_R-%TT%%CC%05201" RefId="%AID%_O-%TT%%CC%052" Text="Kanal %Z%: Artist" />
               <ComObjectRef Id="%AID%_O-%TT%%CC%053_R-%TT%%CC%05301" RefId="%AID%_O-%TT%%CC%053" Text="Kanal %Z%: Vendor" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%054_R-%TT%%CC%05401" RefId="%AID%_O-%TT%%CC%054" Text="Kanal %Z%: Lautstärke Status" />
            
             </ComObjectRefs>
           </Static>
@@ -201,6 +205,7 @@
                         <ComObjectRefRef RefId="%AID%_O-%TT%%CC%051_R-%TT%%CC%05101" /> <!-- Album -->
                         <ComObjectRefRef RefId="%AID%_O-%TT%%CC%052_R-%TT%%CC%05201" /> <!-- Artist -->
                         <ComObjectRefRef RefId="%AID%_O-%TT%%CC%053_R-%TT%%CC%05301" /> <!-- Vendor -->
+                        <ComObjectRefRef RefId="%AID%_O-%TT%%CC%054_R-%TT%%CC%05401" /> <!-- Lautstärke Status-->
 
                       </when>
                     </choose>
