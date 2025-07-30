@@ -92,7 +92,7 @@
               <ComObject Id="%AID%_O-%TT%%CC%022" Name="Ch%C%songMetadataArtist" Number="%K15%" ObjectSize="14 Bytes" Text="" FunctionText="songMetadataArtist" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-24-1" />
               <ComObject Id="%AID%_O-%TT%%CC%023" Name="Ch%C%songMetadataVendor" Number="%K16%" ObjectSize="14 Bytes" Text="" FunctionText="songMetadataVendor" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-24-1" />
 
-              <ComObject Id="%AID%_O-%TT%%CC%024" Name="%C%volume_Status" Text="Lautstärke Status Amp %Z%" Number="%K17%" FunctionText="Wert" ObjectSize="1 Byte" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Enabled" ReadOnInitFlag="Disabled" DatapointType="DPST-5-1" />
+              <ComObject Id="%AID%_O-%TT%%CC%024" Name="%C%volume_Status" Text="Lautstärke Status Amp %Z%" Number="%K17%" FunctionText="Wert" ObjectSize="1 Byte" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-5-1" />
               
 
             </ComObjectTable>
