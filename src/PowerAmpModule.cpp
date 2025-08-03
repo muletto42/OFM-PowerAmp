@@ -38,18 +38,18 @@ const std::string PowerAmpModule::version()
     return MODULE_PowerAmp_Version;
 }
 
-void PowerAmpModule::loop()
+void PowerAmpModule::loop(bool configured)
 {
     for (uint8_t i = 0; i < MIN(ParamAMP_VisibleChannels, OPENKNX_AMP_CHANNEL_COUNT); i++)
-        channel[i]->loop();
+        channel[i]->loop(configured);
 }
 
-void PowerAmpModule::setup()
+void PowerAmpModule::setup(bool configured)
 {
     for (uint8_t i = 0; i < OPENKNX_AMP_CHANNEL_COUNT; i++)
     {
         channel[i] = new PowerAmpChannel(i);
-        channel[i]->setup();
+        channel[i]->setup(configured);
     }
 }
 
@@ -70,4 +70,23 @@ void PowerAmpModule::processInputKo(GroupObject &iKo)
     logIndentDown();
 }
 
+bool PowerAmpModule::processCommand(const std::string command, bool diagnose)
+{
+    if (!diagnose && command == "amp debug")
+    {
+        _debug = !_debug;
 
+        if (_debug)
+            logInfoP("AMP Debug enabled");
+        else
+            logInfoP("AMP Debug disabled");
+
+        return true;
+    }
+    return false;
+}
+
+bool PowerAmpModule::debug()
+{
+    return _debug;
+}

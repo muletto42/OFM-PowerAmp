@@ -19,17 +19,22 @@
 
 class PowerAmpModule : public OpenKNX::Module
 {
-    public:
-        PowerAmpModule();
-        ~PowerAmpModule();
-        void processInputKo(GroupObject &ko) override;
-        void loop();
-        void setup();
-        const std::string name() override;
-        const std::string version() override;
+  protected:
+    bool _debug = false;
+
+  public:
+    PowerAmpModule();
+    ~PowerAmpModule();
+    void processInputKo(GroupObject &ko) override;
+    bool processCommand(const std::string command, bool diagnose) override;
+    bool debug();
+    void loop(bool configured);
+    void setup(bool configured);
+    const std::string name() override;
+    const std::string version() override;
            
-    private:
-        PowerAmpChannel *channel[OPENKNX_AMP_CHANNEL_COUNT];
+  private:
+    PowerAmpChannel *channel[OPENKNX_AMP_CHANNEL_COUNT];
 };
 
 extern PowerAmpModule openknxPowerAmpModule;

@@ -18,20 +18,18 @@
 #include "PowerAmpModule.h"
 #include <SoftwareSerial.h>
 
-#define PT_Source_network 0
-#define PT_Source_bluetooth 1
-#define PT_Source_USBDAC 2
-#define PT_Source_linein 3
-#define PT_Source_Optical 4
-#define PT_Source_Coaxial 5
-#define PT_Source_ERROR 99
 
 PowerAmpChannel::PowerAmpChannel(uint8_t iChannelNumber)
 {
     _channelIndex = iChannelNumber;
 }
 
-PowerAmpChannel::~PowerAmpChannel() {}
+PowerAmpChannel::~PowerAmpChannel() 
+{
+    #if OPENKNX_AMP_CHANNEL_COUNT > 1
+    if (mySWSerial) delete mySWSerial;
+    #endif
+}
 
 const std::string PowerAmpChannel::name()
 {
@@ -46,9 +44,14 @@ void PowerAmpChannel::processInputKo(GroupObject &iKo)
         logTraceP("processInputKo: channel not active (%u)", ParamAMP_ChActive);
         return;
     }
+
+    if (openknxPowerAmpModule.debug())
+    {
+        logDebugP("processInputKo: channel %u", _channelIndex);
+        logIndentUp();
+    }   
+
     
-    logDebugP("processInputKo: channel %u", _channelIndex);
-    logIndentUp();
     
     // uint16_t lAsap = iKo.asap();
     // switch (lAsap)
@@ -73,31 +76,27 @@ void PowerAmpChannel::processInputKo(GroupObject &iKo)
                 currentVolume++;
             }
             setVolume(currentVolume);
-            logDebugP("setVolume: %d", currentVolume);
             break;
         }
         case AMP_Kovolume_dec: // Decrease --
         {
-            if (KoAMP_volume_inc.value(DPT_Step))
+            if (KoAMP_volume_dec.value(DPT_Step))
             {
                 currentVolume--;
             }
             setVolume(currentVolume);
-            logDebugP("setVolume: %d", currentVolume);
             break;
         }
         case AMP_Kovolume_value: // SET
         {
             currentVolume = (u_int8_t)KoAMP_volume_value.value(DPT_Scaling);
             setVolume(currentVolume);
-            logDebugP("setVolume: %d", currentVolume);
             break;
         }
         case AMP_Komute_onoff:
         {
             muteStatus = KoAMP_mute_onoff.value(DPT_Switch);
             setMute(muteStatus);
-            logDebugP("MuteMode: %d", muteStatus);
             break;
         }
         case AMP_KoPlayPause:
@@ -122,16 +121,19 @@ void PowerAmpChannel::processInputKo(GroupObject &iKo)
         }
         case AMP_Kosource:
         {
-            uint icurrentSource;
-            icurrentSource = (uint8_t)KoAMP_source.value(DPT_Value_1_Ucount);
-            setSource(icurrentSource);
-            logDebugP("setSource: %d", icurrentSource);
+            uint8_t srcVal = KoAMP_source.value(DPT_Value_1_Ucount); // Wert als uint8_t holen
+            enumSource currentSource = static_cast<enumSource>(srcVal);
+            setSource(currentSource);
             break;
         }
     }
+    if (openknxPowerAmpModule.debug())
+    {
+        logIndentDown();
+    } 
 }
 
-void PowerAmpChannel::loop()
+void PowerAmpChannel::loop(bool configured)
 {
     handleIncomingData();
     static unsigned long lastMillis = 0; // Speichert den letzten Zeitpunkt
@@ -145,7 +147,7 @@ void PowerAmpChannel::loop()
     }
 }
 
-void PowerAmpChannel::setup()
+void PowerAmpChannel::setup(bool configured)
 {
     if (_channelIndex == 1)
     {
@@ -153,7 +155,10 @@ void PowerAmpChannel::setup()
         AMP_HARDWARE_SERIAL.setRX(SERIAL_RXPINS[_channelIndex]);
         AMP_HARDWARE_SERIAL.setTX(SERIAL_TXPINS[_channelIndex]);
         AMP_HARDWARE_SERIAL.begin(BAUD_ARLYIC);
-        logDebugP("PowerAmpChannel setup: HardwareSerial RX Pin %d, TX Pin %d", SERIAL_RXPINS[_channelIndex], SERIAL_TXPINS[_channelIndex]);
+        if (openknxPowerAmpModule.debug())
+        {
+            logInfoP("PowerAmpChannel setup: HardwareSerial RX Pin %d, TX Pin %d", SERIAL_RXPINS[_channelIndex], SERIAL_TXPINS[_channelIndex]);
+        }
     }
     else
     {
@@ -164,7 +169,10 @@ void PowerAmpChannel::setup()
         mySWSerial = new SoftwareSerial(SERIAL_RXPINS[_channelIndex], SERIAL_TXPINS[_channelIndex]);
         mySWSerial->begin(BAUD_ARLYIC);
         mySerial = mySWSerial;
-        logDebugP("PowerAmpChannel setup: SoftwareSerial RX Pin %d, TX Pin %d", SERIAL_RXPINS[_channelIndex], SERIAL_TXPINS[_channelIndex]);
+        if (openknxPowerAmpModule.debug())
+        {
+            logDebugP("PowerAmpChannel setup: SoftwareSerial RX Pin %d, TX Pin %d", SERIAL_RXPINS[_channelIndex], SERIAL_TXPINS[_channelIndex]);
+        }
     }
 }
 
@@ -172,13 +180,18 @@ void PowerAmpChannel::sendRawCommandToArylic(const String command)
 {
     mySerial->flush(); // Wartet, bis die Übertragung der ausgehenden seriellen Daten abgeschlossen ist.
     mySerial->print(command + "\r\n");
-#if DEBUG
-    logDebugP("[SEND]: %s", command);
-#endif
+    if (openknxPowerAmpModule.debug())
+    {
+        logInfoP("[SEND] sendRawCommandToArylic %s", command);
+    }
 }
 
 void PowerAmpChannel::getDeviceStatus(void) // get device status, available in network playback and bluetooth
 {
+    if (openknxPowerAmpModule.debug())
+    {
+        logInfoP("[SEND] getDeviceStatusfromArylic");
+    }
     sendRawCommandToArylic("STA;");
     /*
     Device status summary, and the response message {states} will
@@ -189,10 +202,18 @@ void PowerAmpChannel::getDeviceStatus(void) // get device status, available in n
 }
 void PowerAmpChannel::getVolume() // get volume, available in network playback and bluetooth
 {
+    if (openknxPowerAmpModule.debug())
+    {
+        logInfoP("[SEND] getVolume from Arylic");
+    }
     sendRawCommandToArylic("VOL;");
 }
 void PowerAmpChannel::getSource() // get source, available in network playback and bluetooth
 {
+    if (openknxPowerAmpModule.debug())
+    {
+        logInfoP("[SEND] getSource from Arylic");
+    }
     sendRawCommandToArylic("SRC;");
 }
 
@@ -237,48 +258,57 @@ void PowerAmpChannel::playPreset(int presetNum) // start to play preset playlist
 void PowerAmpChannel::setVolume(int volume)
 {
     volume = constrain(volume, 0, 100);
+    if (openknxPowerAmpModule.debug())
+    {
+        logInfoP("setVolume: channel %u, volume %d", _channelIndex, volume);
+    }
     sendRawCommandToArylic("VOL:" + String(volume) + ";");
 }
 
-void PowerAmpChannel::setSource(uint sourcenumber) // SRC
+void PowerAmpChannel::setSource(enumSource sourcenumber) // SRC
 {
+    if (openknxPowerAmpModule.debug())
+    {
+        logInfoP("[setSource] sourcenumber: %d", static_cast<uint8_t>(sourcenumber));
+    }
+
     String source = " ";
     switch (sourcenumber)
     {
-        case PT_Source_network:
+        case enumSource::Network:
         {
             source = "NET";
             break;
         }
-        case PT_Source_bluetooth:
+        case enumSource::Bluetooth:
         {
             source = "BT";
             break;
-        }
-        case PT_Source_USBDAC:
+        case enumSource::USBDAC:
         {
             source = "USBDAC";
             break;
         }
-        case PT_Source_linein:
+        case enumSource::LineIn:
         {
             source = "LINE-IN";
             break;
         }
-        case PT_Source_Optical:
+        case enumSource::Optical:
         {
             source = "OPT";
             break;
         }
-        case PT_Source_Coaxial:
+        case enumSource::Coaxial:
         {
             source = "COAX";
             break;
         }
         default:
             break;
+        }
+            sendRawCommandToArylic("SRC:" + source + ";");
     }
-    sendRawCommandToArylic("SRC:" + source + ";");
 }
 
 // Overload für String-Parameter
@@ -288,22 +318,30 @@ void PowerAmpChannel::setSource(const String &source) // SRC
     sendRawCommandToArylic("SRC:" + source + ";");
 }
 
-void PowerAmpChannel::setMute(int onoff)
+void PowerAmpChannel::setMute(bool onoff)
 {
+    if (openknxPowerAmpModule.debug())
+    {
+        logInfoP("[setMute] MuteMode: %d", muteStatus);
+    }
     sendRawCommandToArylic("MUT:" + String(onoff) + ";");
 }
 
-int PowerAmpChannel::getMute(void)
+bool PowerAmpChannel::getMute(void)
 {
+    if (openknxPowerAmpModule.debug())
+    {
+        logInfoP("[getMute] MuteMode: %d", muteStatus);
+    }
     return muteStatus; // Gibt den aktuellen Mute-Status zurück
 }
 
-void PowerAmpChannel::setAutoplay(int onoff)
+void PowerAmpChannel::setAutoplay(bool onoff)
 {
     sendRawCommandToArylic("APL:" + String(onoff) + ";");
 }
 
-int PowerAmpChannel::getAutoplay(void)
+bool PowerAmpChannel::getAutoplay(void)
 {
     return autoplayStatus; // Gibt den aktuellen Autoplay-Status zurück
 }
@@ -334,9 +372,18 @@ void PowerAmpChannel::handleIncomingData(void)
     if (mySerial->available() > 0)
     {
         String receivedData = mySerial->readStringUntil('\n');
-        receivedData.trim(); // Entfernt alle führenden und nachfolgenden Leerzeichen aus der aktuellen Zeichenfolge.
-        logDebugP("Empfangen: : %s", receivedData);
 
+        if (openknxPowerAmpModule.debug())
+        {
+            logInfoP("handleIncomingData receivedData %s", receivedData);
+        }
+
+        receivedData.trim(); // Entfernt alle führenden und nachfolgenden Leerzeichen aus der aktuellen Zeichenfolge.
+        if (openknxPowerAmpModule.debug())
+        {
+            logInfoP("receivedData trimmed: %s", receivedData);
+        }
+        
         int separatorIndex = receivedData.indexOf(':');
         if (separatorIndex > 0 && separatorIndex < receivedData.length() - 1)
         {
@@ -349,38 +396,18 @@ void PowerAmpChannel::handleIncomingData(void)
     }
 }
 
-int PowerAmpChannel::sourceStringToInt(const String source)
+enumSource PowerAmpChannel::sourceStringToInt(const String source)
 {
-    if (source == "NET")
-    {
-        return PT_Source_network;
+    if (source == "NET")            return enumSource::Network;
+    else if (source == "BT")        return enumSource::Bluetooth;
+    else if (source == "USBDAC")    return enumSource::USBDAC;
+    else if (source == "LINE-IN")   return enumSource::LineIn;
+    else if (source == "OPT")       return enumSource::Optical;
+    else if (source == "COAX")      return enumSource::Coaxial;
+    else {
+        logDebugP("[ERROR] Unbekannte Quelle: %s", source.c_str());
+        return enumSource::Error;
     }
-    else if (source == "BT")
-    {
-        return PT_Source_bluetooth;
-    }
-    else if (source == "USBDAC")
-    {
-        return PT_Source_USBDAC;
-    }
-    else if (source == "LINE-IN")
-    {
-        return PT_Source_linein;
-    }
-    else if (source == "OPT")
-    {
-        return PT_Source_Optical;
-    }
-    else if (source == "COAX")
-    {
-        return PT_Source_Coaxial;
-    }
-    else
-    {
-        logDebugP("[ERROR] Unbekannte Quelle: %s", source);
-        //return -1; // Fehlerwert
-    }
-    return 99; // Fehlerwert
 }
 
 
@@ -389,14 +416,20 @@ int PowerAmpChannel::sourceStringToInt(const String source)
  ---------------------------------------------------------------------------------------------------*/
 void PowerAmpChannel::processReceivedUARTCommand(const String commandType, const String commandValue)
 {
-    // Logik zum Verarbeiten der UART-Kommandos vom ArlyicAmp
+    // Logik zum Verarbeiten der UART-Kommandos vom ArylicAmp
+
+    if (openknxPowerAmpModule.debug())
+    {
+        logDebugP("processReceivedUARTCommand: commandType %s, commandValue %s", commandType, commandValue);
+    }   
+
     // string currentSource;
     if (commandType == "SRC")
     {
         string_currentSource = commandValue;
-        icurrentSource = sourceStringToInt(string_currentSource);
+        currentSource = sourceStringToInt(string_currentSource);
         logDebugP("[INFO] Quelle aktualisiert: %s", string_currentSource);
-        logDebugP("[INFO] Quelle aktualisiert int: %d", icurrentSource);
+        logDebugP("[INFO] Quelle aktualisiert int: %d", currentSource);
     }
     else if (commandType == "VOL")
     {
@@ -489,21 +522,21 @@ void PowerAmpChannel::processReceivedUARTCommand(const String commandType, const
     {
         songMetadataTitle = commandValue;
         logDebugP("[INFO] Titel-Update empfangen: %s", commandValue);
-        KoAMP_ChsongMetadataTitle.valueNoSend(songMetadataTitle.c_str(), DPT_VarString_8859_1); // Update the KO with the title information:VARIABLE LENGTH
+        KoAMP_ChsongMetadataTitle.valueNoSend(songMetadataTitle.c_str(), DPT_String_8859_1); // Update the KO with the title information:
         KoAMP_ChsongMetadataTitle.objectWritten(); // Mark the KO as written to send the update
     }
      else if (commandType == "ART") //notification messages for song metadata artist.
     {
         songMetadataArtist = commandValue;
         logDebugP("[INFO] Künstler-Update empfangen: %s", commandValue);
-        KoAMP_ChsongMetadataArtist.valueNoSend(songMetadataArtist.c_str(), DPT_VarString_8859_1); // Update the KO with the artist information: VARIABLE LENGTH
+        KoAMP_ChsongMetadataArtist.valueNoSend(songMetadataArtist.c_str(), DPT_String_8859_1); // Update the KO with the artist information
         KoAMP_ChsongMetadataArtist.objectWritten(); // Mark the KO as written to send the update
     }
     else if (commandType == "ALB") //notification messages for song metadata album.
     {
         songMetadataAlbum = commandValue;
         logDebugP("[INFO] Album-Update empfangen: %s", commandValue);
-        KoAMP_ChsongMetadataAlbum.valueNoSend(songMetadataAlbum.c_str(), DPT_VarString_8859_1); // Update the KO with the album information:VARIABLE LENGTH
+        KoAMP_ChsongMetadataAlbum.valueNoSend(songMetadataAlbum.c_str(), DPT_String_8859_1); // Update the KO with the album information
         KoAMP_ChsongMetadataAlbum.objectWritten(); // Mark the KO as written to send the update
     }
     else if (commandType == "VND") //notification messages for song metadata vendor.
@@ -512,7 +545,7 @@ void PowerAmpChannel::processReceivedUARTCommand(const String commandType, const
         //{vendor} will have the following value:
         //spotify qplay dlna airplay upnp phone usb tidal napster qobuz amazon tunein iheart vtuner http other
         logDebugP("[INFO] Vendor-Update empfangen: %s", commandValue);
-        KoAMP_ChsongMetadataVendor.valueNoSend(songMetadataVendor.c_str(), DPT_VarString_8859_1); // Update the KO with the vendor information: VARIABLE LENGTH
+        KoAMP_ChsongMetadataVendor.valueNoSend(songMetadataVendor.c_str(), DPT_String_8859_1); // Update the KO with the vendor information
         KoAMP_ChsongMetadataVendor.objectWritten(); // Mark the KO as written to send the update
     }
     else
@@ -526,7 +559,7 @@ void PowerAmpChannel::processSTACommand(const String commandValue)
     // Beispiel: NET,0,33,-2,0,1,1,1,1,0
     // Zerlege die empfangenen Daten anhand des Trennzeichens ','
     // STA
-    // Device status summary, and the response message {states} will consist with: 
+    // Device status summary, and the response message {states} will consist with:
     // current source,mute,volume,treble,bass,net,internet,playing,led,upgrading.
 
     std::vector<String> statusParts;
@@ -549,21 +582,23 @@ void PowerAmpChannel::processSTACommand(const String commandValue)
     }
 
     // Werte zuweisen
-     string_currentSource = statusParts[0];
-     icurrentSource = sourceStringToInt(string_currentSource);
+    string_currentSource = statusParts[0];
+    currentSource = sourceStringToInt(string_currentSource);
 
-     muteStatus = statusParts[1].toInt();
-     currentVolume = statusParts[2].toInt();
-     currentTrebleTone = statusParts[3].toInt();
-     currentBassTone = statusParts[4].toInt();
-     netStatus = statusParts[5].toInt();
-     internetStatus = statusParts[6].toInt();
-     playingStatus = statusParts[7].toInt();
-     ledStatus = statusParts[8].toInt();
-     upgradingStatus = statusParts[9].toInt();
+    muteStatus = statusParts[1].toInt();
+    currentVolume = statusParts[2].toInt();
+    currentTrebleTone = statusParts[3].toInt();
+    currentBassTone = statusParts[4].toInt();
+    netStatus = statusParts[5].toInt();
+    internetStatus = statusParts[6].toInt();
+    playingStatus = statusParts[7].toInt();
+    ledStatus = statusParts[8].toInt();
+    upgradingStatus = statusParts[9].toInt();
 
     // Debug-Ausgabe
-    logDebugP("[STA] Quelle: %s, Quelle int: %d, Mute: %d, Lautstärke: %d, Treble: %d, Bass: %d, Net: %d, Internet: %d, Playing: %d, LED: %d, Upgrading: %d",
-              string_currentSource, icurrentSource, muteStatus, currentVolume, currentTrebleTone, currentBassTone, netStatus, internetStatus, playingStatus, ledStatus, upgradingStatus);
-
+    if (openknxPowerAmpModule.debug())
+    {
+        logInfoP("[STA] Quelle: %s, Quelle int: %d, Mute: %d, Lautstärke: %d, Treble: %d, Bass: %d, Net: %d, Internet: %d, Playing: %d, LED: %d, Upgrading: %d",
+                 string_currentSource.c_str(), currentSource, muteStatus, currentVolume, currentTrebleTone, currentBassTone, netStatus, internetStatus, playingStatus, ledStatus, upgradingStatus);
+    }
 }

@@ -2,6 +2,26 @@
 #include "OpenKNX.h"
 #include <SoftwareSerial.h>
 
+
+
+// #define PT_Source_network 0
+// #define PT_Source_bluetooth 1
+// #define PT_Source_USBDAC 2
+// #define PT_Source_linein 3
+// #define PT_Source_Optical 4
+// #define PT_Source_Coaxial 5
+// #define PT_Source_ERROR 99
+
+enum class enumSource : uint8_t {
+    Network = 0,
+    Bluetooth,
+    USBDAC,
+    LineIn,
+    Optical,
+    Coaxial,
+    Error = 99
+};
+
 class PowerAmpChannel : public OpenKNX::Channel
 {
 private:
@@ -13,17 +33,17 @@ private:
     // is enabled in ETS?
     bool _channelActive = false;
 
-    void setSource(uint sourcenumber);    // SRC
+    void setSource(enumSource sourcenumber);    // SRC
     void setSource(const String &source); // SRC
-                                          /*
-                                          {source} 	description
-                                          NET 	    network
-                                          BT 	    bluetooth
-                                          USBDAC 	USB DAC
-                                          LINE-IN 	line-in
-                                          OPT 	    Optical
-                                          COAX 	    Coaxial
-                                          */
+    /*
+    {source} 	description
+    NET 	    network
+    BT 	    bluetooth
+    USBDAC 	USB DAC
+    LINE-IN 	line-in
+    OPT 	    Optical
+    COAX 	    Coaxial
+    */
     void getSource(void);
 
     void playPause();                                // POP play or pause, available in network playback and bluetooth
@@ -44,13 +64,13 @@ private:
     void setVolume(int volume);
     void getVolume(void);
 
-    void setMute(int onoff);
-    int getMute(void); 
+    void setMute(bool onoff);
+    bool getMute(void);
 
     void getDeviceStatus(void); // get device status, available in network playback and bluetooth
 
-    void setAutoplay(int onoff); // AUTOPLAY[:{onoff}] set autoplay
-    int getAutoplay(void);
+    void setAutoplay(bool onoff); // AUTOPLAY[:{onoff}] set autoplay
+    bool getAutoplay(void);
 
     String getMetadataTitle(void);
     String getMetadataArtist(void);
@@ -59,8 +79,8 @@ private:
 
     //  Variablen für Lautstärke und Quelle
     int currentVolume = 0;
-    /*//uint icurrentSource = PT_Source_network;*/
-    uint icurrentSource = 0;
+    /*//uint currentSource = PT_Source_network;*/
+    enumSource currentSource = enumSource::Network;
     String string_currentSource = "NET";
     bool muteStatus = false; // Speichert den MUTE-Zustand
     bool beepEnabled = false;
@@ -85,7 +105,7 @@ private:
     void processReceivedUARTCommand(const String commandType, const String commandValue);
     void sendRawCommandToArylic(const String command);
     void processSTACommand(const String commandValue);
-    int sourceStringToInt(const String source);
+    enumSource sourceStringToInt(const String source);
 
     // // Interne Variablen
     // unsigned long _baud = 115200;
@@ -99,8 +119,8 @@ public:
     ~PowerAmpChannel();
 
     const std::string name() override;
-    void setup() override;
-    void loop() override;
+    void setup(bool configured) override;
+    void loop(bool configured) override;
     void processAfterStartupDelay();
     void processInputKo(GroupObject &ko) override;
 
