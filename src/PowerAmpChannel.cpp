@@ -178,12 +178,12 @@ void PowerAmpChannel::setup(bool configured)
 
 void PowerAmpChannel::sendRawCommandToArylic(const String command)
 {
-    mySerial->flush(); // Wartet, bis die Übertragung der ausgehenden seriellen Daten abgeschlossen ist.
-    mySerial->print(command + "\r\n");
     if (openknxPowerAmpModule.debug())
     {
-        logInfoP("[SEND] sendRawCommandToArylic %s", command);
+        logInfoP("[SEND] sendRawCommandToArylic: %s", command.c_str());
     }
+    mySerial->flush(); // Wartet, bis die Übertragung der ausgehenden seriellen Daten abgeschlossen ist.
+    mySerial->print(command + "\r\n");
 }
 
 void PowerAmpChannel::getDeviceStatus(void) // get device status, available in network playback and bluetooth
@@ -305,7 +305,10 @@ void PowerAmpChannel::setSource(enumSource sourcenumber) // SRC
             break;
         }
         default:
+        {
+            logDebugP("[ERROR] setSource: Unbekannter enumSource: %d", static_cast<int>(sourcenumber));
             break;
+        }
         }
             sendRawCommandToArylic("SRC:" + source + ";");
     }
@@ -375,24 +378,53 @@ void PowerAmpChannel::handleIncomingData(void)
 
         if (openknxPowerAmpModule.debug())
         {
-            logInfoP("handleIncomingData receivedData %s", receivedData);
+            // Rohdaten als Hex ausgeben
+            String hexString;
+            for (size_t i = 0; i < receivedData.length(); ++i) 
+            {
+                if (i > 0) hexString += " ";
+                char buf[4];
+                sprintf(buf, "%02X", (uint8_t)receivedData[i]);
+                hexString += buf;
+            }
+            logInfoP("handleIncomingData HEX: %s", hexString.c_str());
+            logInfoP("handleIncomingData receivedData: %s", receivedData.c_str());
         }
 
         receivedData.trim(); // Entfernt alle führenden und nachfolgenden Leerzeichen aus der aktuellen Zeichenfolge.
         if (openknxPowerAmpModule.debug())
         {
-            logInfoP("receivedData trimmed: %s", receivedData);
+            logInfoP("[RCV] handleIncomingData trimmed: %s", receivedData.c_str());
         }
         
-        int separatorIndex = receivedData.indexOf(':');
-        if (separatorIndex > 0 && separatorIndex < receivedData.length() - 1)
-        {
-            String commandType = receivedData.substring(0, separatorIndex);
-            String commandValue = receivedData.substring(separatorIndex + 1);
+        // if (receivedData.indexOf(';') != -1) // Nur verarbeiten, wenn ein ; enthalten ist
+        // {
+            int semicolonIndex = receivedData.indexOf(';');
+            String command = receivedData.substring(0, semicolonIndex);
+            command.trim();
 
-            // Daten auswerten
-            processReceivedUARTCommand(commandType, commandValue);
-        }
+            if (openknxPowerAmpModule.debug())
+            {
+                logInfoP("[RCV] handleIncomingData command (bis ;): %s", command.c_str());
+            }
+
+            int separatorIndex = command.indexOf(':');
+            if (separatorIndex > 0 && separatorIndex < command.length() - 1)
+            {
+                String commandType = command.substring(0, separatorIndex);
+                String commandValue = command.substring(separatorIndex + 1);
+
+                // Daten auswerten
+                processReceivedUARTCommand(commandType, commandValue);
+            }
+        // }
+        // else
+        // {
+        //     if (openknxPowerAmpModule.debug())
+        //     {
+        //         logInfoP("Kein Semikolon gefunden, Zeile wird ignoriert.");
+        //     }
+        // }
     }
 }
 
@@ -420,53 +452,77 @@ void PowerAmpChannel::processReceivedUARTCommand(const String commandType, const
 
     if (openknxPowerAmpModule.debug())
     {
-        logDebugP("processReceivedUARTCommand: commandType %s, commandValue %s", commandType, commandValue);
-    }   
+        logDebugP("[processReceivedUARTCommand] commandType: %s, commandValue: %s", commandType.c_str(), commandValue.c_str());
+    }
 
     // string currentSource;
     if (commandType == "SRC")
     {
         string_currentSource = commandValue;
         currentSource = sourceStringToInt(string_currentSource);
-        logDebugP("[INFO] Quelle aktualisiert: %s", string_currentSource);
-        logDebugP("[INFO] Quelle aktualisiert int: %d", currentSource);
+        if (openknxPowerAmpModule.debug())
+        {
+            logDebugP("[INFO] Quelle aktualisiert: %s", string_currentSource.c_str());
+            logDebugP("[INFO] Quelle aktualisiert int: %d", currentSource);
+        }
     }
     else if (commandType == "VOL")
     {
         currentVolume = commandValue.toInt();
-        logDebugP("[INFO] Lautstärke aktualisiert:  %d", currentVolume);
+        if (openknxPowerAmpModule.debug())
+        {
+            logDebugP("[INFO] Lautstärke aktualisiert:  %d", currentVolume);
+        }
     }
     else if (commandType == "MUT")
     {
         muteStatus = (bool)commandValue.toInt();
-        logDebugP("[INFO] Mute Status:  %d", muteStatus);
+        if (openknxPowerAmpModule.debug())
+        {
+            logDebugP("[INFO] Mute Status:  %d", muteStatus);
+        }
     }
     else if (commandType == "BAS")
     {
         currentBassTone = commandValue.toInt();
-        logDebugP("[INFO] Bass aktualisiert:  %d", currentBassTone);
+        if (openknxPowerAmpModule.debug())
+        {
+            logDebugP("[INFO] Bass aktualisiert:  %d", currentBassTone);
+        }
     }
     else if (commandType == "TRE")
     {
         currentTrebleTone = commandValue.toInt();
-        logDebugP("[INFO] Treble aktualisiert:  %d", currentTrebleTone);
+        if (openknxPowerAmpModule.debug())
+        {
+            logDebugP("[INFO] Treble aktualisiert:  %d", currentTrebleTone);
+        }
     }
     else if (commandType == "MID")
     {
         currentMidTone = commandValue.toInt();
-        logDebugP("[INFO] Mid aktualisiert:  %d", currentMidTone);
+        if (openknxPowerAmpModule.debug())
+        {
+            logDebugP("[INFO] Mid aktualisiert:  %d", currentMidTone);
+        }
     }
     else if (commandType == "LED")
     {
         if (commandValue == "1;")
         {
             ledStatus = true;
-            logDebugP("[INFO] LED ON");
+            if (openknxPowerAmpModule.debug())
+            {
+                logDebugP("[INFO] LED ON");
+            }
         }
         else if (commandValue == "0;")
         {
             ledStatus = false;
-            logDebugP("[INFO]LED OFF");
+            if (openknxPowerAmpModule.debug())
+            {
+                logDebugP("[INFO] LED OFF");
+            }
         }
     }
     else if (commandType == "BTC")
@@ -474,12 +530,18 @@ void PowerAmpChannel::processReceivedUARTCommand(const String commandType, const
         if (commandValue == "1;")
         {
             bluetoothConnected = true;
-            logDebugP("[INFO] Bluetooth Connected");
+            if (openknxPowerAmpModule.debug())
+            {
+                logDebugP("[INFO] Bluetooth Connected");
+            }
         }
         else if (commandValue == "0;")
         {
             bluetoothConnected = false;
-            logDebugP("[INFO] Bluetooth Disconnect");
+            if (openknxPowerAmpModule.debug())
+            {
+                logDebugP("[INFO] Bluetooth Disconnect");
+            }
         }
     }
     else if (commandType == "VBS")
@@ -487,12 +549,18 @@ void PowerAmpChannel::processReceivedUARTCommand(const String commandType, const
         if (commandValue == "1;")
         {
             virtualBassEnabled = true;
-            logDebugP("[INFO] virtualBass VBS ON");
+            if (openknxPowerAmpModule.debug())
+            {
+                logDebugP("[INFO] virtualBass VBS ON");
+            }
         }
         else if (commandValue == "0;")
         {
             virtualBassEnabled = false;
-            logDebugP("[INFO] virtualBass VBS OFF");
+            if (openknxPowerAmpModule.debug())
+            {
+                logDebugP("[INFO] virtualBass VBS OFF");
+            }
         }
     }
     else if (commandType == "BEP")
@@ -500,42 +568,63 @@ void PowerAmpChannel::processReceivedUARTCommand(const String commandType, const
         if (commandValue == "1;")
         {
             beepEnabled = true;
-            logDebugP("[INFO] BEEP ON");
+            if (openknxPowerAmpModule.debug())
+            {
+                logDebugP("[INFO] BEEP ON");
+            }
         }
         else if (commandValue == "0;")
         {
             beepEnabled = false;
-            logDebugP("[INFO] BEEP OFF");
+            if (openknxPowerAmpModule.debug())
+            {
+                logDebugP("[INFO] BEEP OFF");
+            }
         }
     }
     else if (commandType == "STA")
     {
         processSTACommand(commandValue);
-        logDebugP("commandValue: %s", commandValue);
+        if (openknxPowerAmpModule.debug())
+        {
+            logDebugP("commandValue: %s", commandValue.c_str());
+        }
     }
     else if (commandType == "APL")
     {
         autoplayStatus = (bool)commandValue.toInt();
-        logDebugP("[INFO] Autoplay Status:  %d", autoplayStatus);
+        if (openknxPowerAmpModule.debug())
+        {
+            logDebugP("[INFO] Autoplay Status:  %d", autoplayStatus);
+        }
     }
     else if (commandType == "TIT") //notification messages for song metadata title. 
     {
         songMetadataTitle = commandValue;
-        logDebugP("[INFO] Titel-Update empfangen: %s", commandValue);
+        if (openknxPowerAmpModule.debug())
+        {
+            logDebugP("[INFO] Titel-Update empfangen: %s", commandValue.c_str());
+        }
         KoAMP_ChsongMetadataTitle.valueNoSend(songMetadataTitle.c_str(), DPT_String_8859_1); // Update the KO with the title information:
         KoAMP_ChsongMetadataTitle.objectWritten(); // Mark the KO as written to send the update
     }
      else if (commandType == "ART") //notification messages for song metadata artist.
     {
         songMetadataArtist = commandValue;
-        logDebugP("[INFO] Künstler-Update empfangen: %s", commandValue);
+        if (openknxPowerAmpModule.debug())
+        {
+            logDebugP("[INFO] Künstler-Update empfangen: %s", commandValue.c_str());
+        }
         KoAMP_ChsongMetadataArtist.valueNoSend(songMetadataArtist.c_str(), DPT_String_8859_1); // Update the KO with the artist information
         KoAMP_ChsongMetadataArtist.objectWritten(); // Mark the KO as written to send the update
     }
     else if (commandType == "ALB") //notification messages for song metadata album.
     {
         songMetadataAlbum = commandValue;
-        logDebugP("[INFO] Album-Update empfangen: %s", commandValue);
+        if (openknxPowerAmpModule.debug())
+        {
+            logDebugP("[INFO] Album-Update empfangen: %s", commandValue.c_str());
+        }
         KoAMP_ChsongMetadataAlbum.valueNoSend(songMetadataAlbum.c_str(), DPT_String_8859_1); // Update the KO with the album information
         KoAMP_ChsongMetadataAlbum.objectWritten(); // Mark the KO as written to send the update
     }
@@ -544,13 +633,16 @@ void PowerAmpChannel::processReceivedUARTCommand(const String commandType, const
         songMetadataVendor = commandValue;
         //{vendor} will have the following value:
         //spotify qplay dlna airplay upnp phone usb tidal napster qobuz amazon tunein iheart vtuner http other
-        logDebugP("[INFO] Vendor-Update empfangen: %s", commandValue);
+        if (openknxPowerAmpModule.debug())
+        {
+            logDebugP("[INFO] Vendor-Update empfangen: %s", commandValue.c_str());
+        }
         KoAMP_ChsongMetadataVendor.valueNoSend(songMetadataVendor.c_str(), DPT_String_8859_1); // Update the KO with the vendor information
         KoAMP_ChsongMetadataVendor.objectWritten(); // Mark the KO as written to send the update
     }
     else
     {
-        logDebugP("[ERROR] Unbekanntes Kommando: %s", commandType);
+        logDebugP("[ERROR] Unbekanntes Kommando: %s", commandType.c_str());
     }
 }
 
@@ -577,7 +669,7 @@ void PowerAmpChannel::processSTACommand(const String commandValue)
     // Überprüfen, ob genügend Daten vorhanden sind
     if (statusParts.size() < 10)
     {
-        logDebugP("[ERROR] Ungültige STA-Daten: %s", commandValue);
+        logDebugP("[ERROR] Ungültige STA-Daten: %s", commandValue.c_str());
         return;
     }
 
@@ -586,7 +678,7 @@ void PowerAmpChannel::processSTACommand(const String commandValue)
     currentSource = sourceStringToInt(string_currentSource);
 
     muteStatus = statusParts[1].toInt();
-    currentVolume = statusParts[2].toInt();
+    currentVolume = constrain(statusParts[2].toInt(), 0, 100);
     currentTrebleTone = statusParts[3].toInt();
     currentBassTone = statusParts[4].toInt();
     netStatus = statusParts[5].toInt();
@@ -599,6 +691,6 @@ void PowerAmpChannel::processSTACommand(const String commandValue)
     if (openknxPowerAmpModule.debug())
     {
         logInfoP("[STA] Quelle: %s, Quelle int: %d, Mute: %d, Lautstärke: %d, Treble: %d, Bass: %d, Net: %d, Internet: %d, Playing: %d, LED: %d, Upgrading: %d",
-                 string_currentSource.c_str(), currentSource, muteStatus, currentVolume, currentTrebleTone, currentBassTone, netStatus, internetStatus, playingStatus, ledStatus, upgradingStatus);
+                 string_currentSource.c_str(), static_cast<int>(currentSource), muteStatus, currentVolume, currentTrebleTone, currentBassTone, netStatus, internetStatus, playingStatus, ledStatus, upgradingStatus);
     }
 }

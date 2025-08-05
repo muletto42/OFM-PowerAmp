@@ -70,19 +70,113 @@ void PowerAmpModule::processInputKo(GroupObject &iKo)
     logIndentDown();
 }
 
+void PowerAmpModule::showHelp()
+{
+    openknx.console.printHelpLine("amp debug", "enable/disable debug mode");
+    openknx.console.printHelpLine("N",  "N is the channel number");
+    openknx.console.printHelpLine("amp volume N [Value]",  "Set the volume level: eg: [amp volume 1 50] to set channel 1 to 50% volume");
+    openknx.console.printHelpLine("amp mute N [0/1]" ,    "Mute the audio output: eg: [amp mute 1 0] to unmute channel 1");
+}
+
 bool PowerAmpModule::processCommand(const std::string command, bool diagnose)
 {
-    if (!diagnose && command == "amp debug")
+    uint8_t value = 0;
+
+    if (command.substr(0, 3) == "amp")
     {
-        _debug = !_debug;
+        if (!diagnose && command == "amp debug")
+        {
+            _debug = !_debug;
+            logInfoP(_debug ? "AMP Debug enabled" : "AMP Debug disabled");
+            return true;
+        }
 
-        if (_debug)
-            logInfoP("AMP Debug enabled");
-        else
-            logInfoP("AMP Debug disabled");
+        // ---------- amp volume ----------
+        if (command.substr(0, 11) == "amp volume ")
+        {
+            if (command.length() < 14 || command.length() > 16)
+            {
+                logInfoP("amp volume command with bad args");
+                return true;
+            }
 
-        return true;
+            const uint16_t channelIdx = std::stoi(command.substr(12, 1)) - 1;
+
+            if (channelIdx >= OPENKNX_SWA_CHANNEL_COUNT)
+            {
+                logInfoP("channel index out of range");
+                return true;
+            }
+
+            if (command.length() == 14)
+                value = std::stoi(command.substr(14, 1));
+            else if (command.length() == 15)
+                value = std::stoi(command.substr(14, 2));
+            else if (command.length() == 16)
+            {
+                value = std::stoi(command.substr(14, 3));
+                if (value != 100)
+                {
+                    logInfoP("Invalid volume value, must be 0-100");
+                    return true;
+                }
+            }
+
+            if (value > 100)
+            {
+                logInfoP("Volume value out of range (0-100)");
+                return true;
+            }
+
+            if (channel[channelIdx] == nullptr)
+            {
+                logInfoP("Channel %d not initialized", channelIdx + 1);
+                return true;
+            }
+
+            channel[channelIdx]->setVolume(value);
+            logInfoP("Set volume of channel %d to %d", channelIdx + 1, value);
+
+            return true;
+        }
+
+        // ---------- amp mute ----------
+        if (command.substr(0, 9) == "amp mute ")
+        {
+            if (command.length() != 12) // z.B. "amp mute 1 1"
+            {
+                logInfoP("amp mute command with bad args");
+                return true;
+            }
+
+            const uint16_t channelIdx = std::stoi(command.substr(9, 1)) - 1;
+            const uint8_t muteValue = std::stoi(command.substr(11, 1));
+
+            if (channelIdx >= OPENKNX_SWA_CHANNEL_COUNT)
+            {
+                logInfoP("channel index out of range");
+                return true;
+            }
+
+            if (muteValue != 0 && muteValue != 1)
+            {
+                logInfoP("Mute value must be 0 or 1");
+                return true;
+            }
+
+            if (channel[channelIdx] == nullptr)
+            {
+                logInfoP("Channel %d not initialized", channelIdx + 1);
+                return true;
+            }
+
+            channel[channelIdx]->setMute(muteValue);
+            logInfoP("Set mute of channel %d to %s", channelIdx + 1, muteValue ? "ON" : "OFF");
+
+            return true;
+        }
     }
+
     return false;
 }
 

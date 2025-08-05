@@ -61,11 +61,7 @@ private:
     SEQUENCE 	    stop when reach end of playlist
     */
 
-    void setVolume(int volume);
-    void getVolume(void);
 
-    void setMute(bool onoff);
-    bool getMute(void);
 
     void getDeviceStatus(void); // get device status, available in network playback and bluetooth
 
@@ -123,6 +119,11 @@ public:
     void loop(bool configured) override;
     void processAfterStartupDelay();
     void processInputKo(GroupObject &ko) override;
+
+    void setVolume(int volume);
+    void getVolume(void);
+    void setMute(bool onoff);
+    bool getMute(void);
 
     void save();
     void restore();

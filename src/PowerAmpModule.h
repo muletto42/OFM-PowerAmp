@@ -26,6 +26,7 @@ class PowerAmpModule : public OpenKNX::Module
     PowerAmpModule();
     ~PowerAmpModule();
     void processInputKo(GroupObject &ko) override;
+    void showHelp() override;
     bool processCommand(const std::string command, bool diagnose) override;
     bool debug();
     void loop(bool configured);
