@@ -38,18 +38,25 @@ const std::string PowerAmpModule::version()
     return MODULE_PowerAmp_Version;
 }
 
-void PowerAmpModule::loop(bool configured)
+void PowerAmpModule::loop()
 {
     for (uint8_t i = 0; i < MIN(ParamAMP_VisibleChannels, OPENKNX_AMP_CHANNEL_COUNT); i++)
-        channel[i]->loop(configured);
+    {
+        channel[i]->loop();
+    }
 }
 
-void PowerAmpModule::setup(bool configured)
+void PowerAmpModule::setup()
 {
-    for (uint8_t i = 0; i < OPENKNX_AMP_CHANNEL_COUNT; i++)
+    // Number of available channels is the minimum of configured and available channels
+    NumChannels = MIN(ParamAMP_VisibleChannels, OPENKNX_AMP_CHANNEL_COUNT);
+    
+for (uint8_t i = 0; i < OPENKNX_AMP_CHANNEL_COUNT; i++)
+   // for (uint8_t i = 0; i < NumChannels; i++)
     {
         channel[i] = new PowerAmpChannel(i);
-        channel[i]->setup(configured);
+        channel[i]->setup();
+        logDebugP("setup channel[ %i ]", i);
     }
 }
 
@@ -61,11 +68,18 @@ void PowerAmpModule::processInputKo(GroupObject &iKo)
     //      iKo.asap() > SWA_KoBlockOffset + ParamSWA_VisibleChannels * SWA_KoBlockSize - 1))
     //     return;
 
-    logDebugP("processInputKo");
+    logDebugP("processInputKoModule");
+    logDebugP("ParamAMP_VisibleChannels %i", ParamAMP_VisibleChannels);
     logIndentUp();
 
     for (uint8_t i = 0; i < MIN(ParamAMP_VisibleChannels, OPENKNX_AMP_CHANNEL_COUNT); i++)
+    {
         channel[i]->processInputKo(iKo);
+        logDebugP("channel[ %i ]", i);
+    }
+        
+
+                // channel[0]->processInputKo(iKo);
 
     logIndentDown();
 }
@@ -87,7 +101,7 @@ bool PowerAmpModule::processCommand(const std::string command, bool diagnose)
         if (!diagnose && command == "amp debug")
         {
             _debug = !_debug;
-            logInfoP(_debug ? "AMP Debug enabled" : "AMP Debug disabled");
+            logDebugP(_debug ? "AMP Debug enabled" : "AMP Debug disabled");
             return true;
         }
 
@@ -96,7 +110,7 @@ bool PowerAmpModule::processCommand(const std::string command, bool diagnose)
         {
             if (command.length() < 14 || command.length() > 16)
             {
-                logInfoP("amp volume command with bad args");
+                logDebugP("amp volume command with bad args");
                 return true;
             }
 
@@ -104,7 +118,7 @@ bool PowerAmpModule::processCommand(const std::string command, bool diagnose)
 
             if (channelIdx >= OPENKNX_SWA_CHANNEL_COUNT)
             {
-                logInfoP("channel index out of range");
+                logDebugP("channel index out of range");
                 return true;
             }
 
@@ -117,25 +131,25 @@ bool PowerAmpModule::processCommand(const std::string command, bool diagnose)
                 value = std::stoi(command.substr(14, 3));
                 if (value != 100)
                 {
-                    logInfoP("Invalid volume value, must be 0-100");
+                    logDebugP("Invalid volume value, must be 0-100");
                     return true;
                 }
             }
 
             if (value > 100)
             {
-                logInfoP("Volume value out of range (0-100)");
+                logDebugP("Volume value out of range (0-100)");
                 return true;
             }
 
             if (channel[channelIdx] == nullptr)
             {
-                logInfoP("Channel %d not initialized", channelIdx + 1);
+                logDebugP("Channel %d not initialized", channelIdx + 1);
                 return true;
             }
 
             channel[channelIdx]->setVolume(value);
-            logInfoP("Set volume of channel %d to %d", channelIdx + 1, value);
+            logDebugP("Set volume of channel %d to %d", channelIdx + 1, value);
 
             return true;
         }
@@ -145,7 +159,7 @@ bool PowerAmpModule::processCommand(const std::string command, bool diagnose)
         {
             if (command.length() != 12) // z.B. "amp mute 1 1"
             {
-                logInfoP("amp mute command with bad args");
+                logDebugP("amp mute command with bad args");
                 return true;
             }
 
@@ -154,24 +168,24 @@ bool PowerAmpModule::processCommand(const std::string command, bool diagnose)
 
             if (channelIdx >= OPENKNX_SWA_CHANNEL_COUNT)
             {
-                logInfoP("channel index out of range");
+                logDebugP("channel index out of range");
                 return true;
             }
 
             if (muteValue != 0 && muteValue != 1)
             {
-                logInfoP("Mute value must be 0 or 1");
+                logDebugP("Mute value must be 0 or 1");
                 return true;
             }
 
             if (channel[channelIdx] == nullptr)
             {
-                logInfoP("Channel %d not initialized", channelIdx + 1);
+                logDebugP("Channel %d not initialized", channelIdx + 1);
                 return true;
             }
 
             channel[channelIdx]->setMute(muteValue);
-            logInfoP("Set mute of channel %d to %s", channelIdx + 1, muteValue ? "ON" : "OFF");
+            logDebugP("Set mute of channel %d to %s", channelIdx + 1, muteValue ? "ON" : "OFF");
 
             return true;
         }

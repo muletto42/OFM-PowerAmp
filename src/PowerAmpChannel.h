@@ -115,8 +115,8 @@ public:
     ~PowerAmpChannel();
 
     const std::string name() override;
-    void setup(bool configured) override;
-    void loop(bool configured) override;
+    void setup() override;
+    void loop() override;
     void processAfterStartupDelay();
     void processInputKo(GroupObject &ko) override;
 
@@ -127,4 +127,5 @@ public:
 
     void save();
     void restore();
+    bool isActive();
 };

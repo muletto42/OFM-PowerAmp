@@ -41,7 +41,7 @@ void PowerAmpChannel::processInputKo(GroupObject &iKo)
 {
     if (ParamAMP_ChActive != 1)
     {
-        logTraceP("processInputKo: channel not active (%u)", ParamAMP_ChActive);
+        logDebugP("processInputKo: channel not active");
         return;
     }
 
@@ -51,7 +51,13 @@ void PowerAmpChannel::processInputKo(GroupObject &iKo)
         logIndentUp();
     }   
 
+
+
     
+
+
+
+
     
     // uint16_t lAsap = iKo.asap();
     // switch (lAsap)
@@ -66,11 +72,13 @@ void PowerAmpChannel::processInputKo(GroupObject &iKo)
     //         }
     //         break;
     // }
+    logDebugP("AMP_KoCalcIndex %i", AMP_KoCalcIndex(iKo.asap()));
 
     switch (AMP_KoCalcIndex(iKo.asap()))
     {
         case AMP_Kovolume_inc: // Increase ++
         {
+            logDebugP("processInputKo: volume_inc");
             if (KoAMP_volume_inc.value(DPT_Step))
             {
                 currentVolume++;
@@ -80,6 +88,7 @@ void PowerAmpChannel::processInputKo(GroupObject &iKo)
         }
         case AMP_Kovolume_dec: // Decrease --
         {
+            logDebugP("processInputKo: volume_dec");
             if (KoAMP_volume_dec.value(DPT_Step))
             {
                 currentVolume--;
@@ -89,18 +98,21 @@ void PowerAmpChannel::processInputKo(GroupObject &iKo)
         }
         case AMP_Kovolume_value: // SET
         {
+            logDebugP("processInputKo: volume_set");
             currentVolume = (u_int8_t)KoAMP_volume_value.value(DPT_Scaling);
             setVolume(currentVolume);
             break;
         }
         case AMP_Komute_onoff:
         {
+            logDebugP("processInputKo: mute_onoff");
             muteStatus = KoAMP_mute_onoff.value(DPT_Switch);
             setMute(muteStatus);
             break;
         }
         case AMP_KoPlayPause:
         {
+            logDebugP("processInputKo: play_pause");
             playPause();
             break;
         }
@@ -111,16 +123,19 @@ void PowerAmpChannel::processInputKo(GroupObject &iKo)
         }
         case AMP_KoNext:
         {
+            logDebugP("processInputKo: next");
             next();
             break;
         }
         case AMP_KoPrev:
         {
+            logDebugP("processInputKo: previous");
             previous();
             break;
         }
         case AMP_Kosource:
         {
+            logDebugP("processInputKo: source");
             uint8_t srcVal = KoAMP_source.value(DPT_Value_1_Ucount); // Wert als uint8_t holen
             enumSource currentSource = static_cast<enumSource>(srcVal);
             setSource(currentSource);
@@ -133,8 +148,12 @@ void PowerAmpChannel::processInputKo(GroupObject &iKo)
     } 
 }
 
-void PowerAmpChannel::loop(bool configured)
+void PowerAmpChannel::loop()
 {
+    // if (!AMP_ChActive)
+    // {
+    //     return;
+    // }
     handleIncomingData();
     static unsigned long lastMillis = 0; // Speichert den letzten Zeitpunkt
     unsigned long currentMillis = millis(); // Aktuelle Zeit in Millisekunden
@@ -147,8 +166,14 @@ void PowerAmpChannel::loop(bool configured)
     }
 }
 
-void PowerAmpChannel::setup(bool configured)
+void PowerAmpChannel::setup()
 {
+    // if (!AMP_ChActive)
+    //     return;
+
+    // Debug
+    logDebugP("paramActive: %i", AMP_ChActive);
+
     if (_channelIndex == 1)
     {
         mySerial = &AMP_HARDWARE_SERIAL;
@@ -157,7 +182,7 @@ void PowerAmpChannel::setup(bool configured)
         AMP_HARDWARE_SERIAL.begin(BAUD_ARLYIC);
         if (openknxPowerAmpModule.debug())
         {
-            logInfoP("PowerAmpChannel setup: HardwareSerial RX Pin %d, TX Pin %d", SERIAL_RXPINS[_channelIndex], SERIAL_TXPINS[_channelIndex]);
+            logDebugP("PowerAmpChannel setup: HardwareSerial RX Pin %d, TX Pin %d", SERIAL_RXPINS[_channelIndex], SERIAL_TXPINS[_channelIndex]);
         }
     }
     else
@@ -180,7 +205,7 @@ void PowerAmpChannel::sendRawCommandToArylic(const String command)
 {
     if (openknxPowerAmpModule.debug())
     {
-        logInfoP("[SEND] sendRawCommandToArylic: %s", command.c_str());
+        logDebugP("[SEND] sendRawCommandToArylic: %s", command.c_str());
     }
     mySerial->flush(); // Wartet, bis die Übertragung der ausgehenden seriellen Daten abgeschlossen ist.
     mySerial->print(command + "\r\n");
@@ -188,10 +213,10 @@ void PowerAmpChannel::sendRawCommandToArylic(const String command)
 
 void PowerAmpChannel::getDeviceStatus(void) // get device status, available in network playback and bluetooth
 {
-    if (openknxPowerAmpModule.debug())
-    {
-        logInfoP("[SEND] getDeviceStatusfromArylic");
-    }
+    //if (openknxPowerAmpModule.debug())
+    //{
+        logDebugP("[SEND] getDeviceStatusfromArylic STA");
+    //}
     sendRawCommandToArylic("STA;");
     /*
     Device status summary, and the response message {states} will
@@ -204,7 +229,7 @@ void PowerAmpChannel::getVolume() // get volume, available in network playback a
 {
     if (openknxPowerAmpModule.debug())
     {
-        logInfoP("[SEND] getVolume from Arylic");
+        logDebugP("[SEND] getVolume from Arylic");
     }
     sendRawCommandToArylic("VOL;");
 }
@@ -212,7 +237,7 @@ void PowerAmpChannel::getSource() // get source, available in network playback a
 {
     if (openknxPowerAmpModule.debug())
     {
-        logInfoP("[SEND] getSource from Arylic");
+        logDebugP("[SEND] getSource from Arylic");
     }
     sendRawCommandToArylic("SRC;");
 }
@@ -260,7 +285,7 @@ void PowerAmpChannel::setVolume(int volume)
     volume = constrain(volume, 0, 100);
     if (openknxPowerAmpModule.debug())
     {
-        logInfoP("setVolume: channel %u, volume %d", _channelIndex, volume);
+        logDebugP("setVolume: channel %u, volume %d", _channelIndex, volume);
     }
     sendRawCommandToArylic("VOL:" + String(volume) + ";");
 }
@@ -269,7 +294,7 @@ void PowerAmpChannel::setSource(enumSource sourcenumber) // SRC
 {
     if (openknxPowerAmpModule.debug())
     {
-        logInfoP("[setSource] sourcenumber: %d", static_cast<uint8_t>(sourcenumber));
+        logDebugP("[setSource] sourcenumber: %d", static_cast<uint8_t>(sourcenumber));
     }
 
     String source = " ";
@@ -325,7 +350,7 @@ void PowerAmpChannel::setMute(bool onoff)
 {
     if (openknxPowerAmpModule.debug())
     {
-        logInfoP("[setMute] MuteMode: %d", muteStatus);
+        logDebugP("[setMute] MuteMode: %d", muteStatus);
     }
     sendRawCommandToArylic("MUT:" + String(onoff) + ";");
 }
@@ -334,7 +359,7 @@ bool PowerAmpChannel::getMute(void)
 {
     if (openknxPowerAmpModule.debug())
     {
-        logInfoP("[getMute] MuteMode: %d", muteStatus);
+        logDebugP("[getMute] MuteMode: %d", muteStatus);
     }
     return muteStatus; // Gibt den aktuellen Mute-Status zurück
 }
@@ -387,14 +412,14 @@ void PowerAmpChannel::handleIncomingData(void)
                 sprintf(buf, "%02X", (uint8_t)receivedData[i]);
                 hexString += buf;
             }
-            logInfoP("handleIncomingData HEX: %s", hexString.c_str());
-            logInfoP("handleIncomingData receivedData: %s", receivedData.c_str());
+            logDebugP("handleIncomingData HEX: %s", hexString.c_str());
+            logDebugP("handleIncomingData receivedData: %s", receivedData.c_str());
         }
 
         receivedData.trim(); // Entfernt alle führenden und nachfolgenden Leerzeichen aus der aktuellen Zeichenfolge.
         if (openknxPowerAmpModule.debug())
         {
-            logInfoP("[RCV] handleIncomingData trimmed: %s", receivedData.c_str());
+            logDebugP("[RCV] handleIncomingData trimmed: %s", receivedData.c_str());
         }
         
         // if (receivedData.indexOf(';') != -1) // Nur verarbeiten, wenn ein ; enthalten ist
@@ -405,7 +430,7 @@ void PowerAmpChannel::handleIncomingData(void)
 
             if (openknxPowerAmpModule.debug())
             {
-                logInfoP("[RCV] handleIncomingData command (bis ;): %s", command.c_str());
+                logDebugP("[RCV] handleIncomingData command (bis ;): %s", command.c_str());
             }
 
             int separatorIndex = command.indexOf(':');
@@ -422,7 +447,7 @@ void PowerAmpChannel::handleIncomingData(void)
         // {
         //     if (openknxPowerAmpModule.debug())
         //     {
-        //         logInfoP("Kein Semikolon gefunden, Zeile wird ignoriert.");
+        //         logDebugP("Kein Semikolon gefunden, Zeile wird ignoriert.");
         //     }
         // }
     }
@@ -690,7 +715,12 @@ void PowerAmpChannel::processSTACommand(const String commandValue)
     // Debug-Ausgabe
     if (openknxPowerAmpModule.debug())
     {
-        logInfoP("[STA] Quelle: %s, Quelle int: %d, Mute: %d, Lautstärke: %d, Treble: %d, Bass: %d, Net: %d, Internet: %d, Playing: %d, LED: %d, Upgrading: %d",
+        logDebugP("[STA] Quelle: %s, Quelle int: %d, Mute: %d, Lautstärke: %d, Treble: %d, Bass: %d, Net: %d, Internet: %d, Playing: %d, LED: %d, Upgrading: %d",
                  string_currentSource.c_str(), static_cast<int>(currentSource), muteStatus, currentVolume, currentTrebleTone, currentBassTone, netStatus, internetStatus, playingStatus, ledStatus, upgradingStatus);
     }
+}
+
+bool PowerAmpChannel::isActive()
+{
+    return ParamAMP_ChActive; // Gibt den Aktivitätsstatus des Kanals zurück
 }

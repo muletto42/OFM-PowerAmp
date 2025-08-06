@@ -24,11 +24,12 @@
                 <Parameter Id="%AID%_UP-%TT%%CC%002" Name="Ch%C%Active" ParameterType="%AID%_PT-AMPChannelActive" Offset="0" BitOffset="0" Text="Kanalaktivität" Value="0" />
               </Union>
 
-              <Union SizeInBit="8">
+              <!--Szene-->
+              <!-- <Union SizeInBit="8">
                 <Memory CodeSegment="%AID%_RS-04-00000" Offset="0" BitOffset="0" />
                 <Parameter Id="%AID%_UP-%TT%%CC%018" Name="Ch%C%ScenesActive" ParameterType="%AID%_PT-OnOffYesNo" Offset="0" BitOffset="0" Text="Szenen aktivieren" Value="0" />
                 <Parameter Id="%AID%_UP-%TT%%CC%025" Name="Ch%C%SceneLearn" ParameterType="%AID%_PT-OnOffYesNo" Offset="0" BitOffset="1" Text="Szene lernen" Value="0" Access="None" />
-              </Union>
+              </Union> -->
 
               <Parameter Id="%AID%_P-%TT%%CC%010" Name="%C%Source" ParameterType="%AID%_PT-Source" Text="Quelle" Value="0">
                 <Memory CodeSegment="%AID%_RS-04-00000" Offset="0" BitOffset="0" />
@@ -42,9 +43,10 @@
               <Parameter Id="%AID%_P-%TT%%CC%008" Name="%C%mute" ParameterType="%AID%_PT-mute" Text="Mute" Value="0">
                 <Memory CodeSegment="%AID%_RS-04-00000" Offset="0" BitOffset="0" />
               </Parameter>
-              <Parameter Id="%AID%_P-%TT%%CC%006" Name="%C%Scenes" ParameterType="%AID%_PT-OnOffYesNo" Text="Szenen" Value="0" >
+              <!--Szene-->
+              <!-- <Parameter Id="%AID%_P-%TT%%CC%006" Name="%C%Scenes" ParameterType="%AID%_PT-OnOffYesNo" Text="Szenen" Value="0" >
               <Memory CodeSegment="%AID%_RS-04-00000" Offset="0" BitOffset="0" />
-              </Parameter>
+              </Parameter> -->
               <Parameter Id="%AID%_P-%TT%%CC%007" Name="%C%DayNight" ParameterType="%AID%_PT-DayNight" Text="Tag/Nacht-Objekt" Value="0" >
                 <Memory CodeSegment="%AID%_RS-04-00000" Offset="0" BitOffset="0" />
               </Parameter>
@@ -61,14 +63,15 @@
               <ParameterRef Id="%AID%_P-%TT%%CC%003_R-%TT%%CC%00301" RefId="%AID%_P-%TT%%CC%003" Text="Lautstärke (Nacht)" />
               <ParameterRef Id="%AID%_P-%TT%%CC%008_R-%TT%%CC%00801" RefId="%AID%_P-%TT%%CC%008" />
               <!-- <ParameterRef Id="%AID%_P-%TT%%CC%005_R-%TT%0000501" RefId="%AID%_P-%TT%%CC%005" /> -->
-              <ParameterRef Id="%AID%_P-%TT%%CC%006_R-%TT%%CC%00601" RefId="%AID%_P-%TT%%CC%006" />
+              <!-- <ParameterRef Id="%AID%_P-%TT%%CC%006_R-%TT%%CC%00601" RefId="%AID%_P-%TT%%CC%006" /> -->
               <ParameterRef Id="%AID%_P-%TT%%CC%007_R-%TT%%CC%00701" RefId="%AID%_P-%TT%%CC%007" />
               <!-- <ParameterRef Id="%AID%_P-%TT%%CC%008_R-%TT%%CC%00801" RefId="%AID%_P-%TT%%CC%008" /> -->
               <ParameterRef Id="%AID%_P-%TT%%CC%009_R-%TT%%CC%00901" RefId="%AID%_P-%TT%%CC%009" />
               
               <ParameterRef Id="%AID%_UP-%TT%%CC%002_R-%TT%%CC%00201" RefId="%AID%_UP-%TT%%CC%002" />
 
-              <ParameterRef Id="%AID%_UP-%TT%%CC%018_R-%TT%%CC%01801" RefId="%AID%_UP-%TT%%CC%018" /> <!--Szene-->
+              <!--Szene-->
+              <!-- <ParameterRef Id="%AID%_UP-%TT%%CC%018_R-%TT%%CC%01801" RefId="%AID%_UP-%TT%%CC%018" />  -->
             </ParameterRefs>
 
             <ComObjectTable>

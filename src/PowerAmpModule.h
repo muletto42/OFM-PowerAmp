@@ -29,13 +29,14 @@ class PowerAmpModule : public OpenKNX::Module
     void showHelp() override;
     bool processCommand(const std::string command, bool diagnose) override;
     bool debug();
-    void loop(bool configured);
-    void setup(bool configured);
+    void loop();
+    void setup();
     const std::string name() override;
     const std::string version() override;
            
   private:
     PowerAmpChannel *channel[OPENKNX_AMP_CHANNEL_COUNT];
+    uint8_t NumChannels; // Number of channels defined in knxprod
 };
 
 extern PowerAmpModule openknxPowerAmpModule;
