@@ -51,13 +51,6 @@ void PowerAmpChannel::processInputKo(GroupObject &iKo)
         logIndentUp();
     }   
 
-
-
-    
-
-
-
-
     
     // uint16_t lAsap = iKo.asap();
     // switch (lAsap)
@@ -172,7 +165,7 @@ void PowerAmpChannel::setup()
     //     return;
 
     // Debug
-    logDebugP("paramActive: %i", AMP_ChActive);
+    logInfoP("paramActive: %i", AMP_ChActive);
 
     if (_channelIndex == 1)
     {
@@ -180,13 +173,16 @@ void PowerAmpChannel::setup()
         AMP_HARDWARE_SERIAL.setRX(SERIAL_RXPINS[_channelIndex]);
         AMP_HARDWARE_SERIAL.setTX(SERIAL_TXPINS[_channelIndex]);
         AMP_HARDWARE_SERIAL.begin(BAUD_ARLYIC);
-        if (openknxPowerAmpModule.debug())
-        {
-            logDebugP("PowerAmpChannel setup: HardwareSerial RX Pin %d, TX Pin %d", SERIAL_RXPINS[_channelIndex], SERIAL_TXPINS[_channelIndex]);
-        }
+
+        logInfoP("PowerAmpChannel setup: HardwareSerial RX Pin %d, TX Pin %d", SERIAL_RXPINS[_channelIndex], SERIAL_TXPINS[_channelIndex]);
+        
     }
     else
     {
+        // den ersten hätte ich gerne immer daher erst hier:
+        // if (!AMP_ChActive)
+        //      return;
+
         if (mySWSerial)
         {
             delete mySWSerial;
@@ -194,10 +190,8 @@ void PowerAmpChannel::setup()
         mySWSerial = new SoftwareSerial(SERIAL_RXPINS[_channelIndex], SERIAL_TXPINS[_channelIndex]);
         mySWSerial->begin(BAUD_ARLYIC);
         mySerial = mySWSerial;
-        if (openknxPowerAmpModule.debug())
-        {
-            logDebugP("PowerAmpChannel setup: SoftwareSerial RX Pin %d, TX Pin %d", SERIAL_RXPINS[_channelIndex], SERIAL_TXPINS[_channelIndex]);
-        }
+        logInfoP("PowerAmpChannel setup: SoftwareSerial RX Pin %d, TX Pin %d", SERIAL_RXPINS[_channelIndex], SERIAL_TXPINS[_channelIndex]);
+    
     }
 }
 
@@ -213,10 +207,7 @@ void PowerAmpChannel::sendRawCommandToArylic(const String command)
 
 void PowerAmpChannel::getDeviceStatus(void) // get device status, available in network playback and bluetooth
 {
-    //if (openknxPowerAmpModule.debug())
-    //{
-        logDebugP("[SEND] getDeviceStatusfromArylic STA");
-    //}
+    logDebugP("[SEND] getDeviceStatusfromArylic STA");
     sendRawCommandToArylic("STA;");
     /*
     Device status summary, and the response message {states} will
@@ -439,9 +430,19 @@ void PowerAmpChannel::handleIncomingData(void)
                 String commandType = command.substring(0, separatorIndex);
                 String commandValue = command.substring(separatorIndex + 1);
 
+                if (openknxPowerAmpModule.debug())
+                {
+                    logIndentUp();
+                }
+
                 // Daten auswerten
                 processReceivedUARTCommand(commandType, commandValue);
+                if (openknxPowerAmpModule.debug())
+                {
+                    logIndentDown();
+                }
             }
+
         // }
         // else
         // {

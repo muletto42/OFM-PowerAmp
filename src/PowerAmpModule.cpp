@@ -38,6 +38,7 @@ const std::string PowerAmpModule::version()
     return MODULE_PowerAmp_Version;
 }
 
+
 void PowerAmpModule::loop()
 {
     for (uint8_t i = 0; i < MIN(ParamAMP_VisibleChannels, OPENKNX_AMP_CHANNEL_COUNT); i++)
@@ -51,8 +52,8 @@ void PowerAmpModule::setup()
     // Number of available channels is the minimum of configured and available channels
     NumChannels = MIN(ParamAMP_VisibleChannels, OPENKNX_AMP_CHANNEL_COUNT);
     
-for (uint8_t i = 0; i < OPENKNX_AMP_CHANNEL_COUNT; i++)
-   // for (uint8_t i = 0; i < NumChannels; i++)
+
+    for (uint8_t i = 0; i < NumChannels; i++)
     {
         channel[i] = new PowerAmpChannel(i);
         channel[i]->setup();
@@ -77,10 +78,6 @@ void PowerAmpModule::processInputKo(GroupObject &iKo)
         channel[i]->processInputKo(iKo);
         logDebugP("channel[ %i ]", i);
     }
-        
-
-                // channel[0]->processInputKo(iKo);
-
     logIndentDown();
 }
 
@@ -108,6 +105,7 @@ bool PowerAmpModule::processCommand(const std::string command, bool diagnose)
         // ---------- amp volume ----------
         if (command.substr(0, 11) == "amp volume ")
         {
+            logDebugP("amp volume Befehl");
             if (command.length() < 14 || command.length() > 16)
             {
                 logDebugP("amp volume command with bad args");
@@ -135,6 +133,11 @@ bool PowerAmpModule::processCommand(const std::string command, bool diagnose)
                     return true;
                 }
             }
+            else
+            {
+                logDebugP("Länge falsch hat %i ", command.length());
+                return true;    
+            }
 
             if (value > 100)
             {
@@ -147,9 +150,11 @@ bool PowerAmpModule::processCommand(const std::string command, bool diagnose)
                 logDebugP("Channel %d not initialized", channelIdx + 1);
                 return true;
             }
-
-            channel[channelIdx]->setVolume(value);
-            logDebugP("Set volume of channel %d to %d", channelIdx + 1, value);
+            else
+            {
+                channel[channelIdx]->setVolume(value);
+                logDebugP("Set volume of channel %d to %d", channelIdx + 1, value);
+            }
 
             return true;
         }
