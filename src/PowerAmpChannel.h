@@ -50,7 +50,7 @@ private:
     void stop();                                     // STP stop, available only in network playback
     void next();                                     // NXT next track, available in network playback and bluetooth
     void previous();                                 // PRE previous track, available in network playback and bluetooth
-    void playPreset(int presetNum);                  // start to play preset playlist
+    void playPreset(uint8_t presetNum);                  // start to play preset playlist
     void setLoopShuffleMode(const String &loopmode); // LPM[:{loopmode}]   set/get loop and shuffle mode, available in network playback.
     /*
     {loopmode} 	    description
@@ -74,7 +74,7 @@ private:
     String getMetadataVendor(void);
 
     //  Variablen für Lautstärke und Quelle
-    int currentVolume = 0;
+    uint8_t currentVolume = 0;
     /*//uint currentSource = PT_Source_network;*/
     enumSource currentSource = enumSource::Network;
     String string_currentSource = "NET";
@@ -82,9 +82,9 @@ private:
     bool beepEnabled = false;
     bool virtualBassEnabled = false;
     bool bluetoothConnected = false;
-    int currentBassTone = 0;
-    int currentTrebleTone = 0;
-    int currentMidTone = 0;
+    uint8_t currentBassTone = 0;
+    uint8_t currentTrebleTone = 0;
+    uint8_t currentMidTone = 0;
     bool netStatus = false;
     bool internetStatus = false;
     bool playingStatus = false;
@@ -103,6 +103,8 @@ private:
     void processSTACommand(const String commandValue);
     enumSource sourceStringToInt(const String source);
 
+    void sendVolumeStatusKO(uint8_t Value);
+
     // // Interne Variablen
     // unsigned long _baud = 115200;
     // int _txPin = ARYLIC_TX_PIN;
@@ -120,7 +122,7 @@ public:
     void processAfterStartupDelay();
     void processInputKo(GroupObject &ko) override;
 
-    void setVolume(int volume);
+    void setVolume(uint8_t volume);
     void getVolume(void);
     void setMute(bool onoff);
     bool getMute(void);

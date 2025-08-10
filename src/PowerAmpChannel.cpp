@@ -266,12 +266,12 @@ void PowerAmpChannel::previous() // PRE previous track
     sendRawCommandToArylic("PRE;");
 }
 
-void PowerAmpChannel::playPreset(int presetNum) // start to play preset playlist
+void PowerAmpChannel::playPreset(uint8_t presetNum) // start to play preset playlist
 {
     sendRawCommandToArylic("PST:" + String(presetNum) + ";");
 }
 
-void PowerAmpChannel::setVolume(int volume)
+void PowerAmpChannel::setVolume(uint8_t volume)
 {
     volume = constrain(volume, 0, 100);
     if (openknxPowerAmpModule.debug())
@@ -719,9 +719,16 @@ void PowerAmpChannel::processSTACommand(const String commandValue)
         logDebugP("[STA] Quelle: %s, Quelle int: %d, Mute: %d, Lautstärke: %d, Treble: %d, Bass: %d, Net: %d, Internet: %d, Playing: %d, LED: %d, Upgrading: %d",
                  string_currentSource.c_str(), static_cast<int>(currentSource), muteStatus, currentVolume, currentTrebleTone, currentBassTone, netStatus, internetStatus, playingStatus, ledStatus, upgradingStatus);
     }
+
+    sendVolumeStatusKO(currentVolume);
 }
 
 bool PowerAmpChannel::isActive()
 {
     return ParamAMP_ChActive; // Gibt den Aktivitätsstatus des Kanals zurück
+}
+
+void sendVolumeStatusKO(uint8_t Value)
+{
+    KoAMP_volume_Status.valueSend(Value, DPT_Scaling);
 }

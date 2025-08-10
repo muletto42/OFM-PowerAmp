@@ -32,26 +32,26 @@
               </Union> -->
 
               <Parameter Id="%AID%_P-%TT%%CC%010" Name="%C%Source" ParameterType="%AID%_PT-Source" Text="Quelle" Value="0">
-                <Memory CodeSegment="%AID%_RS-04-00000" Offset="0" BitOffset="0" />
+                <Memory CodeSegment="%AID%_RS-04-00000" Offset="1" BitOffset="0" />
               </Parameter>
               <Parameter Id="%AID%_P-%TT%%CC%004" Name="%C%VolumeDay" ParameterType="%AID%_PT-Volume" Text="" Value="25">
-                <Memory CodeSegment="%AID%_RS-04-00000" Offset="0" BitOffset="0" />
+                <Memory CodeSegment="%AID%_RS-04-00000" Offset="2" BitOffset="0" />
               </Parameter>
              <Parameter Id="%AID%_P-%TT%%CC%003" Name="%C%VolumeNight" ParameterType="%AID%_PT-Volume" Text="" Value="15">
-                <Memory CodeSegment="%AID%_RS-04-00000" Offset="0" BitOffset="0" />
+                <Memory CodeSegment="%AID%_RS-04-00000" Offset="3" BitOffset="0" />
               </Parameter>
               <Parameter Id="%AID%_P-%TT%%CC%008" Name="%C%mute" ParameterType="%AID%_PT-mute" Text="Mute" Value="0">
-                <Memory CodeSegment="%AID%_RS-04-00000" Offset="0" BitOffset="0" />
+                <Memory CodeSegment="%AID%_RS-04-00000" Offset="4" BitOffset="0" />
               </Parameter>
               <!--Szene-->
               <!-- <Parameter Id="%AID%_P-%TT%%CC%006" Name="%C%Scenes" ParameterType="%AID%_PT-OnOffYesNo" Text="Szenen" Value="0" >
               <Memory CodeSegment="%AID%_RS-04-00000" Offset="0" BitOffset="0" />
               </Parameter> -->
               <Parameter Id="%AID%_P-%TT%%CC%007" Name="%C%DayNight" ParameterType="%AID%_PT-DayNight" Text="Tag/Nacht-Objekt" Value="0" >
-                <Memory CodeSegment="%AID%_RS-04-00000" Offset="0" BitOffset="0" />
+                <Memory CodeSegment="%AID%_RS-04-00000" Offset="5" BitOffset="0" />
               </Parameter>
               <Parameter Id="%AID%_P-%TT%%CC%009" Name="%C%Lock" ParameterType="%AID%_PT-AMPLock" Text="Zentrale Sperre" Value="0" >
-                <Memory CodeSegment="%AID%_RS-04-00000" Offset="0" BitOffset="0" />
+                <Memory CodeSegment="%AID%_RS-04-00000" Offset="6" BitOffset="0" />
               </Parameter>
             </Parameters>
 
