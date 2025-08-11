@@ -91,6 +91,8 @@ private:
     bool ledStatus = false;
     bool upgradingStatus = false;
     bool autoplayStatus = false;
+    String elapsedTime = ""; // Elapsed time in ms
+    String playlistInfo = ""; // Playlist info in format index/count, e.g. 1
     String songMetadataVendor ="";
     String songMetadataAlbum ="";
     String songMetadataArtist ="";
@@ -103,7 +105,8 @@ private:
     void processSTACommand(const String commandValue);
     enumSource sourceStringToInt(const String source);
 
-    void sendVolumeStatusKO(uint8_t Value);
+    void sendVolumeStatusKO(void);
+    void sendSourceStatusKO(void);
 
     // // Interne Variablen
     // unsigned long _baud = 115200;
