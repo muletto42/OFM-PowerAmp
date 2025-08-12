@@ -114,7 +114,7 @@ bool PowerAmpModule::processCommand(const std::string command, bool diagnose)
 
             const uint16_t channelIdx = std::stoi(command.substr(12, 1)) - 1;
 
-            if (channelIdx >= OPENKNX_SWA_CHANNEL_COUNT)
+            if (channelIdx >= OPENKNX_AMP_CHANNEL_COUNT)
             {
                 logDebugP("channel index out of range");
                 return true;
@@ -171,7 +171,7 @@ bool PowerAmpModule::processCommand(const std::string command, bool diagnose)
             const uint16_t channelIdx = std::stoi(command.substr(9, 1)) - 1;
             const uint8_t muteValue = std::stoi(command.substr(11, 1));
 
-            if (channelIdx >= OPENKNX_SWA_CHANNEL_COUNT)
+            if (channelIdx >= OPENKNX_AMP_CHANNEL_COUNT)
             {
                 logDebugP("channel index out of range");
                 return true;

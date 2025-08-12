@@ -68,10 +68,10 @@ private:
     void setAutoplay(bool onoff); // AUTOPLAY[:{onoff}] set autoplay
     bool getAutoplay(void);
 
-    String getMetadataTitle(void);
-    String getMetadataArtist(void);
-    String getMetadataAlbum(void);
-    String getMetadataVendor(void);
+    void getMetadataTitle(void);
+    void getMetadataArtist(void);
+    void getMetadataAlbum(void);
+    void getMetadataVendor(void);
 
     //  Variablen für Lautstärke und Quelle
     uint8_t currentVolume = 0;
