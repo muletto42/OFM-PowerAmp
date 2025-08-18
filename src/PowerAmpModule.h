@@ -4,19 +4,6 @@
 #include "hardware.h"
 #include "knxprod.h"
 
-
-#ifdef OPENKNX_SWSERIAL_TXPINS
-  const uint8_t SERIAL_TXPINS[OPENKNX_AMP_CHANNEL_COUNT] = {HW_UART_TX_PIN, OPENKNX_SWSERIAL_TXPINS};
-  const uint8_t SERIAL_RXPINS[OPENKNX_AMP_CHANNEL_COUNT] = {HW_UART_RX_PIN, OPENKNX_SWSERIAL_RXPINS};
-#elif HW_UART_TX_PIN
-  const uint8_t SERIAL_TXPINS[OPENKNX_AMP_CHANNEL_COUNT] = {HW_UART_TX_PIN};
-  const uint8_t SERIAL_RXPINS[OPENKNX_AMP_CHANNEL_COUNT] = {HW_UART_RX_PIN};
-#else
-  const uint8_t SERIAL_TXPINS[OPENKNX_AMP_CHANNEL_COUNT] = {};
-  const uint8_t SERIAL_RXPINS[OPENKNX_AMP_CHANNEL_COUNT] = {};
-#endif
-
-
 class PowerAmpModule : public OpenKNX::Module
 {
   protected:
@@ -33,10 +20,22 @@ class PowerAmpModule : public OpenKNX::Module
     void setup();
     const std::string name() override;
     const std::string version() override;
-           
+    void setSerialChannelPins(const uint8_t pins[][4], uint8_t numChannels);
+
   private:
     PowerAmpChannel *channel[OPENKNX_AMP_CHANNEL_COUNT];
     uint8_t NumChannels; // Number of channels defined in knxprod
+     uint8_t _numChannels = 0;
+
+    uint8_t _rxPins[OPENKNX_AMP_CHANNEL_COUNT];
+    uint8_t _txPins[OPENKNX_AMP_CHANNEL_COUNT];
+    bool _isHardware[OPENKNX_AMP_CHANNEL_COUNT];
+    uint8_t _hwPort[OPENKNX_AMP_CHANNEL_COUNT];
+
+    std::vector<SoftwareSerial*> _swSerialInstances;
+
+    // Hilfsfunktion für HW-Serial
+    SerialUART* getHardwareSerial(uint8_t port);
 };
 
 extern PowerAmpModule openknxPowerAmpModule;

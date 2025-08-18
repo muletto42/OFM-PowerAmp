@@ -25,10 +25,7 @@ enum class enumSource : uint8_t {
 class PowerAmpChannel : public OpenKNX::Channel
 {
 private:
-    Stream *mySerial = nullptr; // Hardwareserial
-    #if OPENKNX_AMP_CHANNEL_COUNT > 1
-    SoftwareSerial *mySWSerial = nullptr; // SoftwareSerial für Kanäle >1
-    #endif  
+    Stream* mySerial = nullptr; 
 
     // is enabled in ETS?
     bool _channelActive = false;
@@ -115,10 +112,21 @@ private:
     // // SerialUART &_serial;
     // String _recvBuffer;
 
+        // --- Zeitsteuerung ---
+    unsigned long lastTriggerTime = 0;  // Wann zuletzt die 60s-Phase gestartet wurde
+    unsigned long lastStateTime = 0;    // Wann zuletzt der nächste State aufgerufen wurde
+
+    const unsigned long START_INTERVAL = 60000;  // 60 Sekunden
+    const unsigned long STATE_INTERVAL = 1000;   // 1 Sekunde zwischen States
+
+    // --- State Machine ---
+    int currentState = -1;  // -1 bedeutet "wartet auf nächsten Start"
+
 public:
-    PowerAmpChannel(uint8_t iChannelNumber);
+    PowerAmpChannel(uint8_t iChannelNumber, Stream* serialStream = nullptr);
     ~PowerAmpChannel();
 
+    void setSerial(Stream* serialStream);
     const std::string name() override;
     void setup() override;
     void loop() override;

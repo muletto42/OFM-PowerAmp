@@ -26,6 +26,14 @@ PowerAmpModule::PowerAmpModule()
 
 PowerAmpModule::~PowerAmpModule()
 {
+    for (uint8_t i = 0; i < _numChannels; i++)
+    {
+        delete channel[i];
+    }
+    for (auto *sw : _swSerialInstances)
+    {
+        delete sw;
+    }
 }
 
 const std::string PowerAmpModule::name()
@@ -51,13 +59,44 @@ void PowerAmpModule::setup()
 {
     // Number of available channels is the minimum of configured and available channels
     NumChannels = MIN(ParamAMP_VisibleChannels, OPENKNX_AMP_CHANNEL_COUNT);
-    
-
     for (uint8_t i = 0; i < NumChannels; i++)
     {
-        channel[i] = new PowerAmpChannel(i);
+        // prüfen obs Pins gültig sind
+        if (_rxPins[i] == 0xFF || _txPins[i] == 0xFF || _rxPins[i] == 0x00 || _txPins[i] == 0x00)
+        {
+            logErrorP("Channel %u: invalid RX/TX pin configuration (RX=%d, TX=%d)", i, _rxPins[i], _txPins[i]);
+            continue;
+        }
+        Stream *serial = nullptr;
+        if (_isHardware[i])
+        {
+            SerialUART *hw = getHardwareSerial(_hwPort[i]);
+            //HardwareSerial *hw = &Serial2
+            if (hw)
+            {
+                hw->setRX(_rxPins[i]);
+                hw->setTX(_txPins[i]);
+                hw->begin(BAUD_ARLYIC);
+                serial = hw;
+                logInfoP("Channel %u: HardwareSerial%d RX=%d TX=%d", i, _hwPort[i], _rxPins[i], _txPins[i]);
+            }
+            else
+            {
+                logErrorP("Channel %u: invalid HardwareSerial port %d (RP2040 supports only 1=Serial1, 2=Serial2)", i, _hwPort[i]);
+                continue;
+            }
+        }
+        else
+        {
+            auto *sw = new SoftwareSerial(_rxPins[i], _txPins[i]);
+            sw->begin(BAUD_ARLYIC);
+            _swSerialInstances.push_back(sw);
+            serial = sw;
+            logInfoP("Channel %u: SoftwareSerial RX=%d TX=%d", i, _rxPins[i], _txPins[i]);
+        }
+
+        channel[i] = new PowerAmpChannel(i, serial);
         channel[i]->setup();
-        logDebugP("setup channel[ %i ]", i);
     }
 }
 
@@ -202,4 +241,29 @@ bool PowerAmpModule::processCommand(const std::string command, bool diagnose)
 bool PowerAmpModule::debug()
 {
     return _debug;
+}
+
+void PowerAmpModule::setSerialChannelPins(const uint8_t channelPins[][4], uint8_t numChannels)
+{
+     _numChannels = numChannels;
+    for (uint8_t i = 0; i < numChannels; i++) 
+    {
+        _rxPins[i]      = channelPins[i][0];
+        _txPins[i]      = channelPins[i][1];
+        _isHardware[i]  = channelPins[i][2];
+        _hwPort[i]      = channelPins[i][3];
+    } 
+}
+
+SerialUART* PowerAmpModule::getHardwareSerial(uint8_t port)
+{
+    switch (port)
+    {
+    case 1:
+        return &Serial1; // UART0
+    case 2:
+        return &Serial2; // UART1
+    default:
+        return nullptr;
+    }
 }

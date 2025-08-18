@@ -18,17 +18,16 @@
 #include "PowerAmpModule.h"
 #include <SoftwareSerial.h>
 
-
-PowerAmpChannel::PowerAmpChannel(uint8_t iChannelNumber)
-{
+PowerAmpChannel::PowerAmpChannel(uint8_t iChannelNumber, Stream* serialStream) {
     _channelIndex = iChannelNumber;
+    mySerial = serialStream;
 }
 
 PowerAmpChannel::~PowerAmpChannel() 
 {
-    #if OPENKNX_AMP_CHANNEL_COUNT > 1
-    if (mySWSerial) delete mySWSerial;
-    #endif
+    // #if OPENKNX_AMP_CHANNEL_COUNT > 1
+    // if (mySWSerial) delete mySWSerial;
+    // #endif
 }
 
 const std::string PowerAmpChannel::name()
@@ -141,15 +140,7 @@ void PowerAmpChannel::processInputKo(GroupObject &iKo)
     } 
 }
 
-// --- Zeitsteuerung ---
-unsigned long lastTriggerTime = 0;  // Wann zuletzt die 60s-Phase gestartet wurde
-unsigned long lastStateTime = 0;    // Wann zuletzt der nächste State aufgerufen wurde
 
-const unsigned long START_INTERVAL = 60000;  // 60 Sekunden
-const unsigned long STATE_INTERVAL = 1000;   // 1 Sekunde zwischen States
-
-// --- State Machine ---
-int currentState = -1;  // -1 bedeutet "wartet auf nächsten Start"
 
 void PowerAmpChannel::loop()
 {
@@ -202,38 +193,42 @@ void PowerAmpChannel::loop()
 
 void PowerAmpChannel::setup()
 {
-    // if (!AMP_ChActive)
-    //     return;
 
+    if (!mySerial)
+    {
+        logErrorP("Channel %u: no serial assigned!", _channelIndex);
+        return;
+    }
+    logInfoP("Channel %u setup done", _channelIndex);
     // Debug
     logInfoP("paramActive: %i", AMP_ChActive);
 
-    if (_channelIndex == 1)
-    {
-        mySerial = &AMP_HARDWARE_SERIAL;
-        AMP_HARDWARE_SERIAL.setRX(SERIAL_RXPINS[_channelIndex]);
-        AMP_HARDWARE_SERIAL.setTX(SERIAL_TXPINS[_channelIndex]);
-        AMP_HARDWARE_SERIAL.begin(BAUD_ARLYIC);
+    // if (_channelIndex == 1)
+    // {
+    //     mySerial = &AMP_HARDWARE_SERIAL;
+    //     AMP_HARDWARE_SERIAL.setRX(SERIAL_RXPINS[_channelIndex]);
+    //     AMP_HARDWARE_SERIAL.setTX(SERIAL_TXPINS[_channelIndex]);
+    //     AMP_HARDWARE_SERIAL.begin(BAUD_ARLYIC);
 
-        logInfoP("PowerAmpChannel setup: HardwareSerial RX Pin %d, TX Pin %d", SERIAL_RXPINS[_channelIndex], SERIAL_TXPINS[_channelIndex]);
+    //     logInfoP("PowerAmpChannel setup: HardwareSerial RX Pin %d, TX Pin %d", SERIAL_RXPINS[_channelIndex], SERIAL_TXPINS[_channelIndex]);
         
-    }
-    else
-    {
-        // den ersten hätte ich gerne immer daher erst hier:
-        // if (!AMP_ChActive)
-        //      return;
+    // }
+    // else
+    // {
+    //     // den ersten hätte ich gerne immer daher erst hier:
+    //     // if (!AMP_ChActive)
+    //     //      return;
 
-        if (mySWSerial)
-        {
-            delete mySWSerial;
-        }
-        mySWSerial = new SoftwareSerial(SERIAL_RXPINS[_channelIndex], SERIAL_TXPINS[_channelIndex]);
-        mySWSerial->begin(BAUD_ARLYIC);
-        mySerial = mySWSerial;
-        logInfoP("PowerAmpChannel setup: SoftwareSerial RX Pin %d, TX Pin %d", SERIAL_RXPINS[_channelIndex], SERIAL_TXPINS[_channelIndex]);
+    //     if (mySWSerial)
+    //     {
+    //         delete mySWSerial;
+    //     }
+    //     mySWSerial = new SoftwareSerial(SERIAL_RXPINS[_channelIndex], SERIAL_TXPINS[_channelIndex]);
+    //     mySWSerial->begin(BAUD_ARLYIC);
+    //     mySerial = mySWSerial;
+    //     logInfoP("PowerAmpChannel setup: SoftwareSerial RX Pin %d, TX Pin %d", SERIAL_RXPINS[_channelIndex], SERIAL_TXPINS[_channelIndex]);
     
-    }
+    // }
 }
 
 void PowerAmpChannel::sendRawCommandToArylic(const String command)
