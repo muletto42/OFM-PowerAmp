@@ -21,6 +21,7 @@
 PowerAmpChannel::PowerAmpChannel(uint8_t iChannelNumber, Stream* serialStream) {
     _channelIndex = iChannelNumber;
     mySerial = serialStream;
+    initHandlers();   // HandlerMap befüllen
 }
 
 PowerAmpChannel::~PowerAmpChannel() 
@@ -541,6 +542,32 @@ void PowerAmpChannel::processReceivedUARTCommand(const String commandType, const
         logDebugP("[processReceivedUARTCommand] commandType: %s, commandValuetrimmed: %s", commandType.c_str(), commandValuetrimmed.c_str());
     }
 
+    auto foundHandler = commandHandlers.find(commandType);
+    if (foundHandler != commandHandlers.end()) {
+        foundHandler->second(commandValuetrimmed);
+    } else {
+        logDebugP("[ERROR] Unknown command: %s", commandType.c_str());
+    }
+}
+
+/*
+{
+    // Logik zum Verarbeiten der UART-Kommandos vom ArylicAmp
+
+    // Vorverarbeitung
+    String commandValuetrimmed = commandVal;
+    commandValuetrimmed.trim();
+    if (commandValuetrimmed.endsWith(";")) 
+    {
+        commandValuetrimmed.remove(commandValuetrimmed.length() - 1);
+        commandValuetrimmed.trim();
+    }
+
+    if (openknxPowerAmpModule.debug())
+    {
+        logDebugP("[processReceivedUARTCommand] commandType: %s, commandValuetrimmed: %s", commandType.c_str(), commandValuetrimmed.c_str());
+    }
+
     // string currentSource;
     if (commandType == "SRC")
     {
@@ -707,6 +734,7 @@ void PowerAmpChannel::processReceivedUARTCommand(const String commandType, const
         logDebugP("[ERROR] Unbekanntes Kommando: %s", commandType.c_str());
     }
 }
+*/
 
 void PowerAmpChannel::processSTACommand(const String commandValue)
 {
@@ -765,7 +793,7 @@ bool PowerAmpChannel::isActive()
 
 void PowerAmpChannel::sendVolumeStatusKO(void)
 {
-    KoAMP_volume_Status.value(currentVolume, DPT_Scaling);
+    KoAMP_Chvolume_Status.value(currentVolume, DPT_Scaling);
     if (openknxPowerAmpModule.debug())
     {
          logDebugP("[INFO] Volume Status gesendet: %d", currentVolume);
@@ -774,10 +802,147 @@ void PowerAmpChannel::sendVolumeStatusKO(void)
 
 void PowerAmpChannel::sendSourceStatusKO(void)
 {
-    KoAMP_source.value(uint8_t(currentSource), DPT_Value_1_Ucount);
-    KoAMP_source_Status.value(string_currentSource.c_str(), DPT_String_8859_1); // Update the KO with the source information
+    // KoAMP_source.value(uint8_t(currentSource), DPT_Value_1_Ucount);
+    KoAMP_Chsource_Status.value(string_currentSource.c_str(), DPT_String_8859_1); // Update the KO with the source information
     if (openknxPowerAmpModule.debug())
     {
         logDebugP("[INFO] Source Status gesendet dez: %d, String: %s", currentSource, string_currentSource.c_str());
     }
+}
+
+
+/* Handler für UART Kommandos von Arylic*/
+
+void PowerAmpChannel::initHandlers() {
+    commandHandlers = {
+        {"SRC", [this](const String& v){ handleSource_SRC(v); }},
+        {"VOL", [this](const String& v){ handleVolume_VOL(v); }},
+        {"MUT", [this](const String& v){ handleMute_MUT(v); }},
+        {"STA", [this](const String& v){ handleDeviceStatusSummary_STA(v); }},
+        {"TIT", [this](const String& v){ handleTitle_TIT(v); }},
+        {"ART", [this](const String& v){ handleArtist_ART(v); }},
+        {"ALB", [this](const String& v){ handleAlbum_ALB(v); }},
+        {"VND", [this](const String& v){ handleVendor_VND(v); }},
+        {"LED", [this](const String& v){ handleLed_LED(v); }},
+        {"BTC", [this](const String& v){ handleBluetooth_BTC(v); }},
+        {"VBS", [this](const String& v){ handleVirtualBass_VBS(v); }},
+        {"BEP", [this](const String& v){ handleBeep_BEP(v); }},
+        {"APL", [this](const String& v){ handleAutoplay_APL(v); }},
+        {"PLA", [this](const String& v){ handlePlaying_PLA(v); }},
+        {"ELP", [this](const String& v){ handleElapsed_ELP(v); }},
+        {"PLI", [this](const String& v){ handlePlaylist_PLI(v); }},
+        {"BAS", [this](const String& v){ handleBass_BAS(v); }},
+        {"TRE", [this](const String& v){ handleTreble_TRE(v); }},
+        {"MID", [this](const String& v){ handleMid_MID(v); }}
+    };
+}
+
+
+void PowerAmpChannel::handleSource_SRC(const String& val) {
+    string_currentSource = val;
+    currentSource = sourceStringToInt(val);
+    sendSourceStatusKO();
+    if (openknxPowerAmpModule.debug()) {
+        logDebugP("[INFO] Source updated: %s (%d)", string_currentSource.c_str(), (int)currentSource);
+    }
+}
+
+void PowerAmpChannel::handleVolume_VOL(const String& val) {
+    currentVolume = constrain(val.toInt(), 0, 100);
+    sendVolumeStatusKO();
+    if (openknxPowerAmpModule.debug()) {
+        logDebugP("[INFO] Volume updated: %d", currentVolume);
+    }
+}
+
+void PowerAmpChannel::handleMute_MUT(const String& val) {
+    muteStatus = (bool)val.toInt();
+    KoAMP_Chmute_Status.value(muteStatus, DPT_Switch);
+    if (openknxPowerAmpModule.debug()) {
+        logDebugP("[INFO] Mute updated: %d", muteStatus);
+    }
+}
+
+void PowerAmpChannel::handleDeviceStatusSummary_STA(const String& val) {
+    processSTACommand(val);
+}
+
+void PowerAmpChannel::handleTitle_TIT(const String& val) {
+    songMetadataTitle = val;
+    KoAMP_ChsongMetadataTitle.value(songMetadataTitle.c_str(), DPT_String_8859_1);
+    if (openknxPowerAmpModule.debug()) logDebugP("[INFO] Title updated: %s", val.c_str());
+}
+
+void PowerAmpChannel::handleArtist_ART(const String& val) {
+    songMetadataArtist = val;
+    KoAMP_ChsongMetadataArtist.value(songMetadataArtist.c_str(), DPT_String_8859_1);
+    if (openknxPowerAmpModule.debug()) logDebugP("[INFO] Artist updated: %s", val.c_str());
+}
+
+void PowerAmpChannel::handleAlbum_ALB(const String& val) {
+    songMetadataAlbum = val;
+    KoAMP_ChsongMetadataAlbum.value(songMetadataAlbum.c_str(), DPT_String_8859_1);
+    if (openknxPowerAmpModule.debug()) logDebugP("[INFO] Album updated: %s", val.c_str());
+}
+
+void PowerAmpChannel::handleVendor_VND(const String& val) {
+    songMetadataVendor = val;
+    KoAMP_ChsongMetadataVendor.value(songMetadataVendor.c_str(), DPT_String_8859_1);
+    if (openknxPowerAmpModule.debug()) logDebugP("[INFO] Vendor updated: %s", val.c_str());
+}
+
+void PowerAmpChannel::handleLed_LED(const String& val) {
+    ledStatus = val.toInt();
+    if (openknxPowerAmpModule.debug()) logDebugP("[INFO] LED updated: %d", ledStatus);
+}
+
+void PowerAmpChannel::handleBluetooth_BTC(const String& val) {
+    bluetoothConnected = val.toInt();
+    if (openknxPowerAmpModule.debug()) logDebugP("[INFO] Bluetooth updated: %d", bluetoothConnected);
+}
+
+void PowerAmpChannel::handleVirtualBass_VBS(const String& val) {
+    virtualBassEnabled = val.toInt();
+    if (openknxPowerAmpModule.debug()) logDebugP("[INFO] VirtualBass updated: %d", virtualBassEnabled);
+}
+
+void PowerAmpChannel::handleBeep_BEP(const String& val) {
+    beepEnabled = val.toInt();
+    if (openknxPowerAmpModule.debug()) logDebugP("[INFO] Beep updated: %d", beepEnabled);
+}
+
+void PowerAmpChannel::handleAutoplay_APL(const String& val) {
+    autoplayStatus = val.toInt();
+    if (openknxPowerAmpModule.debug()) logDebugP("[INFO] Autoplay updated: %d", autoplayStatus);
+}
+
+void PowerAmpChannel::handlePlaying_PLA(const String& val) {
+    playingStatus = val.toInt();
+    if (openknxPowerAmpModule.debug()) logDebugP("[INFO] Playing updated: %d", playingStatus);
+}
+
+void PowerAmpChannel::handleElapsed_ELP(const String& val) {
+    elapsedTime = val;
+    KoAMP_ChElapsedTime.value(elapsedTime.c_str(), DPT_String_8859_1); // Update the KO with the elapsed time
+    if (openknxPowerAmpModule.debug()) logDebugP("[INFO] Elapsed updated: %s", val.c_str());
+}
+
+void PowerAmpChannel::handlePlaylist_PLI(const String& val) {
+    playlistInfo = val;
+    if (openknxPowerAmpModule.debug()) logDebugP("[INFO] Playlist updated: %s", val.c_str());
+}
+
+void PowerAmpChannel::handleBass_BAS(const String& val) {
+    currentBassTone = val.toInt();
+    if (openknxPowerAmpModule.debug()) logDebugP("[INFO] Bass updated: %d", currentBassTone);
+}
+
+void PowerAmpChannel::handleTreble_TRE(const String& val) {
+    currentTrebleTone = val.toInt();
+    if (openknxPowerAmpModule.debug()) logDebugP("[INFO] Treble updated: %d", currentTrebleTone);
+}
+
+void PowerAmpChannel::handleMid_MID(const String& val) {
+    currentMidTone = val.toInt();
+    if (openknxPowerAmpModule.debug()) logDebugP("[INFO] Mid updated: %d", currentMidTone);
 }

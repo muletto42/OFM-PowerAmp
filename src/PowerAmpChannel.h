@@ -122,6 +122,33 @@ private:
     // --- State Machine ---
     int currentState = -1;  // -1 bedeutet "wartet auf nächsten Start"
 
+    /* Handler für UART Kommandos von Arylic*/
+    using HandlerFn = std::function<void(const String&)>;
+    std::map<String, HandlerFn> commandHandlers;
+
+    void initHandlers();
+
+    // einzelne Handler
+    void handleSource_SRC(const String& val);
+    void handleVolume_VOL(const String& val);
+    void handleMute_MUT(const String& val);
+    void handleDeviceStatusSummary_STA(const String& val);
+    void handleTitle_TIT(const String& val);
+    void handleArtist_ART(const String& val);
+    void handleAlbum_ALB(const String& val);
+    void handleVendor_VND(const String& val);
+    void handleLed_LED(const String& val);
+    void handleBluetooth_BTC(const String& val);
+    void handleVirtualBass_VBS(const String& val);
+    void handleBeep_BEP(const String& val);
+    void handleAutoplay_APL(const String& val);
+    void handlePlaying_PLA(const String& val);
+    void handleElapsed_ELP(const String& val);
+    void handlePlaylist_PLI(const String& val);
+    void handleBass_BAS(const String& val);
+    void handleTreble_TRE(const String& val);
+    void handleMid_MID(const String& val);
+
 public:
     PowerAmpChannel(uint8_t iChannelNumber, Stream* serialStream = nullptr);
     ~PowerAmpChannel();
