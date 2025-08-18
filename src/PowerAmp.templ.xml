@@ -123,8 +123,8 @@
               <ComObjectRef Id="%AID%_O-%TT%%CC%023_R-%TT%%CC%02301" RefId="%AID%_O-%TT%%CC%023" Text="Amp %Z%: Vendor" />
               <ComObjectRef Id="%AID%_O-%TT%%CC%024_R-%TT%%CC%02401" RefId="%AID%_O-%TT%%CC%024" Text="Amp %Z%: Lautstärke Status" />
               <ComObjectRef Id="%AID%_O-%TT%%CC%025_R-%TT%%CC%02501" RefId="%AID%_O-%TT%%CC%025" Text="Amp %Z%: Quelle Status" />
-              <ComObjectRef Id="%AID%_O-%TT%%CC%024_R-%TT%%CC%02601" RefId="%AID%_O-%TT%%CC%026" Text="Amp %Z%: Mute Status" />
-              <ComObjectRef Id="%AID%_O-%TT%%CC%025_R-%TT%%CC%02701" RefId="%AID%_O-%TT%%CC%027" Text="Amp %Z%: Elapsed Time Status" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%026_R-%TT%%CC%02601" RefId="%AID%_O-%TT%%CC%026" Text="Amp %Z%: Mute Status" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%027_R-%TT%%CC%02701" RefId="%AID%_O-%TT%%CC%027" Text="Amp %Z%: Elapsed Time Status" />
 
             </ComObjectRefs>
           </Static>
