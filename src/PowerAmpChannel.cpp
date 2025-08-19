@@ -69,67 +69,67 @@ void PowerAmpChannel::processInputKo(GroupObject &iKo)
 
     switch (AMP_KoCalcIndex(iKo.asap()))
     {
-        case AMP_Kovolume_inc: // Increase ++
+        case AMP_KoChVolumeInc: // Increase ++
         {
             logDebugP("processInputKo: volume_inc");
-            if (KoAMP_volume_inc.value(DPT_Step))
+            if (KoAMP_ChVolumeInc.value(DPT_Step))
             {
                 currentVolume++;
             }
             setVolume(currentVolume);
             break;
         }
-        case AMP_Kovolume_dec: // Decrease --
+        case AMP_KoChVolumeDec: // Decrease --
         {
             logDebugP("processInputKo: volume_dec");
-            if (KoAMP_volume_dec.value(DPT_Step))
+            if (KoAMP_ChVolumeDec.value(DPT_Step))
             {
                 currentVolume--;
             }
             setVolume(currentVolume);
             break;
         }
-        case AMP_Kovolume_value: // SET
+        case AMP_KoChVolumeValue: // SET
         {
             logDebugP("processInputKo: volume_set");
-            currentVolume = (uint8_t)KoAMP_volume_value.value(DPT_Scaling);
+            currentVolume = (uint8_t)KoAMP_ChVolumeValue.value(DPT_Scaling);
             setVolume(currentVolume);
             break;
         }
-        case AMP_Komute_onoff:
+        case AMP_KoChMuteOnOff:
         {
             logDebugP("processInputKo: mute_onoff");
-            muteStatus = KoAMP_mute_onoff.value(DPT_Switch);
+            muteStatus = KoAMP_ChMuteOnOff.value(DPT_Switch);
             setMute(muteStatus);
             break;
         }
-        case AMP_KoPlayPause:
+        case AMP_KoChPlayPause:
         {
             logDebugP("processInputKo: play_pause");
             playPause();
             break;
         }
-        case AMP_KoStop:
+        case AMP_KoChStop:
         {
             stop();
             break;
         }
-        case AMP_KoNext:
+        case AMP_KoChNext:
         {
             logDebugP("processInputKo: next");
             next();
             break;
         }
-        case AMP_KoPrev:
+        case AMP_KoChPrev:
         {
             logDebugP("processInputKo: previous");
             previous();
             break;
         }
-        case AMP_Kosource:
+        case AMP_KoChSource:
         {
             logDebugP("processInputKo: source");
-            uint8_t srcVal = KoAMP_source.value(DPT_Value_1_Ucount); // Wert als uint8_t holen
+            uint8_t srcVal = KoAMP_ChSource.value(DPT_Value_1_Ucount); // Wert als uint8_t holen
             enumSource currentSource = static_cast<enumSource>(srcVal);
             setSource(currentSource);
             break;
@@ -793,7 +793,7 @@ bool PowerAmpChannel::isActive()
 
 void PowerAmpChannel::sendVolumeStatusKO(void)
 {
-    KoAMP_Chvolume_Status.value(currentVolume, DPT_Scaling);
+    KoAMP_ChVolumeStatus.value(currentVolume, DPT_Scaling);
     if (openknxPowerAmpModule.debug())
     {
          logDebugP("[INFO] Volume Status gesendet: %d", currentVolume);
@@ -802,8 +802,8 @@ void PowerAmpChannel::sendVolumeStatusKO(void)
 
 void PowerAmpChannel::sendSourceStatusKO(void)
 {
-    // KoAMP_source.value(uint8_t(currentSource), DPT_Value_1_Ucount);
-    KoAMP_Chsource_Status.value(string_currentSource.c_str(), DPT_String_8859_1); // Update the KO with the source information
+    // KoAMP_ChSource.value(uint8_t(currentSource), DPT_Value_1_Ucount);
+    KoAMP_ChSourceStatus.value(string_currentSource.c_str(), DPT_String_8859_1); // Update the KO with the source information
     if (openknxPowerAmpModule.debug())
     {
         logDebugP("[INFO] Source Status gesendet dez: %d, String: %s", currentSource, string_currentSource.c_str());
@@ -857,7 +857,7 @@ void PowerAmpChannel::handleVolume_VOL(const String& val) {
 
 void PowerAmpChannel::handleMute_MUT(const String& val) {
     muteStatus = (bool)val.toInt();
-    KoAMP_Chmute_Status.value(muteStatus, DPT_Switch);
+    KoAMP_ChMuteStatus.value(muteStatus, DPT_Switch);
     if (openknxPowerAmpModule.debug()) {
         logDebugP("[INFO] Mute updated: %d", muteStatus);
     }
@@ -869,25 +869,25 @@ void PowerAmpChannel::handleDeviceStatusSummary_STA(const String& val) {
 
 void PowerAmpChannel::handleTitle_TIT(const String& val) {
     songMetadataTitle = val;
-    KoAMP_ChsongMetadataTitle.value(songMetadataTitle.c_str(), DPT_String_8859_1);
+    KoAMP_ChSongMetadataTitle.value(songMetadataTitle.c_str(), DPT_String_8859_1);
     if (openknxPowerAmpModule.debug()) logDebugP("[INFO] Title updated: %s", val.c_str());
 }
 
 void PowerAmpChannel::handleArtist_ART(const String& val) {
     songMetadataArtist = val;
-    KoAMP_ChsongMetadataArtist.value(songMetadataArtist.c_str(), DPT_String_8859_1);
+    KoAMP_ChSongMetadataArtist.value(songMetadataArtist.c_str(), DPT_String_8859_1);
     if (openknxPowerAmpModule.debug()) logDebugP("[INFO] Artist updated: %s", val.c_str());
 }
 
 void PowerAmpChannel::handleAlbum_ALB(const String& val) {
     songMetadataAlbum = val;
-    KoAMP_ChsongMetadataAlbum.value(songMetadataAlbum.c_str(), DPT_String_8859_1);
+    KoAMP_ChSongMetadataAlbum.value(songMetadataAlbum.c_str(), DPT_String_8859_1);
     if (openknxPowerAmpModule.debug()) logDebugP("[INFO] Album updated: %s", val.c_str());
 }
 
 void PowerAmpChannel::handleVendor_VND(const String& val) {
     songMetadataVendor = val;
-    KoAMP_ChsongMetadataVendor.value(songMetadataVendor.c_str(), DPT_String_8859_1);
+    KoAMP_ChSongMetadataVendor.value(songMetadataVendor.c_str(), DPT_String_8859_1);
     if (openknxPowerAmpModule.debug()) logDebugP("[INFO] Vendor updated: %s", val.c_str());
 }
 
