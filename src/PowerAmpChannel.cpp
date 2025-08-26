@@ -26,9 +26,6 @@ PowerAmpChannel::PowerAmpChannel(uint8_t iChannelNumber, Stream* serialStream) {
 
 PowerAmpChannel::~PowerAmpChannel() 
 {
-    // #if OPENKNX_AMP_CHANNEL_COUNT > 1
-    // if (mySWSerial) delete mySWSerial;
-    // #endif
 }
 
 const std::string PowerAmpChannel::name()
@@ -141,8 +138,6 @@ void PowerAmpChannel::processInputKo(GroupObject &iKo)
     } 
 }
 
-
-
 void PowerAmpChannel::loop()
 {
     handleIncomingData();
@@ -190,46 +185,18 @@ void PowerAmpChannel::loop()
     {
         currentState = -1; // Warten auf nächsten Start
     }
+    checkAliveStatus();
 }
 
 void PowerAmpChannel::setup()
 {
-
     if (!mySerial)
     {
         logErrorP("Channel %u: no serial assigned!", _channelIndex);
         return;
     }
     logInfoP("Channel %u setup done", _channelIndex);
-    // Debug
     logInfoP("paramActive: %i", AMP_ChActive);
-
-    // if (_channelIndex == 1)
-    // {
-    //     mySerial = &AMP_HARDWARE_SERIAL;
-    //     AMP_HARDWARE_SERIAL.setRX(SERIAL_RXPINS[_channelIndex]);
-    //     AMP_HARDWARE_SERIAL.setTX(SERIAL_TXPINS[_channelIndex]);
-    //     AMP_HARDWARE_SERIAL.begin(BAUD_ARLYIC);
-
-    //     logInfoP("PowerAmpChannel setup: HardwareSerial RX Pin %d, TX Pin %d", SERIAL_RXPINS[_channelIndex], SERIAL_TXPINS[_channelIndex]);
-        
-    // }
-    // else
-    // {
-    //     // den ersten hätte ich gerne immer daher erst hier:
-    //     // if (!AMP_ChActive)
-    //     //      return;
-
-    //     if (mySWSerial)
-    //     {
-    //         delete mySWSerial;
-    //     }
-    //     mySWSerial = new SoftwareSerial(SERIAL_RXPINS[_channelIndex], SERIAL_TXPINS[_channelIndex]);
-    //     mySWSerial->begin(BAUD_ARLYIC);
-    //     mySerial = mySWSerial;
-    //     logInfoP("PowerAmpChannel setup: SoftwareSerial RX Pin %d, TX Pin %d", SERIAL_RXPINS[_channelIndex], SERIAL_TXPINS[_channelIndex]);
-    
-    // }
 }
 
 void PowerAmpChannel::sendRawCommandToArylic(const String command)
@@ -545,6 +512,7 @@ void PowerAmpChannel::processReceivedUARTCommand(const String commandType, const
     auto foundHandler = commandHandlers.find(commandType);
     if (foundHandler != commandHandlers.end()) {
         foundHandler->second(commandValuetrimmed);
+        updateAlive();   // jede gültige Antwort = alive
     } else {
         logDebugP("[ERROR] Unknown command: %s", commandType.c_str());
     }
@@ -945,4 +913,21 @@ void PowerAmpChannel::handleTreble_TRE(const String& val) {
 void PowerAmpChannel::handleMid_MID(const String& val) {
     currentMidTone = val.toInt();
     if (openknxPowerAmpModule.debug()) logDebugP("[INFO] Mid updated: %d", currentMidTone);
+}
+
+
+// ---------------- Alive Handling ----------------
+void PowerAmpChannel::updateAlive() {
+    lastResponseMillis = millis();
+    if (!deviceAlive) {
+        deviceAlive = true;
+        logDebugP("[ALIVE] AMP antwortet!");
+    }
+}
+
+void PowerAmpChannel::checkAliveStatus() {
+    if (deviceAlive && (millis() - lastResponseMillis > alive_timeout)) {
+        deviceAlive = false;
+        logDebugP("[DEAD] AMP antwortet nicht!");
+    }
 }

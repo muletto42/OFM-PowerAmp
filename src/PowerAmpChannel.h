@@ -116,7 +116,7 @@ private:
     unsigned long lastTriggerTime = 0;  // Wann zuletzt die 60s-Phase gestartet wurde
     unsigned long lastStateTime = 0;    // Wann zuletzt der nächste State aufgerufen wurde
 
-    const unsigned long START_INTERVAL = 60000;  // 60 Sekunden
+    const unsigned long START_INTERVAL = 30000;  // 30 Sekunden
     const unsigned long STATE_INTERVAL = 1000;   // 1 Sekunde zwischen States
 
     // --- State Machine ---
@@ -149,6 +149,13 @@ private:
     void handleTreble_TRE(const String& val);
     void handleMid_MID(const String& val);
 
+
+    // Alive-Monitoring
+    unsigned long lastResponseMillis = 0;
+    bool deviceAlive = false;
+    const unsigned long alive_timeout = (START_INTERVAL*2); // Timeout in ms
+    void updateAlive(void);
+
 public:
     PowerAmpChannel(uint8_t iChannelNumber, Stream* serialStream = nullptr);
     ~PowerAmpChannel();
@@ -168,4 +175,7 @@ public:
     void save();
     void restore();
     bool isActive();
+        
+    // Alive-Handling um zu prüfen ob der Endstufe noch oder überhaupt schon da ist.
+    void checkAliveStatus();   // regelmäßig in loop() aufrufen
 };

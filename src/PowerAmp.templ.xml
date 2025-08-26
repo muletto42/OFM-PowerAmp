@@ -99,6 +99,7 @@
               <ComObject Id="%AID%_O-%TT%%CC%025" Name="Ch%C%SourceStatus" Text="Quelle Status Amp %Z%" Number="%K18%" FunctionText="Wert" ObjectSize="14 Bytes" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-16-1" />
               <ComObject Id="%AID%_O-%TT%%CC%026" Name="Ch%C%MuteStatus" Text="Mute Status Amp %Z%" Number="%K19%" FunctionText="Wert" ObjectSize="1 Bit" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-1-1" />
               <ComObject Id="%AID%_O-%TT%%CC%027" Name="Ch%C%ElapsedTime" Text="Elapsed Time Amp %Z%" Number="%K20%" FunctionText="Wert" ObjectSize="14 Bytes"  ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-16-1" />
+              <ComObject Id="%AID%_O-%TT%%CC%028" Name="Ch%C%PlayPauseStatus" Text="PlayPause Status Amp %Z%" Number="%K21%" FunctionText="Wert" ObjectSize="1 Bit" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-1-1" />
 
             </ComObjectTable>
             <ComObjectRefs>
@@ -125,6 +126,7 @@
               <ComObjectRef Id="%AID%_O-%TT%%CC%025_R-%TT%%CC%02501" RefId="%AID%_O-%TT%%CC%025" Text="Amp %Z%: Quelle Status" />
               <ComObjectRef Id="%AID%_O-%TT%%CC%026_R-%TT%%CC%02601" RefId="%AID%_O-%TT%%CC%026" Text="Amp %Z%: Mute Status" />
               <ComObjectRef Id="%AID%_O-%TT%%CC%027_R-%TT%%CC%02701" RefId="%AID%_O-%TT%%CC%027" Text="Amp %Z%: Elapsed Time Status" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%028_R-%TT%%CC%02801" RefId="%AID%_O-%TT%%CC%028" Text="Amp %Z%: PlayPause Status" />
 
             </ComObjectRefs>
           </Static>
@@ -218,6 +220,7 @@
                         <ComObjectRefRef RefId="%AID%_O-%TT%%CC%025_R-%TT%%CC%02501" /> <!-- Quelle Status-->
                         <ComObjectRefRef RefId="%AID%_O-%TT%%CC%026_R-%TT%%CC%02601" /> <!-- Mute Status-->
                         <ComObjectRefRef RefId="%AID%_O-%TT%%CC%027_R-%TT%%CC%02701" /> <!-- Elapsed Time Status-->
+                        <ComObjectRefRef RefId="%AID%_O-%TT%%CC%028_R-%TT%%CC%02801" /> <!-- PlayPause Status-->
 
                       </when>
                     </choose>
