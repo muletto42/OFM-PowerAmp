@@ -55,7 +55,7 @@ void PowerAmpModule::loop()
     }
 }
 
-void PowerAmpModule::setup()
+void PowerAmpModule::setup(bool configured)
 {
     // Number of available channels is the minimum of configured and available channels
     NumChannels = MIN(ParamAMP_VisibleChannels, OPENKNX_AMP_CHANNEL_COUNT);
@@ -96,7 +96,7 @@ void PowerAmpModule::setup()
         }
 
         channel[i] = new PowerAmpChannel(i, serial);
-        channel[i]->setup();
+        channel[i]->setup(configured);
     }
 }
 

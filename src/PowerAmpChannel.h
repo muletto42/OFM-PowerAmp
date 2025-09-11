@@ -72,6 +72,7 @@ private:
 
     //  Variablen für Lautstärke und Quelle
     uint8_t currentVolume = 0;
+    uint8_t currentVolumeStepValue = 5; // Schrittweite für Lautstärkeänderung
     /*//uint currentSource = PT_Source_network;*/
     enumSource currentSource = enumSource::Network;
     String string_currentSource = "NET";
@@ -162,7 +163,7 @@ public:
 
     void setSerial(Stream* serialStream);
     const std::string name() override;
-    void setup() override;
+    void setup(bool configured) override;
     void loop() override;
     void processAfterStartupDelay();
     void processInputKo(GroupObject &ko) override;

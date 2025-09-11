@@ -66,22 +66,22 @@ void PowerAmpChannel::processInputKo(GroupObject &iKo)
 
     switch (AMP_KoCalcIndex(iKo.asap()))
     {
-        case AMP_KoChVolumeInc: // Increase ++
+        case AMP_KoChVolumeStep: // Volume Step
         {
-            logDebugP("processInputKo: volume_inc");
-            if (KoAMP_ChVolumeInc.value(DPT_Step))
+           // 0 = Decrease ; 1 = Increase
+            logDebugP("processInputKo: volume_step");
+            // iKo.value(getDPT(VAL_DPT_1)
+            // bool value = iKo.value(DPT_Switch);
+            bool value = iKo.value(DPT_Step);
+            if (value == 1)
             {
-                currentVolume++;
+                // 1 = Increase
+                currentVolume = currentVolume + currentVolumeStepValue;
             }
-            setVolume(currentVolume);
-            break;
-        }
-        case AMP_KoChVolumeDec: // Decrease --
-        {
-            logDebugP("processInputKo: volume_dec");
-            if (KoAMP_ChVolumeDec.value(DPT_Step))
+            else if (value == 0)
             {
-                currentVolume--;
+                // 0 = Decrease 
+                currentVolume = currentVolume - currentVolumeStepValue;
             }
             setVolume(currentVolume);
             break;
@@ -188,7 +188,7 @@ void PowerAmpChannel::loop()
     checkAliveStatus();
 }
 
-void PowerAmpChannel::setup()
+void PowerAmpChannel::setup(bool configured)
 {
     if (!mySerial)
     {
@@ -197,6 +197,13 @@ void PowerAmpChannel::setup()
     }
     logInfoP("Channel %u setup done", _channelIndex);
     logInfoP("paramActive: %i", AMP_ChActive);
+
+     currentVolumeStepValue = 5;
+
+    if (configured)
+    {
+        currentVolumeStepValue = ParamAMP_VolumeStepValue;
+    }
 }
 
 void PowerAmpChannel::sendRawCommandToArylic(const String command)

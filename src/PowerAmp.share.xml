@@ -24,6 +24,9 @@
               <ParameterType Id="%AID%_PT-Volume" Name="Volume">
                 <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="1" maxInclusive="255" UIHint="Slider" />
               </ParameterType>
+              <ParameterType Id="%AID%_PT-VolumeStepValue" Name="VolumeStepValue">
+                <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="1" maxInclusive="20" UIHint="Slider" />
+              </ParameterType>
               <ParameterType Id="%AID%_PT-AMPLock" Name="AMPLock">
                 <TypeRestriction Base="Value" SizeInBit="2">
                   <Enumeration Text="nicht aktiv" Value="0" Id="%ENID%" />
@@ -67,7 +70,7 @@
             <ParameterRefs>
               <ParameterRef Id="%AID%_UP-%TT%00001_R-%TT%0000101" RefId="%AID%_UP-%TT%00001" /> <!-- VisibleChannels -->
               <ParameterRef Id="%AID%_P-%TT%00002_R-%TT%0000201" RefId="%AID%_P-%TT%00002" /> <!-- CheckForOneChannel -->
-            </ParameterRefs>          
+            </ParameterRefs>    
           </Static>
           
           <Dynamic>
