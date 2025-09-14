@@ -66,6 +66,8 @@ private:
     //  Variablen für Lautstärke und Quelle
     uint8_t currentVolume = 0;
     uint8_t currentVolumeStepValue = 5; // Schrittweite für Lautstärkeänderung
+    uint8_t currentVolumeLimit = 100;
+
     /*//uint currentSource = PT_Source_network;*/
     enumSource currentSource = enumSource::Network;
     String string_currentSource = "NET";
@@ -110,8 +112,8 @@ private:
     unsigned long lastTriggerTime = 0;  // Wann zuletzt die 60s-Phase gestartet wurde
     unsigned long lastStateTime = 0;    // Wann zuletzt der nächste State aufgerufen wurde
 
-    const unsigned long START_INTERVAL = 30000;  // 30 Sekunden
-    const unsigned long STATE_INTERVAL = 1000;   // 1 Sekunde zwischen States
+    unsigned long START_INTERVAL = 30000;  // 30 Sekunden
+    unsigned long STATE_INTERVAL = 1000;   // 1 Sekunde zwischen States
 
     // --- State Machine ---
     int currentState = -1;  // -1 bedeutet "wartet auf nächsten Start"
@@ -146,9 +148,21 @@ private:
 
     // Alive-Monitoring
     unsigned long lastResponseMillis = 0;
+    unsigned long lastAliveMillis = 0;
     bool deviceAlive = false;
     const unsigned long alive_timeout = (START_INTERVAL*2); // Timeout in ms
     void updateAlive(void);
+
+
+    bool _currentNight = false;
+    bool _currentLocked = false;
+    void processInputKoDayNight(GroupObject &ko);
+    void processInputKoLock(GroupObject &ko);
+    void day(void);
+    void night(void);
+    void setDefaultVolume(void);
+    void unlock();
+    void lock();
 
 public:
     PowerAmpChannel(uint8_t iChannelNumber, Stream* serialStream = nullptr);

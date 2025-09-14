@@ -131,6 +131,16 @@ void PowerAmpChannel::processInputKo(GroupObject &iKo)
             setSource(currentSource);
             break;
         }
+        case AMP_KoChDayNight:
+        {
+            processInputKoDayNight(iKo);
+            break;
+        }
+        case AMP_KoChLock:
+        {
+            processInputKoLock(iKo);
+            break;
+        }
     }
     if (openknxPowerAmpModule.debug())
     {
@@ -199,10 +209,13 @@ void PowerAmpChannel::setup(bool configured)
     logInfoP("paramActive: %i", AMP_ChActive);
 
      currentVolumeStepValue = 5;
+     currentVolumeLimit = 100;
 
     if (configured)
     {
         currentVolumeStepValue = ParamAMP_VolumeStepValue;
+        currentVolumeLimit = ParamAMP_LimitMaxVolume;
+        currentVolume = ParamAMP_VolumeDay;
     }
 }
 
@@ -284,7 +297,7 @@ void PowerAmpChannel::playPreset(uint8_t presetNum) // start to play preset play
 
 void PowerAmpChannel::setVolume(uint8_t volume)
 {
-    volume = constrain(volume, 0, 100);
+    volume = constrain(volume, 0, currentVolumeLimit); // Begrenze die Lautstärke auf den Bereich 0 bis Vorgabe
     if (openknxPowerAmpModule.debug())
     {
         logDebugP("setVolume: channel %u, volume %d", _channelIndex, volume);
@@ -639,7 +652,7 @@ void PowerAmpChannel::handleSource_SRC(const String& val) {
 }
 
 void PowerAmpChannel::handleVolume_VOL(const String& val) {
-    currentVolume = constrain(val.toInt(), 0, 100);
+    currentVolume = constrain(val.toInt(), 0, currentVolumeLimit);
     sendVolumeStatusKO();
     if (openknxPowerAmpModule.debug()) {
         logDebugP("[INFO] Volume updated: %d", currentVolume);
@@ -752,4 +765,83 @@ void PowerAmpChannel::checkAliveStatus() {
         deviceAlive = false;
         logDebugP("[DEAD] AMP antwortet nicht!");
     }
+
+    if (ParamAMP_AliveCheckBox == 1) 
+    {
+        unsigned long currentMillis = millis();
+
+        if (currentMillis - lastAliveMillis >=  ParamAMP_AliveTimeInterval * 1000UL) 
+        {
+        KoAMP_ChAliveStatus.value(deviceAlive, DPT_Switch);
+        lastAliveMillis = currentMillis;
+        }
+    }
+}
+
+void PowerAmpChannel::lock()
+{
+    if (ParamAMP_Lock == 0 || _currentLocked) return;
+
+    _currentLocked = true;
+    stop();
+    KoAMP_ChLock.value(_currentLocked, DPT_Switch);
+    logInfoP("lock");
+}
+
+void PowerAmpChannel::unlock()
+{
+    if (ParamAMP_Lock == 0 || !_currentLocked) return;
+
+    _currentLocked = false;
+    KoAMP_ChLock.value(_currentLocked, DPT_Switch);
+    logInfoP("unlock");
+}
+
+void PowerAmpChannel::day()
+{
+    logInfoP("day mode");
+    _currentNight = false;
+    setDefaultVolume();
+}
+
+void PowerAmpChannel::night()
+{
+    logInfoP("night mode");
+    _currentNight = true;
+    setDefaultVolume();
+}
+
+void PowerAmpChannel::processInputKoDayNight(GroupObject &ko)
+{
+    bool value = ko.value(DPT_Switch);
+
+    if (ParamAMP_DayNight == 1 && value == 0 || ParamAMP_DayNight == 2 && value == 1)
+        return night();
+
+    return day();
+}
+
+void PowerAmpChannel::setDefaultVolume()
+{
+    // Dont set during playing
+    if (playingStatus == true) return;
+
+    // select _currentDefaultVolume
+    if (_currentNight)
+        currentVolume = ParamAMP_VolumeNight;
+    else
+        currentVolume = ParamAMP_VolumeDay;
+
+    // update 
+    setVolume(currentVolume);
+}
+
+void PowerAmpChannel::processInputKoLock(GroupObject &ko)
+{
+    bool value = ko.value(DPT_Switch);
+
+    if (ParamAMP_Lock == 1 && value == 1 || ParamAMP_Lock == 2 && value == 0)
+        return lock();
+
+    return unlock();
 }

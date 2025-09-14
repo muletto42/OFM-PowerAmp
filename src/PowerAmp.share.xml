@@ -22,7 +22,7 @@
                 </TypeRestriction>
               </ParameterType>
               <ParameterType Id="%AID%_PT-Volume" Name="Volume">
-                <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="1" maxInclusive="255" UIHint="Slider" />
+                <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="1" maxInclusive="100" UIHint="Slider" />
               </ParameterType>
               <ParameterType Id="%AID%_PT-VolumeStepValue" Name="VolumeStepValue">
                 <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="1" maxInclusive="10" UIHint="Slider" />
@@ -59,6 +59,9 @@
               </ParameterType>
               <ParameterType Id="%AID%_PT-AMPAliveTimeInterval" Name="ZeitintervallAMPdeviceAlive[s]">
                 <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="1" maxInclusive="120" UIHint="Slider" />
+              </ParameterType>
+              <ParameterType Id="%AID%_PT-LimitmaxVolume" Name="LimitmaxVolume">
+                <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="1" maxInclusive="100" UIHint="Slider" />
               </ParameterType>
             </ParameterTypes>
 

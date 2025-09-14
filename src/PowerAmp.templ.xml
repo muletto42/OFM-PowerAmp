@@ -62,6 +62,9 @@
               <Parameter Id="%AID%_P-%TT%%CC%030" Name="%C%AliveCheckBox" ParameterType="%AID%_PT-CheckBox" Text="AliveEnable" Value="1" >
                 <Memory CodeSegment="%AID%_RS-04-00000" Offset="9" BitOffset="0" />
               </Parameter>
+              <Parameter Id="%AID%_P-%TT%%CC%031" Name="%C%LimitMaxVolume" ParameterType="%AID%_PT-LimitmaxVolume" Text="" Value="60">
+                <Memory CodeSegment="%AID%_RS-04-00000" Offset="10" BitOffset="0" />
+              </Parameter>
             </Parameters>
 
             <ParameterRefs> 
@@ -72,6 +75,7 @@
               <ParameterRef Id="%AID%_P-%TT%%CC%003_R-%TT%%CC%00301" RefId="%AID%_P-%TT%%CC%003" Text="Lautstärke (Nacht)" />
               <ParameterRef Id="%AID%_P-%TT%%CC%008_R-%TT%%CC%00801" RefId="%AID%_P-%TT%%CC%008" />
               <ParameterRef Id="%AID%_P-%TT%%CC%005_R-%TT%%CC%00501" RefId="%AID%_P-%TT%%CC%005" Text="Schrittweite Lautstärkeänderung" />
+              <ParameterRef Id="%AID%_P-%TT%%CC%031_R-%TT%%CC%03101" RefId="%AID%_P-%TT%%CC%031" Text="Begrenzung max Lautstärke" />
               <!-- <ParameterRef Id="%AID%_P-%TT%%CC%006_R-%TT%%CC%00601" RefId="%AID%_P-%TT%%CC%006" /> -->
               <ParameterRef Id="%AID%_P-%TT%%CC%007_R-%TT%%CC%00701" RefId="%AID%_P-%TT%%CC%007" />
               <ParameterRef Id="%AID%_P-%TT%%CC%009_R-%TT%%CC%00901" RefId="%AID%_P-%TT%%CC%009" />
@@ -114,7 +118,7 @@
               <ComObject Id="%AID%_O-%TT%%CC%027" Name="Ch%C%ElapsedTime" Text="Elapsed Time Amp %Z%" Number="%K20%" FunctionText="Wert" ObjectSize="14 Bytes"  ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-16-1" />
               <ComObject Id="%AID%_O-%TT%%CC%028" Name="Ch%C%PlayPauseStatus" Text="PlayPause Status Amp %Z%" Number="%K21%" FunctionText="Wert" ObjectSize="1 Bit" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-1-1" />
 
-              <ComObject Id="%AID%_O-%TT%%CC%029" Name="Ch%C%AliveTimeInterval" Text="AliveTimeInterval Amp %Z%" Number="%K22%" FunctionText="AliveTimeInterval" ObjectSize="1 Bit" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Enabled" ReadOnInitFlag="Disabled" DatapointType="DPT-1" />
+              <ComObject Id="%AID%_O-%TT%%CC%029" Name="Ch%C%AliveStatus" Text="Alive Status Amp %Z%" Number="%K22%" FunctionText="AliveStatus" ObjectSize="1 Bit" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Enabled" ReadOnInitFlag="Disabled" DatapointType="DPT-1" />
             
             </ComObjectTable>
             <ComObjectRefs>
@@ -143,7 +147,7 @@
               <ComObjectRef Id="%AID%_O-%TT%%CC%027_R-%TT%%CC%02701" RefId="%AID%_O-%TT%%CC%027" Text="Amp %Z%: Elapsed Time Status" />
               <ComObjectRef Id="%AID%_O-%TT%%CC%028_R-%TT%%CC%02801" RefId="%AID%_O-%TT%%CC%028" Text="Amp %Z%: PlayPause Status" />
 
-              <ComObjectRef Id="%AID%_O-%TT%%CC%029_R-%TT%%CC%02901" RefId="%AID%_O-%TT%%CC%029" Text="Amp %Z%: AliveTimeInterval" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%029_R-%TT%%CC%02901" RefId="%AID%_O-%TT%%CC%029" Text="Amp %Z%: AliveStatus" />
 
             </ComObjectRefs>
           </Static>
@@ -160,6 +164,8 @@
                         <ParameterSeparator Id="%AID%_PS-nnn" Text="Wenn ein Kanal funktionslos geschaltet wird, bleiben alle Parameter und GA-Zuweisungen erhalten, ohne dass der Kanal etwas macht. Dies kann bei einer Fehlersuche sinnvoll sein." />
                       </when>
                       <when test=">0">
+                        <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
+                        <ParameterSeparator Id="%AID%_PS-nnn" Text="Lautstärke" UIHint="Headline" />
                         <!-- Tag/Nacht -->
                         <ParameterRefRef RefId="%AID%_P-%TT%%CC%007_R-%TT%%CC%00701" IndentLevel="1" /> 
                         <choose ParamRefId="%AID%_P-%TT%%CC%007_R-%TT%%CC%00701">
@@ -167,7 +173,7 @@
                             <ComObjectRefRef RefId="%AID%_O-%TT%%CC%010_R-%TT%%CC%01001" />
                           </when>
                           <when test="2">
-                            <ComObjectRefRef RefId="%AID%_O-%TT%%CC%010_R-%TT%%CC%01001" />
+                            <ComObjectRefRef RefId="%AID%_O-%TT%%CC%010_R-%TT%%CC%01002" />
                           </when>
                         </choose>
                         <!-- Volume -->
@@ -185,9 +191,11 @@
                         </choose>
                         <!-- VolumeStep Value -->
                         <ParameterRefRef RefId="%AID%_P-%TT%%CC%005_R-%TT%%CC%00501" IndentLevel="1" />
+                        <!-- VolumeLimit-->
+                        <ParameterRefRef RefId="%AID%_P-%TT%%CC%031_R-%TT%%CC%03101" IndentLevel="1" />
 
-                        
-
+                        <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
+                        <ParameterSeparator Id="%AID%_PS-nnn" Text="Sperre" UIHint="Headline" />
                         <!-- Lock -->
                         <ParameterRefRef RefId="%AID%_P-%TT%%CC%009_R-%TT%%CC%00901" IndentLevel="1" />
                         <choose ParamRefId="%AID%_P-%TT%%CC%009_R-%TT%%CC%00901">
@@ -199,16 +207,18 @@
                           </when>
                         </choose>
 
-
-                        <!-- <ParameterRefRef RefId="%AID%_P-%TT%%CC%030_R-%TT%%CC%03001" IndentLevel="1" /> 
+                        <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
+                        <ParameterSeparator Id="%AID%_PS-nnn" Text="Alive" UIHint="Headline" />
+                        <!-- AliveStatus -->
+                        <ParameterRefRef RefId="%AID%_P-%TT%%CC%030_R-%TT%%CC%03001" IndentLevel="1" /> 
                         <choose ParamRefId="%AID%_P-%TT%%CC%030_R-%TT%%CC%03001">
                           <when test="1">
-                            <ParameterRefRef RefId="%AID%_P-%TT%%CC%029_R-%TT%%CC%02901" IndentLevel="1" />  Alive 
-                            <ComObjectRefRef RefId="%AID%_O-%TT%%CC%029_R-%TT%%CC%02901" />  Alive Time Interval 
+                            <ParameterRefRef RefId="%AID%_P-%TT%%CC%029_R-%TT%%CC%02901" IndentLevel="1" />  <!-- Alive  -->
+                            <ComObjectRefRef RefId="%AID%_O-%TT%%CC%029_R-%TT%%CC%02901" /> <!-- Alive Time Interval -->
                           </when>
-                        </choose> -->
+                        </choose>
 
-                        
+                        <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
                         
                         <!-- Zusatzfunktionen - Szene  -->
                         <!-- <ParameterSeparator Id="%AID%_PS-nnn" Text="Zusatzfunktionen" UIHint="Headline" />
