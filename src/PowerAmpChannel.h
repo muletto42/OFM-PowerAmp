@@ -3,22 +3,14 @@
 #include <SoftwareSerial.h>
 
 
-
-// #define PT_Source_network 0
-// #define PT_Source_bluetooth 1
-// #define PT_Source_USBDAC 2
-// #define PT_Source_linein 3
-// #define PT_Source_Optical 4
-// #define PT_Source_Coaxial 5
-// #define PT_Source_ERROR 99
-
 enum class enumSource : uint8_t {
-    Network = 0,
-    Bluetooth,
-    USBDAC,
-    LineIn,
-    Optical,
-    Coaxial,
+    Network = 0,    //NET
+    Bluetooth,      // BT
+    USB,            // USB
+    LineIn,         // LINE-IN
+    Optical,        // OPT
+    Coaxial,        // COAX
+    USBDAC,         // USBDAC
     Error = 99
 };
 
@@ -36,10 +28,11 @@ private:
     {source} 	description
     NET 	    network
     BT 	    bluetooth
-    USBDAC 	USB DAC
+    USB        USB
     LINE-IN 	line-in
     OPT 	    Optical
     COAX 	    Coaxial
+    USBDAC 	USB DAC
     */
     void getSource(void);
 

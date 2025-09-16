@@ -332,6 +332,11 @@ void PowerAmpChannel::setSource(enumSource sourcenumber) // SRC
             source = "COAX";
             break;
         }
+        case enumSource::USB:
+        {
+            source = "USB";
+            break;
+        }
         default:
         {
             source = "";
@@ -488,12 +493,12 @@ enumSource PowerAmpChannel::sourceStringToInt(const String source)
     else if (source == "LINE-IN")   return enumSource::LineIn;
     else if (source == "OPT")       return enumSource::Optical;
     else if (source == "COAX")      return enumSource::Coaxial;
+    else if (source == "USB")       return enumSource::USB;
     else {
         logDebugP("[ERROR] Unbekannte Quelle: %s", source.c_str());
         return enumSource::Error;
     }
 }
-
 
 /*---------------------------------------------------------------------------------------------------
                       Funktion zur Verarbeitung empfangener UART-Kommandos
@@ -524,192 +529,6 @@ void PowerAmpChannel::processReceivedUARTCommand(const String commandType, const
         logDebugP("[ERROR] Unknown command: %s", commandType.c_str());
     }
 }
-
-/*
-{
-    // Logik zum Verarbeiten der UART-Kommandos vom ArylicAmp
-
-    // Vorverarbeitung
-    String commandValuetrimmed = commandVal;
-    commandValuetrimmed.trim();
-    if (commandValuetrimmed.endsWith(";")) 
-    {
-        commandValuetrimmed.remove(commandValuetrimmed.length() - 1);
-        commandValuetrimmed.trim();
-    }
-
-    if (openknxPowerAmpModule.debug())
-    {
-        logDebugP("[processReceivedUARTCommand] commandType: %s, commandValuetrimmed: %s", commandType.c_str(), commandValuetrimmed.c_str());
-    }
-
-    // string currentSource;
-    if (commandType == "SRC")
-    {
-        string_currentSource = commandValuetrimmed;
-        currentSource = sourceStringToInt(string_currentSource);
-        if (openknxPowerAmpModule.debug())
-        {
-            logDebugP("[INFO] Quelle aktualisiert: %s", string_currentSource.c_str());
-            logDebugP("[INFO] Quelle aktualisiert int: %d", currentSource);
-        }
-        sendSourceStatusKO(); // Update the KO with the current source
-    }
-    else if (commandType == "VOL")
-    {
-        currentVolume = constrain(commandValuetrimmed.toInt(), 0, 100);
-        if (openknxPowerAmpModule.debug())
-        {
-            logDebugP("[INFO] Lautstärke aktualisiert:  %d", currentVolume);
-        }
-        sendVolumeStatusKO(); // Update the KO with the current volume
-    }
-    else if (commandType == "MUT")
-    {
-        muteStatus = (bool)commandValuetrimmed.toInt();
-        if (openknxPowerAmpModule.debug())
-        {
-            logDebugP("[INFO] Mute Status:  %d", muteStatus);
-        }
-        KoAMP_mute_onoff.value(muteStatus, DPT_Switch); // Update the KO with the mute status
-    }
-    else if (commandType == "BAS")
-    {
-        currentBassTone = commandValuetrimmed.toInt();
-        if (openknxPowerAmpModule.debug())
-        {
-            logDebugP("[INFO] Bass aktualisiert:  %d", currentBassTone);
-        }
-    }
-    else if (commandType == "TRE")
-    {
-        currentTrebleTone = commandValuetrimmed.toInt();
-        if (openknxPowerAmpModule.debug())
-        {
-            logDebugP("[INFO] Treble aktualisiert:  %d", currentTrebleTone);
-        }
-    }
-    else if (commandType == "MID")
-    {
-        currentMidTone = commandValuetrimmed.toInt();
-        if (openknxPowerAmpModule.debug())
-        {
-            logDebugP("[INFO] Mid aktualisiert:  %d", currentMidTone);
-        }
-    }
-    else if (commandType == "LED")
-    {
-        ledStatus = (bool)commandValuetrimmed.toInt();
-        if (openknxPowerAmpModule.debug())
-        {
-            logDebugP("[INFO] LED Status:  %d", ledStatus);
-        }
-    }
-    else if (commandType == "BTC")
-    {
-        bluetoothConnected = (bool)commandValuetrimmed.toInt();
-        if (openknxPowerAmpModule.debug())
-        {
-            logDebugP("[INFO] Bluetooth Connected Status:  %d", bluetoothConnected);
-        }
-    }
-    else if (commandType == "VBS")
-    {
-        virtualBassEnabled = (bool)commandValuetrimmed.toInt();
-        if (openknxPowerAmpModule.debug())
-        {
-            logDebugP("[INFO] virtualBass VBS Status:  %d", virtualBassEnabled);
-        } 
-    }
-    else if (commandType == "BEP")
-    {
-        beepEnabled = (bool)commandValuetrimmed.toInt();
-        if (openknxPowerAmpModule.debug())
-        {
-            logDebugP("[INFO] BEEP Status:  %d", beepEnabled);
-        }
-    }
-    else if (commandType == "STA")
-    {
-        processSTACommand(commandValuetrimmed);
-        // Debugausgabe in processSTACommand integriert
-    }
-    else if (commandType == "APL")
-    {
-        autoplayStatus = (bool)commandValuetrimmed.toInt();
-        if (openknxPowerAmpModule.debug())
-        {
-            logDebugP("[INFO] Autoplay Status:  %d", autoplayStatus);
-        }
-    }
-    else if (commandType == "TIT") //notification messages for song metadata title. 
-    {
-        songMetadataTitle = commandValuetrimmed;
-        if (openknxPowerAmpModule.debug())
-        {
-            logDebugP("[INFO] Titel-Update empfangen: %s", commandValuetrimmed.c_str());
-        }
-        KoAMP_ChsongMetadataTitle.value(songMetadataTitle.c_str(), DPT_String_8859_1); // Update the KO with the title information:
-    }
-     else if (commandType == "ART") //notification messages for song metadata artist.
-    {
-        songMetadataArtist = commandValuetrimmed;
-        if (openknxPowerAmpModule.debug())
-        {
-            logDebugP("[INFO] Künstler-Update empfangen: %s", commandValuetrimmed.c_str());
-        }
-        KoAMP_ChsongMetadataArtist.value(songMetadataArtist.c_str(), DPT_String_8859_1); // Update the KO with the artist information
-    }
-    else if (commandType == "ALB") //notification messages for song metadata album.
-    {
-        songMetadataAlbum = commandValuetrimmed;
-        if (openknxPowerAmpModule.debug())
-        {
-            logDebugP("[INFO] Album-Update empfangen: %s", commandValuetrimmed.c_str());
-        }
-        KoAMP_ChsongMetadataAlbum.value(songMetadataAlbum.c_str(), DPT_String_8859_1); // Update the KO with the album information
-    }
-    else if (commandType == "VND") //notification messages for song metadata vendor.
-    {
-        songMetadataVendor = commandValuetrimmed;
-        //{vendor} will have the following value:
-        //spotify qplay dlna airplay upnp phone usb tidal napster qobuz amazon tunein iheart vtuner http other
-        if (openknxPowerAmpModule.debug())
-        {
-            logDebugP("[INFO] Vendor-Update empfangen: %s", commandValuetrimmed.c_str());
-        }
-        KoAMP_ChsongMetadataVendor.value(songMetadataVendor.c_str(), DPT_String_8859_1); // Update the KO with the vendor information
-    }
-    else if (commandType == "PLA") // network playing state // notification messages for play state. 1 means playing, 0 means paused.
-    {
-        playingStatus = (bool)commandValuetrimmed.toInt();
-        if (openknxPowerAmpModule.debug())
-        {
-            logDebugP("[INFO] Playing Status empfangen: %d", playingStatus);
-        }
-    }
-    else if (commandType == "ELP") //notification messages for elapsed and duration of current track. {elapsed} will have unit ms, and a sample: 31251/212000
-    {
-        elapsedTime = commandValuetrimmed;
-        if (openknxPowerAmpModule.debug())
-        {
-            logDebugP("[INFO] ELP elapsed and duration of current track empfangen: %s", commandValuetrimmed.c_str());
-        }
-    }
-    else if (commandType == "PLI") // query current track index and number of playlist, {playlist_info} will be in this format index/count, and index is start from 1. eg: 1/23 means now playing the first song in playlist contains 23 songs in total.
-    {
-        playlistInfo = commandValuetrimmed;
-        if (openknxPowerAmpModule.debug())
-        {
-            logDebugP("[INFO] PLI query current track index and number of playlist empfangen: %s", commandValuetrimmed.c_str());
-        }
-    }
-    else
-    {
-        logDebugP("[ERROR] Unbekanntes Kommando: %s", commandType.c_str());
-    }
-}
-*/
 
 void PowerAmpChannel::processSTACommand(const String commandValue)
 {
@@ -785,9 +604,7 @@ void PowerAmpChannel::sendSourceStatusKO(void)
     }
 }
 
-
 /* Handler für UART Kommandos von Arylic*/
-
 void PowerAmpChannel::initHandlers() {
     commandHandlers = {
         {"SRC", [this](const String& v){ handleSource_SRC(v); }},
@@ -811,7 +628,6 @@ void PowerAmpChannel::initHandlers() {
         {"MID", [this](const String& v){ handleMid_MID(v); }}
     };
 }
-
 
 void PowerAmpChannel::handleSource_SRC(const String& val) {
     string_currentSource = val;
@@ -921,7 +737,6 @@ void PowerAmpChannel::handleMid_MID(const String& val) {
     currentMidTone = val.toInt();
     if (openknxPowerAmpModule.debug()) logDebugP("[INFO] Mid updated: %d", currentMidTone);
 }
-
 
 // ---------------- Alive Handling ----------------
 void PowerAmpChannel::updateAlive() {

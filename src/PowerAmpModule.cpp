@@ -46,7 +46,6 @@ const std::string PowerAmpModule::version()
     return MODULE_PowerAmp_Version;
 }
 
-
 void PowerAmpModule::loop()
 {
     for (uint8_t i = 0; i < MIN(ParamAMP_VisibleChannels, OPENKNX_AMP_CHANNEL_COUNT); i++)
@@ -103,11 +102,6 @@ void PowerAmpModule::setup(bool configured)
 // will be called once a KO received a telegram
 void PowerAmpModule::processInputKo(GroupObject &iKo)
 {
-    // if (iKo.asap() != SWA_KoCentralFunction &&
-    //     (iKo.asap() < SWA_KoBlockOffset ||
-    //      iKo.asap() > SWA_KoBlockOffset + ParamSWA_VisibleChannels * SWA_KoBlockSize - 1))
-    //     return;
-
     logDebugP("processInputKoModule");
     logDebugP("ParamAMP_VisibleChannels %i", ParamAMP_VisibleChannels);
     logIndentUp();
