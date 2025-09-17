@@ -56,6 +56,12 @@
               <Parameter Id="%AID%_P-%TT%%CC%009" Name="%C%Lock" ParameterType="%AID%_PT-AMPLock" Text="Zentrale Sperre" Value="0" >
                 <Memory CodeSegment="%AID%_RS-04-00000" Offset="7" BitOffset="0" />
               </Parameter>
+              <Parameter Id="%AID%_P-%TT%%CC%029" Name="%C%AliveTimeInterval" ParameterType="%AID%_PT-AMPAliveTimeInterval" Text="AliveTimeInterval" Value="30" >
+                <Memory CodeSegment="%AID%_RS-04-00000" Offset="8" BitOffset="0" />
+              </Parameter>
+              <Parameter Id="%AID%_P-%TT%%CC%030" Name="%C%AliveCheckBox" ParameterType="%AID%_PT-CheckBox" Text="AliveEnable" Value="1" >
+                <Memory CodeSegment="%AID%_RS-04-00000" Offset="9" BitOffset="0" />
+              </Parameter>
             </Parameters>
 
             <ParameterRefs> 
@@ -65,13 +71,17 @@
               <ParameterRef Id="%AID%_P-%TT%%CC%004_R-%TT%%CC%00402" RefId="%AID%_P-%TT%%CC%004" Text="Lautstärke (Tag)" />
               <ParameterRef Id="%AID%_P-%TT%%CC%003_R-%TT%%CC%00301" RefId="%AID%_P-%TT%%CC%003" Text="Lautstärke (Nacht)" />
               <ParameterRef Id="%AID%_P-%TT%%CC%008_R-%TT%%CC%00801" RefId="%AID%_P-%TT%%CC%008" />
-              <!-- <ParameterRef Id="%AID%_P-%TT%%CC%005_R-%TT%0000501" RefId="%AID%_P-%TT%%CC%005" /> -->
+              <ParameterRef Id="%AID%_P-%TT%%CC%005_R-%TT%%CC%00501" RefId="%AID%_P-%TT%%CC%005" Text="Schrittweite Lautstärkeänderung" />
               <!-- <ParameterRef Id="%AID%_P-%TT%%CC%006_R-%TT%%CC%00601" RefId="%AID%_P-%TT%%CC%006" /> -->
               <ParameterRef Id="%AID%_P-%TT%%CC%007_R-%TT%%CC%00701" RefId="%AID%_P-%TT%%CC%007" />
-              <!-- <ParameterRef Id="%AID%_P-%TT%%CC%008_R-%TT%%CC%00801" RefId="%AID%_P-%TT%%CC%008" /> -->
               <ParameterRef Id="%AID%_P-%TT%%CC%009_R-%TT%%CC%00901" RefId="%AID%_P-%TT%%CC%009" />
               
               <ParameterRef Id="%AID%_UP-%TT%%CC%002_R-%TT%%CC%00201" RefId="%AID%_UP-%TT%%CC%002" />
+
+              <!-- Alive Time Interval -->
+              <ParameterRef Id="%AID%_P-%TT%%CC%029_R-%TT%%CC%02901" RefId="%AID%_P-%TT%%CC%029" Text="Sende Alive Status alle x Sekunden" />
+
+              <ParameterRef Id="%AID%_P-%TT%%CC%030_R-%TT%%CC%03001" RefId="%AID%_P-%TT%%CC%030" />
 
               <!--Szene-->
               <!-- <ParameterRef Id="%AID%_UP-%TT%%CC%018_R-%TT%%CC%01801" RefId="%AID%_UP-%TT%%CC%018" />  -->
@@ -81,7 +91,7 @@
               <!-- Die Number="%Kxyz%"  muss aufsteigend ohne "Löcher" sein. Sonst funktioniert es nicht-->
               <ComObject Id="%AID%_O-%TT%%CC%001" Name="Ch%C%VolumeValue" Text="Lautstärke Amp %Z%" Number="%K1%" FunctionText="Wert" ObjectSize="1 Byte" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Enabled" ReadOnInitFlag="Disabled" DatapointType="DPST-5-1" />
               <ComObject Id="%AID%_O-%TT%%CC%002" Name="Ch%C%VolumeStep" Text="Lautstärke Amp %Z%" Number="%K2%" FunctionText="Vol Step Dec/Inc" ObjectSize="1 Bit" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Enabled" ReadOnInitFlag="Disabled" DatapointType="DPST-1-7" />
-               <ComObject Id="%AID%_O-%TT%%CC%003" Name="Ch%C%DUMMY" Text="EMPTY DUMMY Amp %Z%" Number="%K3%" FunctionText="DUMMY" ObjectSize="1 Bit" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Enabled" ReadOnInitFlag="Disabled" DatapointType="DPST-1-17" />
+              <ComObject Id="%AID%_O-%TT%%CC%003" Name="Ch%C%DUMMY" Text="EMPTY DUMMY Amp %Z%" Number="%K3%" FunctionText="DUMMY" ObjectSize="1 Bit" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Enabled" ReadOnInitFlag="Disabled" DatapointType="DPST-1-17" />
               <ComObject Id="%AID%_O-%TT%%CC%004" Name="Ch%C%Source" Text="Quelle Amp %Z%" Number="%K4%" FunctionText="Auswahl" ObjectSize="1 Byte" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Enabled" ReadOnInitFlag="Disabled" DatapointType="DPT-5" />
               <ComObject Id="%AID%_O-%TT%%CC%005" Name="Ch%C%MuteOnOff" Text="Mute Amp %Z%" Number="%K5%" FunctionText="Mute" ObjectSize="1 Bit" ReadFlag="Enabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Enabled" ReadOnInitFlag="Disabled" DatapointType="DPST-1-1" />
               <ComObject Id="%AID%_O-%TT%%CC%006" Name="Ch%C%PlayPause" Text="Track Amp %Z%" Number="%K6%" FunctionText="PlayPause" ObjectSize="1 Bit" ReadFlag="Enabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Enabled" ReadOnInitFlag="Disabled" DatapointType="DPST-1-10" />
@@ -104,6 +114,8 @@
               <ComObject Id="%AID%_O-%TT%%CC%027" Name="Ch%C%ElapsedTime" Text="Elapsed Time Amp %Z%" Number="%K20%" FunctionText="Wert" ObjectSize="14 Bytes"  ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-16-1" />
               <ComObject Id="%AID%_O-%TT%%CC%028" Name="Ch%C%PlayPauseStatus" Text="PlayPause Status Amp %Z%" Number="%K21%" FunctionText="Wert" ObjectSize="1 Bit" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-1-1" />
 
+              <ComObject Id="%AID%_O-%TT%%CC%029" Name="Ch%C%AliveTimeInterval" Text="AliveTimeInterval Amp %Z%" Number="%K22%" FunctionText="AliveTimeInterval" ObjectSize="1 Bit" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Enabled" ReadOnInitFlag="Disabled" DatapointType="DPT-1" />
+            
             </ComObjectTable>
             <ComObjectRefs>
               <ComObjectRef Id="%AID%_O-%TT%%CC%001_R-%TT%%CC%00101" RefId="%AID%_O-%TT%%CC%001" /> <!-- Lautstärke Wert -->
@@ -130,6 +142,8 @@
               <ComObjectRef Id="%AID%_O-%TT%%CC%026_R-%TT%%CC%02601" RefId="%AID%_O-%TT%%CC%026" Text="Amp %Z%: Mute Status" />
               <ComObjectRef Id="%AID%_O-%TT%%CC%027_R-%TT%%CC%02701" RefId="%AID%_O-%TT%%CC%027" Text="Amp %Z%: Elapsed Time Status" />
               <ComObjectRef Id="%AID%_O-%TT%%CC%028_R-%TT%%CC%02801" RefId="%AID%_O-%TT%%CC%028" Text="Amp %Z%: PlayPause Status" />
+
+              <ComObjectRef Id="%AID%_O-%TT%%CC%029_R-%TT%%CC%02901" RefId="%AID%_O-%TT%%CC%029" Text="Amp %Z%: AliveTimeInterval" />
 
             </ComObjectRefs>
           </Static>
@@ -169,6 +183,11 @@
                             <ParameterRefRef RefId="%AID%_P-%TT%%CC%003_R-%TT%%CC%00301" IndentLevel="1" />
                           </when>
                         </choose>
+                        <!-- VolumeStep Value -->
+                        <ParameterRefRef RefId="%AID%_P-%TT%%CC%005_R-%TT%%CC%00501" IndentLevel="1" />
+
+                        
+
                         <!-- Lock -->
                         <ParameterRefRef RefId="%AID%_P-%TT%%CC%009_R-%TT%%CC%00901" IndentLevel="1" />
                         <choose ParamRefId="%AID%_P-%TT%%CC%009_R-%TT%%CC%00901">
@@ -180,6 +199,16 @@
                           </when>
                         </choose>
 
+
+                        <!-- <ParameterRefRef RefId="%AID%_P-%TT%%CC%030_R-%TT%%CC%03001" IndentLevel="1" /> 
+                        <choose ParamRefId="%AID%_P-%TT%%CC%030_R-%TT%%CC%03001">
+                          <when test="1">
+                            <ParameterRefRef RefId="%AID%_P-%TT%%CC%029_R-%TT%%CC%02901" IndentLevel="1" />  Alive 
+                            <ComObjectRefRef RefId="%AID%_O-%TT%%CC%029_R-%TT%%CC%02901" />  Alive Time Interval 
+                          </when>
+                        </choose> -->
+
+                        
                         
                         <!-- Zusatzfunktionen - Szene  -->
                         <!-- <ParameterSeparator Id="%AID%_PS-nnn" Text="Zusatzfunktionen" UIHint="Headline" />

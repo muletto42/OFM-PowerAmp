@@ -25,7 +25,7 @@
                 <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="1" maxInclusive="255" UIHint="Slider" />
               </ParameterType>
               <ParameterType Id="%AID%_PT-VolumeStepValue" Name="VolumeStepValue">
-                <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="1" maxInclusive="20" UIHint="Slider" />
+                <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="1" maxInclusive="10" UIHint="Slider" />
               </ParameterType>
               <ParameterType Id="%AID%_PT-AMPLock" Name="AMPLock">
                 <TypeRestriction Base="Value" SizeInBit="2">
@@ -57,7 +57,11 @@
                   <Enumeration Text="stumm" Value="1" Id="%ENID%" />
                 </TypeRestriction>
               </ParameterType>
+              <ParameterType Id="%AID%_PT-AMPAliveTimeInterval" Name="ZeitintervallAMPdeviceAlive[s]">
+                <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="1" maxInclusive="120" UIHint="Slider" />
+              </ParameterType>
             </ParameterTypes>
+
 
             <Parameters>
               <Parameter Id="%AID%_P-%TT%00002" Name="CheckForOneChannel" ParameterType="%AID%_PT-CheckBox" Text="" Value="1" Access="None" />
