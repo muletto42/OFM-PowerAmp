@@ -141,6 +141,11 @@ void PowerAmpChannel::processInputKo(GroupObject &iKo)
             processInputKoLock(iKo);
             break;
         }
+        case AMP_KoChScene:
+        {
+            processInputKoScene(iKo);
+            break;
+        }        
     }
     if (openknxPowerAmpModule.debug())
     {
@@ -845,3 +850,377 @@ void PowerAmpChannel::processInputKoLock(GroupObject &ko)
 
     return unlock();
 }
+
+struct SceneParams {
+    uint16_t scene;
+    uint16_t quelle;
+    uint16_t volume;
+};
+
+// Alle 9 Szenenblöcke in einer Lookup-Tabelle
+const SceneParams sceneBlocks[9] = {
+    { ParamAMP_ChScene0, ParamAMP_ChSceneQuelle0, ParamAMP_ChSceneVolume0 },
+    { ParamAMP_ChScene1, ParamAMP_ChSceneQuelle1, ParamAMP_ChSceneVolume1 },
+    { ParamAMP_ChScene2, ParamAMP_ChSceneQuelle2, ParamAMP_ChSceneVolume2 },
+    { ParamAMP_ChScene3, ParamAMP_ChSceneQuelle3, ParamAMP_ChSceneVolume3 },
+    { ParamAMP_ChScene4, ParamAMP_ChSceneQuelle4, ParamAMP_ChSceneVolume4 },
+    { ParamAMP_ChScene5, ParamAMP_ChSceneQuelle5, ParamAMP_ChSceneVolume5 },
+    { ParamAMP_ChScene6, ParamAMP_ChSceneQuelle6, ParamAMP_ChSceneVolume6 },
+    { ParamAMP_ChScene7, ParamAMP_ChSceneQuelle7, ParamAMP_ChSceneVolume7 },
+    { ParamAMP_ChScene8, ParamAMP_ChSceneQuelle8, ParamAMP_ChSceneVolume8 }
+};
+
+void PowerAmpChannel::processInputKoScene(GroupObject &ko)
+{
+    if (!ParamAMP_ChScenesActive)
+    {
+        return;
+    }
+
+    uint8_t Szenennummer = ko.value(DPT_SceneNumber);
+    Szenennummer += 1;
+    logDebugP("processInputKoScene: Szenennummer %i", Szenennummer);
+    for (uint8_t i = 0; i < 9; i++)
+    {
+        uint8_t sceneId     = knx.paramByte(sceneBlocks[i].scene);
+        uint8_t sceneQuelle = 0;
+        uint8_t sceneVolume = 0;
+
+        logDebugP("Block %i -> Szenennummer: %i", i + 1, sceneId);
+
+        if (sceneId == 0) 
+        {
+            logDebugP("Keine Szene definiert (Block %i)", i + 1);
+        }
+        else if (sceneId >= 1 && sceneId <= 8) 
+        {
+            // Quelle/Volume anhand der SceneId laden
+            sceneQuelle = knx.paramByte(sceneBlocks[sceneId].quelle);
+            sceneVolume = knx.paramByte(sceneBlocks[sceneId].volume);
+
+            logInfoP("Block %i -> Scene %i: Quelle %i, Volume %i", i, sceneId, sceneQuelle, sceneVolume);
+
+            
+            enumSource currentSource = static_cast<enumSource>(sceneQuelle);
+            setSource(currentSource);
+            setVolume(sceneVolume);
+        }
+        else 
+        {
+            logDebugP("Ungültige Szenennummer %i (Block %i)", sceneId, i + 1);
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+//     uint8_t sceneQuelle = 0;
+//     uint8_t sceneVolume = 0;
+
+
+//         logDebugP("Szenennummer: %i", Szenennummer);
+
+//         switch (sceneId)
+//         {
+//             case 0:
+//             {
+//                 // Keine Szene definiert
+//                 logDebugP("Keine Szene definiert");
+//             }
+//             case 1:
+//             {
+//                 sceneQuelle = knx.paramByte(ParamAMP_ChSceneQuelle1);
+//                 sceneVolume = knx.paramByte(ParamAMP_ChSceneVolume1);
+//                 break;
+//             }
+//             case 2:
+//             {
+//                 sceneQuelle = knx.paramByte(ParamAMP_ChSceneQuelle2);
+//                 sceneVolume = knx.paramByte(ParamAMP_ChSceneVolume2);
+//                 break;
+//             }
+//             case 3:
+//             {
+//                 sceneQuelle = knx.paramByte(ParamAMP_ChSceneQuelle3);
+//                 sceneVolume = knx.paramByte(ParamAMP_ChSceneVolume3);
+//                 break;
+//             }
+//             case 4:
+//             {
+//                 sceneQuelle = knx.paramByte(ParamAMP_ChSceneQuelle4);
+//                 sceneVolume = knx.paramByte(ParamAMP_ChSceneVolume4);
+//                 break;
+//             }
+//             case 5:
+//             {
+//                 sceneQuelle = knx.paramByte(ParamAMP_ChSceneQuelle5);
+//                 sceneVolume = knx.paramByte(ParamAMP_ChSceneVolume5);
+//                 break;
+//             }
+//             case 6:
+//             {
+//                 sceneQuelle = knx.paramByte(ParamAMP_ChSceneQuelle6);
+//                 sceneVolume = knx.paramByte(ParamAMP_ChSceneVolume6);
+//                 break;
+//             }
+//             case 7:
+//             {
+//                 sceneQuelle = knx.paramByte(ParamAMP_ChSceneQuelle7);
+//                 sceneVolume = knx.paramByte(ParamAMP_ChSceneVolume7);
+//                 break;
+//             }
+//             case 8:
+//             {
+//                 sceneQuelle = knx.paramByte(ParamAMP_ChSceneQuelle8);
+//                 sceneVolume = knx.paramByte(ParamAMP_ChSceneVolume8);
+//                 break;
+//             }
+//             default:
+//             {
+//                 logDebugP("default case reached");
+//             }
+//                 break;
+//         }
+
+//         if (sceneId > 0)
+//         {
+//             logInfoP("Scene %i: Quelle %i, Volume %i", sceneId, sceneQuelle, sceneVolume);
+//             setSource(sceneQuelle);
+//             setVolume(sceneVolume);
+//         }
+    
+
+
+//     if (value > 0 && value <= 8) // 1 bis 8 sind gültig, 0 heißt deaktiviert
+//     {
+//         ParamAMP_ChScene0
+
+//         for (uint8_t i = 0; i < 20; i++)
+//         {
+//             uint8_t sceneId = knx.paramByte(ParamAMP_ChScene0 + i);
+//             if (value == sceneId)
+//             {
+//                 logInfoP("Scene %i", value);
+//                 uint8_t sceneAction = knx.paramByte(SOM_SceneAction0 + i);
+//                 uint8_t sceneTarget = knx.paramByte(SOM_SceneTargetA0 + i);
+
+//                 // Zentral
+//                 if (sceneTarget == 255)
+//                 {
+//                     switch (sceneAction)
+//                     {
+//                         case SOM_SceneActionStop:
+//                             this->stop();
+//                             break;
+//                         case SOM_SceneActionLock:
+//                             this->lock();
+//                             break;
+//                         case SOM_SceneActionUnlock:
+//                             this->unlock();
+//                             break;
+//                         default:
+//                             break;
+//                     }
+//                 }
+//                 else
+//                 {
+//                     SoundTrigger *trigger = _triggers[sceneTarget];
+//                     switch (sceneAction)
+//                     {
+//                         case SOM_SceneActionStart:
+//                             trigger->play();
+//                             break;
+//                         case SOM_SceneActionStop:
+//                             trigger->stop();
+//                             break;
+//                         case SOM_SceneActionLock:
+//                             trigger->lock();
+//                             break;
+//                         case SOM_SceneActionUnlock:
+//                             trigger->unlock();
+//                             break;
+//                         default:
+//                             break;
+//                     }
+//                 }
+//             }
+//         }
+//     }
+// }
+
+// void SwitchActuatorChannel::processScene(uint8_t sceneNumber, bool learn)
+// {
+//     logDebugP("processScene (sceneNumber=%u, learn=%u)", sceneNumber, learn);
+
+//     if (learn)
+//     {
+//         logInfoP("Scene learning not supported");
+//         return;
+//     }
+
+//     if (ParamSWA_ChSceneAActive &&
+//         ParamSWA_ChSceneANumber == sceneNumber)
+//     {
+//         switch (ParamSWA_ChSceneABehavior)
+//         {
+//             case 0:
+//                 processSwitchInput(false);
+//                 break;
+//             case 1:
+//                 processSwitchInput(true);
+//                 break;
+//             case 2:
+//                 processLockInput(false);
+//                 break;
+//             case 3:
+//                 processLockInput(true);
+//                 break;
+//         }
+//     }
+//     else if (ParamSWA_ChSceneBActive &&
+//              ParamSWA_ChSceneBNumber == sceneNumber)
+//     {
+//         switch (ParamSWA_ChSceneBBehavior)
+//         {
+//             case 0:
+//                 processSwitchInput(false);
+//                 break;
+//             case 1:
+//                 processSwitchInput(true);
+//                 break;
+//             case 2:
+//                 processLockInput(false);
+//                 break;
+//             case 3:
+//                 processLockInput(true);
+//                 break;
+//         }
+//     }
+//     else if (ParamSWA_ChSceneCActive &&
+//              ParamSWA_ChSceneCNumber == sceneNumber)
+//     {
+//         switch (ParamSWA_ChSceneCBehavior)
+//         {
+//             case 0:
+//                 processSwitchInput(false);
+//                 break;
+//             case 1:
+//                 processSwitchInput(true);
+//                 break;
+//             case 2:
+//                 processLockInput(false);
+//                 break;
+//             case 3:
+//                 processLockInput(true);
+//                 break;
+//         }
+//     }
+//     else if (ParamSWA_ChSceneDActive &&
+//              ParamSWA_ChSceneDNumber == sceneNumber)
+//     {
+//         switch (ParamSWA_ChSceneDBehavior)
+//         {
+//             case 0:
+//                 processSwitchInput(false);
+//                 break;
+//             case 1:
+//                 processSwitchInput(true);
+//                 break;
+//             case 2:
+//                 processLockInput(false);
+//                 break;
+//             case 3:
+//                 processLockInput(true);
+//                 break;
+//         }
+//     }
+//     else if (ParamSWA_ChSceneEActive &&
+//              ParamSWA_ChSceneENumber == sceneNumber)
+//     {
+//         switch (ParamSWA_ChSceneEBehavior)
+//         {
+//             case 0:
+//                 processSwitchInput(false);
+//                 break;
+//             case 1:
+//                 processSwitchInput(true);
+//                 break;
+//             case 2:
+//                 processLockInput(false);
+//                 break;
+//             case 3:
+//                 processLockInput(true);
+//                 break;
+//         }
+//     }
+//     else if (ParamSWA_ChSceneFActive &&
+//              ParamSWA_ChSceneFNumber == sceneNumber)
+//     {
+//         switch (ParamSWA_ChSceneFBehavior)
+//         {
+//             case 0:
+//                 processSwitchInput(false);
+//                 break;
+//             case 1:
+//                 processSwitchInput(true);
+//                 break;
+//             case 2:
+//                 processLockInput(false);
+//                 break;
+//             case 3:
+//                 processLockInput(true);
+//                 break;
+//         }
+//     }
+//     else if (ParamSWA_ChSceneGActive &&
+//              ParamSWA_ChSceneGNumber == sceneNumber)
+//     {
+//         switch (ParamSWA_ChSceneGBehavior)
+//         {
+//             case 0:
+//                 processSwitchInput(false);
+//                 break;
+//             case 1:
+//                 processSwitchInput(true);
+//                 break;
+//             case 2:
+//                 processLockInput(false);
+//                 break;
+//             case 3:
+//                 processLockInput(true);
+//                 break;
+//         }
+//     }
+//     else if (ParamSWA_ChSceneHActive &&
+//              ParamSWA_ChSceneHNumber == sceneNumber)
+//     {
+//         switch (ParamSWA_ChSceneHBehavior)
+//         {
+//             case 0:
+//                 processSwitchInput(false);
+//                 break;
+//             case 1:
+//                 processSwitchInput(true);
+//                 break;
+//             case 2:
+//                 processLockInput(false);
+//                 break;
+//             case 3:
+//                 processLockInput(true);
+//                 break;
+//         }
+//     }
+// }
+
+// // Szene:
+// // Lautstärke
+// // Quelle

@@ -63,8 +63,20 @@
               <ParameterType Id="%AID%_PT-LimitmaxVolume" Name="LimitmaxVolume">
                 <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="1" maxInclusive="100" UIHint="Slider" />
               </ParameterType>
+              <ParameterType Id="%AID%_PT-ValueSceneInNr" Name="ValueSceneIn">
+                <TypeRestriction Base="Value" SizeInBit="8">
+                  <Enumeration Text="Nicht genutzt" Value="0" Id="%ENID%" />
+                  <Enumeration Text="Szene 1" Value="1" Id="%ENID%" />
+                  <Enumeration Text="Szene 2" Value="2" Id="%ENID%" />
+                  <Enumeration Text="Szene 3" Value="3" Id="%ENID%" />
+                  <Enumeration Text="Szene 4" Value="4" Id="%ENID%" />
+                  <Enumeration Text="Szene 5" Value="5" Id="%ENID%" />
+                  <Enumeration Text="Szene 6" Value="6" Id="%ENID%" />
+                  <Enumeration Text="Szene 7" Value="7" Id="%ENID%" />
+                  <Enumeration Text="Szene 8" Value="8" Id="%ENID%" />
+                </TypeRestriction>
+              </ParameterType>
             </ParameterTypes>
-
 
             <Parameters>
               <Parameter Id="%AID%_P-%TT%00002" Name="CheckForOneChannel" ParameterType="%AID%_PT-CheckBox" Text="" Value="1" Access="None" />
@@ -74,6 +86,9 @@
                 <!-- 7 bits free -->
               </Union>
             </Parameters>
+
+            
+
             <ParameterRefs>
               <ParameterRef Id="%AID%_UP-%TT%00001_R-%TT%0000101" RefId="%AID%_UP-%TT%00001" /> <!-- VisibleChannels -->
               <ParameterRef Id="%AID%_P-%TT%00002_R-%TT%0000201" RefId="%AID%_P-%TT%00002" /> <!-- CheckForOneChannel -->

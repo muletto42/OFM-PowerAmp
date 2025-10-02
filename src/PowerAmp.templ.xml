@@ -25,12 +25,11 @@
               </Union>
 
               <!--Szene-->
-              <!-- <Union SizeInBit="8">
+              <Union SizeInBit="8">
                 <Memory CodeSegment="%AID%_RS-04-00000" Offset="0" BitOffset="0" />
-                <Parameter Id="%AID%_UP-%TT%%CC%018" Name="Ch%C%ScenesActive" ParameterType="%AID%_PT-OnOffYesNo" Offset="0" BitOffset="0" Text="Szenen aktivieren" Value="0" />
-                <Parameter Id="%AID%_UP-%TT%%CC%025" Name="Ch%C%SceneLearn" ParameterType="%AID%_PT-OnOffYesNo" Offset="0" BitOffset="1" Text="Szene lernen" Value="0" Access="None" />
-              </Union> -->
-
+                <Parameter Id="%AID%_UP-%TT%%CC%020" Name="Ch%C%ScenesActive" ParameterType="%AID%_PT-OnOffYesNo" Offset="0" BitOffset="0" Text="Szenen aktivieren" Value="0" />
+              </Union>
+                            
               <Parameter Id="%AID%_P-%TT%%CC%010" Name="%C%Source" ParameterType="%AID%_PT-Source" Text="Quelle" Value="0">
                 <Memory CodeSegment="%AID%_RS-04-00000" Offset="1" BitOffset="0" />
               </Parameter>
@@ -46,10 +45,7 @@
               <Parameter Id="%AID%_P-%TT%%CC%008" Name="%C%mute" ParameterType="%AID%_PT-mute" Text="Mute" Value="0">
                 <Memory CodeSegment="%AID%_RS-04-00000" Offset="5" BitOffset="0" />
               </Parameter>
-              <!--Szene-->
-              <!-- <Parameter Id="%AID%_P-%TT%%CC%006" Name="%C%Scenes" ParameterType="%AID%_PT-OnOffYesNo" Text="Szenen" Value="0" >
-              <Memory CodeSegment="%AID%_RS-04-00000" Offset="0" BitOffset="0" />
-              </Parameter> -->
+
               <Parameter Id="%AID%_P-%TT%%CC%007" Name="%C%DayNight" ParameterType="%AID%_PT-DayNight" Text="Tag/Nacht-Objekt" Value="0" >
                 <Memory CodeSegment="%AID%_RS-04-00000" Offset="6" BitOffset="0" />
               </Parameter>
@@ -65,7 +61,41 @@
               <Parameter Id="%AID%_P-%TT%%CC%031" Name="%C%LimitMaxVolume" ParameterType="%AID%_PT-LimitmaxVolume" Text="" Value="60">
                 <Memory CodeSegment="%AID%_RS-04-00000" Offset="10" BitOffset="0" />
               </Parameter>
+
+              <Union SizeInBit="640">
+                <Memory CodeSegment="%AID%_RS-04-00000" Offset="5" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%100" Name="Ch%C%Scene0" Offset="0" BitOffset="0" ParameterType="%AID%_PT-ValueSceneInNr" Text="Scene0" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%101" Name="Ch%C%Scene1" Offset="1" BitOffset="0" ParameterType="%AID%_PT-ValueSceneInNr" Text="Scene1" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%102" Name="Ch%C%Scene2" Offset="2" BitOffset="0" ParameterType="%AID%_PT-ValueSceneInNr" Text="Scene2" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%103" Name="Ch%C%Scene3" Offset="3" BitOffset="0" ParameterType="%AID%_PT-ValueSceneInNr" Text="Scene3" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%104" Name="Ch%C%Scene4" Offset="4" BitOffset="0" ParameterType="%AID%_PT-ValueSceneInNr" Text="Scene4" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%105" Name="Ch%C%Scene5" Offset="5" BitOffset="0" ParameterType="%AID%_PT-ValueSceneInNr" Text="Scene5" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%106" Name="Ch%C%Scene6" Offset="6" BitOffset="0" ParameterType="%AID%_PT-ValueSceneInNr" Text="Scene6" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%107" Name="Ch%C%Scene7" Offset="7" BitOffset="0" ParameterType="%AID%_PT-ValueSceneInNr" Text="Scene7" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%108" Name="Ch%C%Scene8" Offset="8" BitOffset="0" ParameterType="%AID%_PT-ValueSceneInNr" Text="Scene8" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%120" Name="Ch%C%SceneQuelle0" Offset="20" BitOffset="0" ParameterType="%AID%_PT-Source" Text="SceneQuelle0" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%121" Name="Ch%C%SceneQuelle1" Offset="21" BitOffset="0" ParameterType="%AID%_PT-Source" Text="SceneQuelle1" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%122" Name="Ch%C%SceneQuelle2" Offset="22" BitOffset="0" ParameterType="%AID%_PT-Source" Text="SceneQuelle2" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%123" Name="Ch%C%SceneQuelle3" Offset="23" BitOffset="0" ParameterType="%AID%_PT-Source" Text="SceneQuelle3" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%124" Name="Ch%C%SceneQuelle4" Offset="24" BitOffset="0" ParameterType="%AID%_PT-Source" Text="SceneQuelle4" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%125" Name="Ch%C%SceneQuelle5" Offset="25" BitOffset="0" ParameterType="%AID%_PT-Source" Text="SceneQuelle5" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%126" Name="Ch%C%SceneQuelle6" Offset="26" BitOffset="0" ParameterType="%AID%_PT-Source" Text="SceneQuelle6" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%127" Name="Ch%C%SceneQuelle7" Offset="27" BitOffset="0" ParameterType="%AID%_PT-Source" Text="SceneQuelle7" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%128" Name="Ch%C%SceneQuelle8" Offset="28" BitOffset="0" ParameterType="%AID%_PT-Source" Text="SceneQuelle8" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%140" Name="Ch%C%SceneVolume0" Offset="40" BitOffset="0" ParameterType="%AID%_PT-Volume" Text="SceneVolume0" Value="10" />
+                <Parameter Id="%AID%_UP-%TT%%CC%141" Name="Ch%C%SceneVolume1" Offset="41" BitOffset="0" ParameterType="%AID%_PT-Volume" Text="SceneVolume1" Value="10" />
+                <Parameter Id="%AID%_UP-%TT%%CC%142" Name="Ch%C%SceneVolume2" Offset="42" BitOffset="0" ParameterType="%AID%_PT-Volume" Text="SceneVolume2" Value="10" />
+                <Parameter Id="%AID%_UP-%TT%%CC%143" Name="Ch%C%SceneVolume3" Offset="43" BitOffset="0" ParameterType="%AID%_PT-Volume" Text="SceneVolume3" Value="10" />
+                <Parameter Id="%AID%_UP-%TT%%CC%144" Name="Ch%C%SceneVolume4" Offset="44" BitOffset="0" ParameterType="%AID%_PT-Volume" Text="SceneVolume4" Value="10" />
+                <Parameter Id="%AID%_UP-%TT%%CC%145" Name="Ch%C%SceneVolume5" Offset="45" BitOffset="0" ParameterType="%AID%_PT-Volume" Text="SceneVolume5" Value="10" />
+                <Parameter Id="%AID%_UP-%TT%%CC%146" Name="Ch%C%SceneVolume6" Offset="46" BitOffset="0" ParameterType="%AID%_PT-Volume" Text="SceneVolume6" Value="10" />
+                <Parameter Id="%AID%_UP-%TT%%CC%147" Name="Ch%C%SceneVolume7" Offset="47" BitOffset="0" ParameterType="%AID%_PT-Volume" Text="SceneVolume7" Value="10" />
+                <Parameter Id="%AID%_UP-%TT%%CC%148" Name="Ch%C%SceneVolume8" Offset="48" BitOffset="0" ParameterType="%AID%_PT-Volume" Text="SceneVolume8" Value="10" />
+              </Union>
+              
             </Parameters>
+
+            
 
             <ParameterRefs> 
               <ParameterRef Id="%AID%_P-%TT%%CC%001_R-%TT%%CC%00101" RefId="%AID%_P-%TT%%CC%001" />  <!-- Beschreibung des Kanals -->
@@ -87,8 +117,41 @@
 
               <ParameterRef Id="%AID%_P-%TT%%CC%030_R-%TT%%CC%03001" RefId="%AID%_P-%TT%%CC%030" />
 
-              <!--Szene-->
-              <!-- <ParameterRef Id="%AID%_UP-%TT%%CC%018_R-%TT%%CC%01801" RefId="%AID%_UP-%TT%%CC%018" />  -->
+              <!--Szene--> 
+              <ParameterRef Id="%AID%_UP-%TT%%CC%020_R-%TT%%CC%02001" RefId="%AID%_UP-%TT%%CC%020" />
+
+              <!-- Szenen -->
+              <ParameterRef Id="%AID%_UP-%TT%%CC%100_R-%TT%%CC%10001" RefId="%AID%_UP-%TT%%CC%100" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%101_R-%TT%%CC%10101" RefId="%AID%_UP-%TT%%CC%101" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%102_R-%TT%%CC%10201" RefId="%AID%_UP-%TT%%CC%102" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%103_R-%TT%%CC%10301" RefId="%AID%_UP-%TT%%CC%103" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%104_R-%TT%%CC%10401" RefId="%AID%_UP-%TT%%CC%104" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%105_R-%TT%%CC%10501" RefId="%AID%_UP-%TT%%CC%105" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%106_R-%TT%%CC%10601" RefId="%AID%_UP-%TT%%CC%106" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%107_R-%TT%%CC%10701" RefId="%AID%_UP-%TT%%CC%107" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%108_R-%TT%%CC%10801" RefId="%AID%_UP-%TT%%CC%108" />
+
+              <ParameterRef Id="%AID%_UP-%TT%%CC%120_R-%TT%%CC%12001" RefId="%AID%_UP-%TT%%CC%120" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%121_R-%TT%%CC%12101" RefId="%AID%_UP-%TT%%CC%121" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%122_R-%TT%%CC%12201" RefId="%AID%_UP-%TT%%CC%122" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%123_R-%TT%%CC%12301" RefId="%AID%_UP-%TT%%CC%123" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%124_R-%TT%%CC%12401" RefId="%AID%_UP-%TT%%CC%124" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%125_R-%TT%%CC%12501" RefId="%AID%_UP-%TT%%CC%125" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%126_R-%TT%%CC%12601" RefId="%AID%_UP-%TT%%CC%126" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%127_R-%TT%%CC%12701" RefId="%AID%_UP-%TT%%CC%127" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%128_R-%TT%%CC%12801" RefId="%AID%_UP-%TT%%CC%128" />
+
+              <ParameterRef Id="%AID%_UP-%TT%%CC%140_R-%TT%%CC%14001" RefId="%AID%_UP-%TT%%CC%140" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%141_R-%TT%%CC%14101" RefId="%AID%_UP-%TT%%CC%141" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%142_R-%TT%%CC%14201" RefId="%AID%_UP-%TT%%CC%142" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%143_R-%TT%%CC%14301" RefId="%AID%_UP-%TT%%CC%143" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%144_R-%TT%%CC%14401" RefId="%AID%_UP-%TT%%CC%144" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%145_R-%TT%%CC%14501" RefId="%AID%_UP-%TT%%CC%145" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%146_R-%TT%%CC%14601" RefId="%AID%_UP-%TT%%CC%146" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%147_R-%TT%%CC%14701" RefId="%AID%_UP-%TT%%CC%147" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%148_R-%TT%%CC%14801" RefId="%AID%_UP-%TT%%CC%148" />
+
+
             </ParameterRefs>
 
             <ComObjectTable>
@@ -221,29 +284,106 @@
                         <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
                         
                         <!-- Zusatzfunktionen - Szene  -->
-                        <!-- <ParameterSeparator Id="%AID%_PS-nnn" Text="Zusatzfunktionen" UIHint="Headline" />
-                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%017_R-%TT%%CC%01701" IndentLevel="1" />
-                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%018_R-%TT%%CC%01801" IndentLevel="1" HelpContext="%DOC%" />  -->
-
-                        <!-- Szenensteuerung  -->
-                        <!-- <choose ParamRefId="%AID%_UP-%TT%%CC%018_R-%TT%%CC%01801">
+                        <ParameterSeparator Id="%AID%_PS-nnn" Text="Szene" UIHint="Headline" />
+                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%020_R-%TT%%CC%02001" IndentLevel="1" />  <!-- TODO HELP Context HelpContext="%DOC%"-->
+ 
+                        <!-- Szenensteuerung  AN/AUS -->
+                        <choose ParamRefId="%AID%_UP-%TT%%CC%020_R-%TT%%CC%02001">
                           <when test="1">
-                            <ParameterBlock Id="%AID%_PB-nnn" Text="Szenen" Icon="movie-open-outline">
-                              <ParameterSeparator Id="%AID%_PS-nnn" Text="Allgemein" UIHint="Headline" />
-                              <ParameterRefRef RefId="%AID%_UP-%TT%%CC%025_R-%TT%%CC%02501" IndentLevel="1" />
-                              <choose ParamRefId="%AID%_UP-%TT%%CC%025_R-%TT%%CC%02501">
-                                <when test="1">
-                                   <Button Id="%AID%_B-%TT%%CC%01" Text="Gelernte Szenen von Gerät laden" Name="loadLearnedScenes" EventHandler="SWA_loadLearnedScenes" EventHandlerOnline="ConnectionOriented" />
-                                </when>
-                              </choose>
+                            <ComObjectRefRef RefId="%AID%_O-%TT%%CC%011_R-%TT%%CC%01101" />
+                          </when>
+                        </choose>
 
-                              < <op:usePart name="SCENE" xpath="//Dynamic/ChannelIndependentBlock/ParameterBlock[@Name='SzenePart']/*" instanceFrom="1" instanceTo="8" /> 
-
-                              <ComObjectRefRef RefId="%AID%_O-%TT%%CC%011_R-%TT%%CC%01101" />
+                        <!-- Szenen -->
+                        <choose ParamRefId="%AID%_UP-%TT%%CC%020_R-%TT%%CC%02001">
+                          <when test="1">
+                            <ParameterBlock Id="%AID%_PB-nnn" Name="Scenes" Text="Szenen" Icon="movie-open-outline">
+                              <ParameterSeparator Id="%AID%_PS-nnn" Text="Szenensteuerung" UIHint="Headline"/>
+                              <ParameterBlock Id="%AID%_PB-nnn" Name="Table1Scenes" Text="#" Inline="true" Layout="Table">
+                                <Rows>
+                                  <Row Id="%AID%_PB-nnn_R-1" Name="Row1" Text="1" />
+                                  <Row Id="%AID%_PB-nnn_R-2" Name="Row2" Text="2" />
+                                  <Row Id="%AID%_PB-nnn_R-3" Name="Row3" Text="3" />
+                                  <Row Id="%AID%_PB-nnn_R-4" Name="Row4" Text="4" />
+                                  <Row Id="%AID%_PB-nnn_R-5" Name="Row5" Text="5" />
+                                  <Row Id="%AID%_PB-nnn_R-6" Name="Row6" Text="6" />
+                                  <Row Id="%AID%_PB-nnn_R-7" Name="Row7" Text="7" />
+                                  <Row Id="%AID%_PB-nnn_R-8" Name="Row8" Text="8" />
+                                </Rows>
+                                <Columns>
+                                  <Column Id="%AID%_PB-nnn_C-1" Name="Col1" Text="Szene" Width="25%"/>
+                                  <Column Id="%AID%_PB-nnn_C-2" Name="Col2" Text="Quelle" Width="50%"/>
+                                  <Column Id="%AID%_PB-nnn_C-3" Name="Col3" Text="Lautstärke" Width="25%"/>
+                                </Columns>
+                                <ParameterRefRef RefId="%AID%_UP-%TT%%CC%100_R-%TT%%CC%10001" Cell="1,1" />
+                                <ParameterRefRef RefId="%AID%_UP-%TT%%CC%101_R-%TT%%CC%10101" Cell="2,1" />
+                                <ParameterRefRef RefId="%AID%_UP-%TT%%CC%102_R-%TT%%CC%10201" Cell="3,1" />
+                                <ParameterRefRef RefId="%AID%_UP-%TT%%CC%103_R-%TT%%CC%10301" Cell="4,1" />
+                                <ParameterRefRef RefId="%AID%_UP-%TT%%CC%104_R-%TT%%CC%10401" Cell="5,1" />
+                                <ParameterRefRef RefId="%AID%_UP-%TT%%CC%105_R-%TT%%CC%10501" Cell="6,1" />
+                                <ParameterRefRef RefId="%AID%_UP-%TT%%CC%106_R-%TT%%CC%10601" Cell="7,1" />
+                                <ParameterRefRef RefId="%AID%_UP-%TT%%CC%107_R-%TT%%CC%10701" Cell="8,1" />
+                                <ParameterRefRef RefId="%AID%_UP-%TT%%CC%108_R-%TT%%CC%10801" Cell="9,1" />
+                                <choose ParamRefId="%AID%_UP-%TT%%CC%100_R-%TT%%CC%10001">
+                                  <when test=">0">
+                                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%120_R-%TT%%CC%12001" Cell="1,2" />  <!-- Quelle -->
+                                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%140_R-%TT%%CC%14001" Cell="1,3" />  <!-- Lautstärke -->
+                                  </when>
+                                </choose>
+                                <choose ParamRefId="%AID%_UP-%TT%%CC%101_R-%TT%%CC%10101">
+                                  <when test=">0">
+                                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%121_R-%TT%%CC%12101" Cell="2,2" />  <!-- Quelle -->
+                                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%141_R-%TT%%CC%14101" Cell="2,3" />  <!-- Lautstärke -->
+                                  </when>
+                                </choose>
+                                <choose ParamRefId="%AID%_UP-%TT%%CC%102_R-%TT%%CC%10201">
+                                  <when test=">0">
+                                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%122_R-%TT%%CC%12201" Cell="3,2" />  <!-- Quelle -->
+                                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%142_R-%TT%%CC%14201" Cell="3,3" />  <!-- Lautstärke -->
+                                  </when>
+                                </choose>
+                                <choose ParamRefId="%AID%_UP-%TT%%CC%103_R-%TT%%CC%10301">
+                                  <when test=">0">
+                                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%123_R-%TT%%CC%12301" Cell="4,2" />  <!-- Quelle -->
+                                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%143_R-%TT%%CC%14301" Cell="4,3" />  <!-- Lautstärke -->
+                                  </when>
+                                </choose>
+                                <choose ParamRefId="%AID%_UP-%TT%%CC%104_R-%TT%%CC%10401">
+                                  <when test=">0">
+                                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%124_R-%TT%%CC%12401" Cell="5,2" />  <!-- Quelle -->
+                                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%144_R-%TT%%CC%14401" Cell="5,3" />  <!-- Lautstärke -->
+                                  </when>
+                                </choose>
+                                <choose ParamRefId="%AID%_UP-%TT%%CC%105_R-%TT%%CC%10501">
+                                  <when test=">0">
+                                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%125_R-%TT%%CC%12501" Cell="6,2" />  <!-- Quelle -->
+                                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%145_R-%TT%%CC%14501" Cell="6,3" />  <!-- Lautstärke -->
+                                  </when>
+                                </choose>
+                                <choose ParamRefId="%AID%_UP-%TT%%CC%106_R-%TT%%CC%10601">
+                                  <when test=">0">
+                                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%126_R-%TT%%CC%12601" Cell="7,2" />  <!-- Quelle -->
+                                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%146_R-%TT%%CC%14601" Cell="7,3" />  <!-- Lautstärke -->
+                                  </when>
+                                </choose>
+                                <choose ParamRefId="%AID%_UP-%TT%%CC%107_R-%TT%%CC%10701">
+                                  <when test=">0">
+                                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%127_R-%TT%%CC%12701" Cell="8,2" />  <!-- Quelle -->
+                                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%147_R-%TT%%CC%14701" Cell="8,3" />  <!-- Lautstärke -->
+                                  </when>
+                                </choose>
+                                <choose ParamRefId="%AID%_UP-%TT%%CC%108_R-%TT%%CC%10801">
+                                  <when test=">0">
+                                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%148_R-%TT%%CC%14801" Cell="9,2" />  <!-- Quelle -->
+                                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%148_R-%TT%%CC%14801" Cell="9,3" />  <!-- Lautstärke -->
+                                  </when>
+                                </choose>
+                              </ParameterBlock>
                             </ParameterBlock>
                           </when>
-                        </choose>  -->
-
+                        </choose>
+                        
+                        
                         <ComObjectRefRef RefId="%AID%_O-%TT%%CC%001_R-%TT%%CC%00101" /> <!-- Lautstärke Wert -->
                         <ComObjectRefRef RefId="%AID%_O-%TT%%CC%002_R-%TT%%CC%00201" /> <!-- Lautstärke Step -->
                         <!-- <ComObjectRefRef RefId="%AID%_O-%TT%%CC%003_R-%TT%%CC%00301" /> Lautstärke - -->

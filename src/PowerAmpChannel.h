@@ -17,7 +17,7 @@ enum class enumSource : uint8_t {
 class PowerAmpChannel : public OpenKNX::Channel
 {
 private:
-    Stream* mySerial = nullptr; 
+    Stream* mySerial = nullptr;
 
     // is enabled in ETS?
     bool _channelActive = false;
@@ -158,6 +158,7 @@ private:
     bool _currentLocked = false;
     void processInputKoDayNight(GroupObject &ko);
     void processInputKoLock(GroupObject &ko);
+    void processInputKoScene(GroupObject &ko);
     void day(void);
     void night(void);
     void setDefaultVolume(void);
