@@ -91,6 +91,26 @@ private:
     String songMetadataArtist ="";
     String songMetadataTitle ="";
 
+    struct SceneParams {
+        uint16_t scene;
+        uint16_t quelle;
+        uint16_t volume;
+    };
+
+    // Alle 9 Szenenblöcke in einer Lookup-Tabelle
+    const SceneParams sceneBlocks[9] = {
+        { ParamAMP_ChScene0, ParamAMP_ChSceneQuelle0, ParamAMP_ChSceneVolume0 },
+        { ParamAMP_ChScene1, ParamAMP_ChSceneQuelle1, ParamAMP_ChSceneVolume1 },
+        { ParamAMP_ChScene2, ParamAMP_ChSceneQuelle2, ParamAMP_ChSceneVolume2 },
+        { ParamAMP_ChScene3, ParamAMP_ChSceneQuelle3, ParamAMP_ChSceneVolume3 },
+        { ParamAMP_ChScene4, ParamAMP_ChSceneQuelle4, ParamAMP_ChSceneVolume4 },
+        { ParamAMP_ChScene5, ParamAMP_ChSceneQuelle5, ParamAMP_ChSceneVolume5 },
+        { ParamAMP_ChScene6, ParamAMP_ChSceneQuelle6, ParamAMP_ChSceneVolume6 },
+        { ParamAMP_ChScene7, ParamAMP_ChSceneQuelle7, ParamAMP_ChSceneVolume7 },
+        { ParamAMP_ChScene8, ParamAMP_ChSceneQuelle8, ParamAMP_ChSceneVolume8 }
+    };
+
+
     // Private Methode zur Verarbeitung von empfangenen Zeilen
     void handleIncomingData(void);
     void processReceivedUARTCommand(const String commandType, const String commandValue);
