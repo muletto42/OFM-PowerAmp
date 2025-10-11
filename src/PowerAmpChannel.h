@@ -167,8 +167,8 @@ private:
 
 
     // Alive-Monitoring
-    unsigned long lastResponseMillis = 0;
-    unsigned long lastAliveMillis = 0;
+    unsigned long lastResponseMillis_Alive = 0;
+    unsigned long lastAliveMillis_Alive = 0;
     bool deviceAlive = false;
     const unsigned long alive_timeout = (START_INTERVAL*2); // Timeout in ms
     void updateAlive(void);
@@ -184,6 +184,7 @@ private:
     void setDefaultVolume(void);
     void unlock();
     void lock();
+    void setKOInitialValues(void);
 
 public:
     PowerAmpChannel(uint8_t iChannelNumber, Stream* serialStream = nullptr);

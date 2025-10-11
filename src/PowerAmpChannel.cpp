@@ -42,27 +42,14 @@ void PowerAmpChannel::processInputKo(GroupObject &iKo)
         return;
     }
 
+    logIndentUp();
     if (openknxPowerAmpModule.debug())
     {
-        logDebugP("processInputKo: channel %u", _channelIndex);
-        logIndentUp();
+        logDebugP("[channel]processInputKo: channel %u", _channelIndex);
+        
     }   
 
-    
-    // uint16_t lAsap = iKo.asap();
-    // switch (lAsap)
-    // {
-    //     case AMP_KoCentralFunction:
-    //         if (ParamAMP_ChCentralFunction)
-    //         {
-    //             newActive = ko.value(DPT_Switch);
-    //             logDebugP("AMP_KoCentralFunction: %u", newActive);
-
-    //             processSwitchInput(newActive);
-    //         }
-    //         break;
-    // }
-    logDebugP("AMP_KoCalcIndex %i", AMP_KoCalcIndex(iKo.asap()));
+    //logDebugP("AMP_KoCalcIndex %i", AMP_KoCalcIndex(iKo.asap()));
 
     switch (AMP_KoCalcIndex(iKo.asap()))
     {
@@ -70,8 +57,6 @@ void PowerAmpChannel::processInputKo(GroupObject &iKo)
         {
            // 0 = Decrease ; 1 = Increase
             logDebugP("processInputKo: volume_step");
-            // iKo.value(getDPT(VAL_DPT_1)
-            // bool value = iKo.value(DPT_Switch);
             bool value = iKo.value(DPT_Step);
             if (value == 1)
             {
@@ -108,6 +93,7 @@ void PowerAmpChannel::processInputKo(GroupObject &iKo)
         }
         case AMP_KoChStop:
         {
+            logDebugP("processInputKo: stop");
             stop();
             break;
         }
@@ -133,24 +119,27 @@ void PowerAmpChannel::processInputKo(GroupObject &iKo)
         }
         case AMP_KoChDayNight:
         {
+            logDebugP("processInputKo: day_night");
             processInputKoDayNight(iKo);
             break;
         }
         case AMP_KoChLock:
         {
+            logDebugP("processInputKo: lock");
             processInputKoLock(iKo);
             break;
         }
         case AMP_KoChScene:
         {
+            logDebugP("processInputKo: scene");
             processInputKoScene(iKo);
             break;
-        }        
+        }     
+        default:
+            logDebugP("default case processInputKo: unknown KO index %u", AMP_KoCalcIndex(iKo.asap()));
+            break;   
     }
-    if (openknxPowerAmpModule.debug())
-    {
-        logIndentDown();
-    } 
+    logIndentDown();
 }
 
 void PowerAmpChannel::loop()
@@ -222,6 +211,13 @@ void PowerAmpChannel::setup(bool configured)
         currentVolumeLimit = ParamAMP_LimitMaxVolume;
         currentVolume = ParamAMP_VolumeDay;
     }
+    mySerial->setTimeout(1000); // 1000 ms, als Backup
+    setKOInitialValues(); 
+    
+    // --- Alive-System initialisieren ---
+    deviceAlive = false;
+    lastResponseMillis_Alive = 0;
+    lastAliveMillis_Alive = millis();
 }
 
 void PowerAmpChannel::sendRawCommandToArylic(const String command)
@@ -423,53 +419,157 @@ void PowerAmpChannel::getMetadataVendor(void)
     sendRawCommandToArylic("VND;");
 }
 
+// void PowerAmpChannel::handleIncomingData(void)
+// {
+//     // UART-Daten lesen
+//     if (mySerial->available() > 0) 
+//     {
+//         String receivedData = mySerial->readStringUntil('\n');
+//         receivedData.trim(); // CR/LF/Spaces weg
+
+//         if (receivedData.isEmpty()) 
+//         {
+//             return; // leere Zeile überspringen
+//         }
+
+//         // if (openknxPowerAmpModule.debug())
+//         // {
+//         //     // Rohdaten als Hex ausgeben
+//         //     String hexString;
+//         //     for (size_t i = 0; i < receivedData.length(); ++i) 
+//         //     {
+//         //         if (i > 0) hexString += " ";
+//         //         char buf[4];
+//         //         sprintf(buf, "%02X", (uint8_t)receivedData[i]);
+//         //         hexString += buf;
+//         //     }
+//         //     logDebugP("handleIncomingData HEX: %s", hexString.c_str());
+//         //     logDebugP("handleIncomingData receivedData: %s", receivedData.c_str());
+//         // }
+
+//         // Semikolon am Ende entfernen (falls vorhanden)
+//         if (receivedData.endsWith(";")) {
+//             receivedData.remove(receivedData.length() - 1);
+//         }
+
+//          // Aufteilen in Typ und Wert
+//         int separatorIndex = receivedData.indexOf(':');
+
+//         if (separatorIndex > 0) 
+//         {
+//             // Kommando mit Parameter
+//             String commandType  = receivedData.substring(0, separatorIndex);
+//             String commandValue = receivedData.substring(separatorIndex + 1);
+//             commandType.trim();
+//             commandValue.trim();
+
+//             if (openknxPowerAmpModule.debug())
+//             {
+//                 logDebugP("[RCV] commandType: %s, commandValue: %s", commandType.c_str(), commandValue.c_str());
+//                 logIndentUp();
+//             }
+
+//             processReceivedUARTCommand(commandType, commandValue);
+
+//             if (openknxPowerAmpModule.debug())
+//             {
+//                 logIndentDown();
+//             }
+//         }
+//         else
+//         {
+//             // Kommando ohne Parameter
+//             String commandType = receivedData;
+//             commandType.trim();
+
+//             if (openknxPowerAmpModule.debug())
+//             {
+//                 logDebugP("[RCV] only commandType (no value): %s", commandType.c_str());
+//                 logIndentUp();
+//             }
+
+//             // Für Befehle ohne Parameter geben wir leeren Wert weiter
+//             processReceivedUARTCommand(commandType, "");
+
+//             if (openknxPowerAmpModule.debug())
+//             {
+//                 logIndentDown();
+//             }
+//         }
+//     }
+// }
+
 void PowerAmpChannel::handleIncomingData(void)
 {
-    // UART-Daten lesen
-    if (mySerial->available() > 0) 
+    static String uartBuffer = "";           //  Puffer für (unvollständige) Nachrichten
+    static unsigned long lastReceiveTime = 0; // Zeitstempel des letzten Zeichens
+    static uint32_t errorCount = 0;          // Fehlerzähler
+
+    // Prüfen, ob Daten im UART-Puffer liegen
+    while (mySerial->available() > 0)
     {
-        String receivedData = mySerial->readStringUntil('\n');
-        receivedData.trim(); // CR/LF/Spaces weg
+        char incomingChar = mySerial->read();
+        lastReceiveTime = millis();
 
-        if (receivedData.isEmpty()) 
+        // CR/LF ignorieren
+        if (incomingChar == '\r' || incomingChar == '\n')
+            continue;
+
+        // Zeichen an den Puffer anhängen
+        uartBuffer += incomingChar;
+
+        // Nachricht abgeschlossen, wenn ; empfangen
+        if (incomingChar == ';')
         {
-            return; // leere Zeile überspringen
-        }
+            String receivedData = uartBuffer;
+            uartBuffer = ""; // Buffer reset
 
-        // if (openknxPowerAmpModule.debug())
-        // {
-        //     // Rohdaten als Hex ausgeben
-        //     String hexString;
-        //     for (size_t i = 0; i < receivedData.length(); ++i) 
-        //     {
-        //         if (i > 0) hexString += " ";
-        //         char buf[4];
-        //         sprintf(buf, "%02X", (uint8_t)receivedData[i]);
-        //         hexString += buf;
-        //     }
-        //     logDebugP("handleIncomingData HEX: %s", hexString.c_str());
-        //     logDebugP("handleIncomingData receivedData: %s", receivedData.c_str());
-        // }
+            receivedData.trim();
 
-        // Semikolon am Ende entfernen (falls vorhanden)
-        if (receivedData.endsWith(";")) {
-            receivedData.remove(receivedData.length() - 1);
-        }
+            // Debug-Infos mit Zeitstempel
+            if (openknxPowerAmpModule.debug())
+            {
+                String hexString;
+                for (size_t i = 0; i < receivedData.length(); ++i)
+                {
+                    if (i > 0) hexString += " ";
+                    char buf[4];
+                    sprintf(buf, "%02X", (uint8_t)receivedData[i]);
+                    hexString += buf;
+                }
+                logDebugP("handleIncomingData HEX: %s", hexString.c_str());
+                logDebugP("handleIncomingData receivedData: %s (timestamp: %lu ms)", receivedData.c_str(), millis());
+            }
 
-         // Aufteilen in Typ und Wert
-        int separatorIndex = receivedData.indexOf(':');
+            // Semikolon am Ende entfernen
+            if (receivedData.endsWith(";"))
+                receivedData.remove(receivedData.length() - 1);
 
-        if (separatorIndex > 0) 
-        {
-            // Kommando mit Parameter
-            String commandType  = receivedData.substring(0, separatorIndex);
-            String commandValue = receivedData.substring(separatorIndex + 1);
+            receivedData.trim();
+            if (receivedData.isEmpty())
+                continue;
+
+            // Typ und Wert trennen
+            int separatorIndex = receivedData.indexOf(':');
+            String commandType, commandValue;
+
+            if (separatorIndex > 0)
+            {
+                commandType = receivedData.substring(0, separatorIndex);
+                commandValue = receivedData.substring(separatorIndex + 1);
+            }
+            else
+            {
+                commandType = receivedData;
+                commandValue = "";
+            }
+
             commandType.trim();
             commandValue.trim();
 
             if (openknxPowerAmpModule.debug())
             {
-                logDebugP("[RCV] commandType: %s, commandValue: %s", commandType.c_str(), commandValue.c_str());
+                logDebugP("[RCV] commandType: %s, commandValue: %s, (timestamp: %lu ms)", commandType.c_str(), commandValue.c_str(), millis() );
                 logIndentUp();
             }
 
@@ -480,26 +580,22 @@ void PowerAmpChannel::handleIncomingData(void)
                 logIndentDown();
             }
         }
-        else
+
+        // Überlauf-Schutz (wichtig bei SoftwareSerial)
+        if (uartBuffer.length() > 256)
         {
-            // Kommando ohne Parameter
-            String commandType = receivedData;
-            commandType.trim();
-
-            if (openknxPowerAmpModule.debug())
-            {
-                logDebugP("[RCV] only commandType (no value): %s", commandType.c_str());
-                logIndentUp();
-            }
-
-            // Für Befehle ohne Parameter geben wir leeren Wert weiter
-            processReceivedUARTCommand(commandType, "");
-
-            if (openknxPowerAmpModule.debug())
-            {
-                logIndentDown();
-            }
+            errorCount++;
+            logErrorP("[UART] Buffer overflow (len=%u), clearing! Total errors: %lu", uartBuffer.length(), errorCount);
+            uartBuffer = "";
         }
+    }
+
+    // Timeout-Erkennung: falls eine Nachricht nie abgeschlossen wird
+    if (uartBuffer.length() > 0 && (millis() - lastReceiveTime > 1000))
+    {
+        errorCount++;
+        logErrorP("[UART] Timeout waiting for ';' (buffer cleared). Total errors: %lu", errorCount);
+        uartBuffer = "";
     }
 }
 
@@ -757,28 +853,50 @@ void PowerAmpChannel::handleMid_MID(const String& val) {
 }
 
 // ---------------- Alive Handling ----------------
-void PowerAmpChannel::updateAlive() {
-    lastResponseMillis = millis();
+void PowerAmpChannel::updateAlive() 
+{
+    lastResponseMillis_Alive = millis();
     if (!deviceAlive) {
         deviceAlive = true;
-        logDebugP("[ALIVE] AMP antwortet!");
+        logInfoP("[ALIVE] AMP antwortet!");
     }
 }
 
-void PowerAmpChannel::checkAliveStatus() {
-    if (deviceAlive && (millis() - lastResponseMillis > alive_timeout)) {
+void PowerAmpChannel::checkAliveStatus()
+{
+    unsigned long currentMillis = millis();
+    static bool lastAliveState = false; // zum Erkennen von Statuswechseln
+
+    // Wenn Gerät als alive markiert ist, aber zu lange keine Antwort kam → DEAD
+    if (deviceAlive && (currentMillis - lastResponseMillis_Alive > alive_timeout))
+    {
         deviceAlive = false;
-        logDebugP("[DEAD] AMP antwortet nicht!");
+       // logInfoP("[DEAD] AMP antwortet nicht!");
+        lastAliveState = deviceAlive;
     }
 
-    if (ParamAMP_AliveCheckBox == 1) 
+    // Zyklische Alive-Meldung 
+    if ((currentMillis - lastAliveMillis_Alive) >= (ParamAMP_AliveTimeInterval * 1000UL))
     {
-        unsigned long currentMillis = millis();
+        lastAliveMillis_Alive = currentMillis;
 
-        if (currentMillis - lastAliveMillis >=  ParamAMP_AliveTimeInterval * 1000UL) 
+        if (ParamAMP_AliveCheckBox == 1)
         {
-        KoAMP_ChAliveStatus.value(deviceAlive, DPT_Switch);
-        lastAliveMillis = currentMillis;
+            KoAMP_ChAliveStatus.value(deviceAlive, DPT_Switch);
+            if (openknxPowerAmpModule.debug())
+            {
+                logDebugP("[ALIVE] Alive Status gesendet: %d", deviceAlive);
+            }
+        }
+
+        // Wenn Status sich geändert hat, neu senden
+        if (deviceAlive != lastAliveState)
+        {
+            lastAliveState = deviceAlive;
+            if (deviceAlive)
+                logInfoP("[ALIVE] AMP erreichbar!");
+            else
+                logInfoP("[DEAD] AMP antwortet nicht!");
         }
     }
 }
@@ -790,7 +908,7 @@ void PowerAmpChannel::lock()
     _currentLocked = true;
     stop();
     KoAMP_ChLock.value(_currentLocked, DPT_Switch);
-    logInfoP("lock");
+    logDebugP("lock");
 }
 
 void PowerAmpChannel::unlock()
@@ -799,7 +917,7 @@ void PowerAmpChannel::unlock()
 
     _currentLocked = false;
     KoAMP_ChLock.value(_currentLocked, DPT_Switch);
-    logInfoP("unlock");
+    logDebugP("unlock");
 }
 
 void PowerAmpChannel::day()
@@ -851,10 +969,6 @@ void PowerAmpChannel::processInputKoLock(GroupObject &ko)
     return unlock();
 }
 
-
-
-
-
 void PowerAmpChannel::processInputKoScene(GroupObject &ko)
 {
     if (!ParamAMP_ChScenesActive)
@@ -885,7 +999,6 @@ void PowerAmpChannel::processInputKoScene(GroupObject &ko)
 
             logInfoP("Block %i -> Scene %i: Quelle %i, Volume %i", i, sceneId, sceneQuelle, sceneVolume);
 
-            
             enumSource currentSource = static_cast<enumSource>(sceneQuelle);
             setSource(currentSource);
             setVolume(sceneVolume);
@@ -897,315 +1010,23 @@ void PowerAmpChannel::processInputKoScene(GroupObject &ko)
     }
 }
 
+void PowerAmpChannel::setKOInitialValues(void)
+{
+    String empty = "";
+    // Initialwerte für KOs setzen
+    KoAMP_ChVolumeStatus.value(currentVolume, DPT_Scaling);
+    KoAMP_ChSourceStatus.value(empty.c_str(), DPT_String_8859_1);
+    KoAMP_ChMuteStatus.value(muteStatus, DPT_Switch);
+    KoAMP_ChAliveStatus.value(deviceAlive, DPT_Switch);
+    KoAMP_ChLock.value(_currentLocked, DPT_Switch);
+    KoAMP_ChSongMetadataTitle.value(empty.c_str(), DPT_String_8859_1);
+    KoAMP_ChSongMetadataArtist.value(empty.c_str(), DPT_String_8859_1);
+    KoAMP_ChSongMetadataAlbum.value(empty.c_str(), DPT_String_8859_1);
+    KoAMP_ChSongMetadataVendor.value(empty.c_str(), DPT_String_8859_1);
+    KoAMP_ChElapsedTime.value(empty.c_str(), DPT_String_8859_1);
 
-
-
-
-
-
-
-
-
-
-
-//     uint8_t sceneQuelle = 0;
-//     uint8_t sceneVolume = 0;
-
-
-//         logDebugP("Szenennummer: %i", Szenennummer);
-
-//         switch (sceneId)
-//         {
-//             case 0:
-//             {
-//                 // Keine Szene definiert
-//                 logDebugP("Keine Szene definiert");
-//             }
-//             case 1:
-//             {
-//                 sceneQuelle = knx.paramByte(ParamAMP_ChSceneQuelle1);
-//                 sceneVolume = knx.paramByte(ParamAMP_ChSceneVolume1);
-//                 break;
-//             }
-//             case 2:
-//             {
-//                 sceneQuelle = knx.paramByte(ParamAMP_ChSceneQuelle2);
-//                 sceneVolume = knx.paramByte(ParamAMP_ChSceneVolume2);
-//                 break;
-//             }
-//             case 3:
-//             {
-//                 sceneQuelle = knx.paramByte(ParamAMP_ChSceneQuelle3);
-//                 sceneVolume = knx.paramByte(ParamAMP_ChSceneVolume3);
-//                 break;
-//             }
-//             case 4:
-//             {
-//                 sceneQuelle = knx.paramByte(ParamAMP_ChSceneQuelle4);
-//                 sceneVolume = knx.paramByte(ParamAMP_ChSceneVolume4);
-//                 break;
-//             }
-//             case 5:
-//             {
-//                 sceneQuelle = knx.paramByte(ParamAMP_ChSceneQuelle5);
-//                 sceneVolume = knx.paramByte(ParamAMP_ChSceneVolume5);
-//                 break;
-//             }
-//             case 6:
-//             {
-//                 sceneQuelle = knx.paramByte(ParamAMP_ChSceneQuelle6);
-//                 sceneVolume = knx.paramByte(ParamAMP_ChSceneVolume6);
-//                 break;
-//             }
-//             case 7:
-//             {
-//                 sceneQuelle = knx.paramByte(ParamAMP_ChSceneQuelle7);
-//                 sceneVolume = knx.paramByte(ParamAMP_ChSceneVolume7);
-//                 break;
-//             }
-//             case 8:
-//             {
-//                 sceneQuelle = knx.paramByte(ParamAMP_ChSceneQuelle8);
-//                 sceneVolume = knx.paramByte(ParamAMP_ChSceneVolume8);
-//                 break;
-//             }
-//             default:
-//             {
-//                 logDebugP("default case reached");
-//             }
-//                 break;
-//         }
-
-//         if (sceneId > 0)
-//         {
-//             logInfoP("Scene %i: Quelle %i, Volume %i", sceneId, sceneQuelle, sceneVolume);
-//             setSource(sceneQuelle);
-//             setVolume(sceneVolume);
-//         }
-    
-
-
-//     if (value > 0 && value <= 8) // 1 bis 8 sind gültig, 0 heißt deaktiviert
-//     {
-//         ParamAMP_ChScene0
-
-//         for (uint8_t i = 0; i < 20; i++)
-//         {
-//             uint8_t sceneId = knx.paramByte(ParamAMP_ChScene0 + i);
-//             if (value == sceneId)
-//             {
-//                 logInfoP("Scene %i", value);
-//                 uint8_t sceneAction = knx.paramByte(SOM_SceneAction0 + i);
-//                 uint8_t sceneTarget = knx.paramByte(SOM_SceneTargetA0 + i);
-
-//                 // Zentral
-//                 if (sceneTarget == 255)
-//                 {
-//                     switch (sceneAction)
-//                     {
-//                         case SOM_SceneActionStop:
-//                             this->stop();
-//                             break;
-//                         case SOM_SceneActionLock:
-//                             this->lock();
-//                             break;
-//                         case SOM_SceneActionUnlock:
-//                             this->unlock();
-//                             break;
-//                         default:
-//                             break;
-//                     }
-//                 }
-//                 else
-//                 {
-//                     SoundTrigger *trigger = _triggers[sceneTarget];
-//                     switch (sceneAction)
-//                     {
-//                         case SOM_SceneActionStart:
-//                             trigger->play();
-//                             break;
-//                         case SOM_SceneActionStop:
-//                             trigger->stop();
-//                             break;
-//                         case SOM_SceneActionLock:
-//                             trigger->lock();
-//                             break;
-//                         case SOM_SceneActionUnlock:
-//                             trigger->unlock();
-//                             break;
-//                         default:
-//                             break;
-//                     }
-//                 }
-//             }
-//         }
-//     }
-// }
-
-// void SwitchActuatorChannel::processScene(uint8_t sceneNumber, bool learn)
-// {
-//     logDebugP("processScene (sceneNumber=%u, learn=%u)", sceneNumber, learn);
-
-//     if (learn)
-//     {
-//         logInfoP("Scene learning not supported");
-//         return;
-//     }
-
-//     if (ParamSWA_ChSceneAActive &&
-//         ParamSWA_ChSceneANumber == sceneNumber)
-//     {
-//         switch (ParamSWA_ChSceneABehavior)
-//         {
-//             case 0:
-//                 processSwitchInput(false);
-//                 break;
-//             case 1:
-//                 processSwitchInput(true);
-//                 break;
-//             case 2:
-//                 processLockInput(false);
-//                 break;
-//             case 3:
-//                 processLockInput(true);
-//                 break;
-//         }
-//     }
-//     else if (ParamSWA_ChSceneBActive &&
-//              ParamSWA_ChSceneBNumber == sceneNumber)
-//     {
-//         switch (ParamSWA_ChSceneBBehavior)
-//         {
-//             case 0:
-//                 processSwitchInput(false);
-//                 break;
-//             case 1:
-//                 processSwitchInput(true);
-//                 break;
-//             case 2:
-//                 processLockInput(false);
-//                 break;
-//             case 3:
-//                 processLockInput(true);
-//                 break;
-//         }
-//     }
-//     else if (ParamSWA_ChSceneCActive &&
-//              ParamSWA_ChSceneCNumber == sceneNumber)
-//     {
-//         switch (ParamSWA_ChSceneCBehavior)
-//         {
-//             case 0:
-//                 processSwitchInput(false);
-//                 break;
-//             case 1:
-//                 processSwitchInput(true);
-//                 break;
-//             case 2:
-//                 processLockInput(false);
-//                 break;
-//             case 3:
-//                 processLockInput(true);
-//                 break;
-//         }
-//     }
-//     else if (ParamSWA_ChSceneDActive &&
-//              ParamSWA_ChSceneDNumber == sceneNumber)
-//     {
-//         switch (ParamSWA_ChSceneDBehavior)
-//         {
-//             case 0:
-//                 processSwitchInput(false);
-//                 break;
-//             case 1:
-//                 processSwitchInput(true);
-//                 break;
-//             case 2:
-//                 processLockInput(false);
-//                 break;
-//             case 3:
-//                 processLockInput(true);
-//                 break;
-//         }
-//     }
-//     else if (ParamSWA_ChSceneEActive &&
-//              ParamSWA_ChSceneENumber == sceneNumber)
-//     {
-//         switch (ParamSWA_ChSceneEBehavior)
-//         {
-//             case 0:
-//                 processSwitchInput(false);
-//                 break;
-//             case 1:
-//                 processSwitchInput(true);
-//                 break;
-//             case 2:
-//                 processLockInput(false);
-//                 break;
-//             case 3:
-//                 processLockInput(true);
-//                 break;
-//         }
-//     }
-//     else if (ParamSWA_ChSceneFActive &&
-//              ParamSWA_ChSceneFNumber == sceneNumber)
-//     {
-//         switch (ParamSWA_ChSceneFBehavior)
-//         {
-//             case 0:
-//                 processSwitchInput(false);
-//                 break;
-//             case 1:
-//                 processSwitchInput(true);
-//                 break;
-//             case 2:
-//                 processLockInput(false);
-//                 break;
-//             case 3:
-//                 processLockInput(true);
-//                 break;
-//         }
-//     }
-//     else if (ParamSWA_ChSceneGActive &&
-//              ParamSWA_ChSceneGNumber == sceneNumber)
-//     {
-//         switch (ParamSWA_ChSceneGBehavior)
-//         {
-//             case 0:
-//                 processSwitchInput(false);
-//                 break;
-//             case 1:
-//                 processSwitchInput(true);
-//                 break;
-//             case 2:
-//                 processLockInput(false);
-//                 break;
-//             case 3:
-//                 processLockInput(true);
-//                 break;
-//         }
-//     }
-//     else if (ParamSWA_ChSceneHActive &&
-//              ParamSWA_ChSceneHNumber == sceneNumber)
-//     {
-//         switch (ParamSWA_ChSceneHBehavior)
-//         {
-//             case 0:
-//                 processSwitchInput(false);
-//                 break;
-//             case 1:
-//                 processSwitchInput(true);
-//                 break;
-//             case 2:
-//                 processLockInput(false);
-//                 break;
-//             case 3:
-//                 processLockInput(true);
-//                 break;
-//         }
-//     }
-// }
-
-// // Szene:
-// // Lautstärke
-// // Quelle
+    if (openknxPowerAmpModule.debug())
+    {
+        logDebugP("[INIT] KO Initial Values gesetzt");
+    }
+}

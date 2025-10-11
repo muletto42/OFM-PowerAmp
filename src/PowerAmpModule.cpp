@@ -102,14 +102,14 @@ void PowerAmpModule::setup(bool configured)
 // will be called once a KO received a telegram
 void PowerAmpModule::processInputKo(GroupObject &iKo)
 {
-    logDebugP("processInputKoModule");
-    logDebugP("ParamAMP_VisibleChannels %i", ParamAMP_VisibleChannels);
+    logDebugP("[Modul] processInputKo");
     logIndentUp();
 
     for (uint8_t i = 0; i < MIN(ParamAMP_VisibleChannels, OPENKNX_AMP_CHANNEL_COUNT); i++)
     {
+        logDebugP("channel[ %i ]", i+1);
         channel[i]->processInputKo(iKo);
-        logDebugP("channel[ %i ]", i);
+        
     }
     logIndentDown();
 }
