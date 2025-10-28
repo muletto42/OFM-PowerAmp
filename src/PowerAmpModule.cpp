@@ -185,7 +185,7 @@ bool PowerAmpModule::processCommand(const std::string command, bool diagnose)
             }
             else
             {
-                channel[channelIdx]->setVolume(value);
+                channel[channelIdx]->setVolume_VOL(value);
                 logDebugP("Set volume of channel %d to %d", channelIdx + 1, value);
             }
 
@@ -222,7 +222,7 @@ bool PowerAmpModule::processCommand(const std::string command, bool diagnose)
                 return true;
             }
 
-            channel[channelIdx]->setMute(muteValue);
+            channel[channelIdx]->setMute_MUT(muteValue);
             logDebugP("Set mute of channel %d to %s", channelIdx + 1, muteValue ? "ON" : "OFF");
 
             return true;

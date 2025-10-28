@@ -62,6 +62,14 @@
                 <Memory CodeSegment="%AID%_RS-04-00000" Offset="10" BitOffset="0" />
               </Parameter>
 
+              <Parameter Id="%AID%_P-%TT%%CC%032" Name="%C%AutoPlay" ParameterType="%AID%_PT-CheckBox" Text="AutoPlay" Value="1" >
+                <Memory CodeSegment="%AID%_RS-04-00000" Offset="11" BitOffset="0" />
+              </Parameter>
+
+              <Parameter Id="%AID%_P-%TT%%CC%033" Name="%C%Preset" ParameterType="%AID%_PT-Preset" Text="Preset" Value="0">
+                <Memory CodeSegment="%AID%_RS-04-00000" Offset="12" BitOffset="0" />
+              </Parameter>
+
               <Union SizeInBit="640">
                 <Memory CodeSegment="%AID%_RS-04-00000" Offset="5" BitOffset="0" />
                 <Parameter Id="%AID%_UP-%TT%%CC%100" Name="Ch%C%Scene0" Offset="0" BitOffset="0" ParameterType="%AID%_PT-ValueSceneInNr" Text="Scene0" Value="0" />
@@ -114,8 +122,13 @@
 
               <!-- Alive Time Interval -->
               <ParameterRef Id="%AID%_P-%TT%%CC%029_R-%TT%%CC%02901" RefId="%AID%_P-%TT%%CC%029" Text="Sende Alive Status alle x Sekunden" />
-
               <ParameterRef Id="%AID%_P-%TT%%CC%030_R-%TT%%CC%03001" RefId="%AID%_P-%TT%%CC%030" />
+
+              <!-- AutoPlay -->
+              <ParameterRef Id="%AID%_P-%TT%%CC%032_R-%TT%%CC%03201" RefId="%AID%_P-%TT%%CC%032" />
+
+              <!-- Preset -->
+              <ParameterRef Id="%AID%_P-%TT%%CC%033_R-%TT%%CC%03301" RefId="%AID%_P-%TT%%CC%033" />
 
               <!--Szene--> 
               <ParameterRef Id="%AID%_UP-%TT%%CC%020_R-%TT%%CC%02001" RefId="%AID%_UP-%TT%%CC%020" />
@@ -168,7 +181,9 @@
               <ComObject Id="%AID%_O-%TT%%CC%010" Name="Ch%C%DayNight" Text="TagNacht %Z%" Number="%K10%" ObjectSize="1 Bit" FunctionText="" ReadFlag="Enabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Enabled" ReadOnInitFlag="Enabled" DatapointType="DPST-1-24" />
               <ComObject Id="%AID%_O-%TT%%CC%011" Name="Ch%C%Scene" Text="Szene %Z%" Number="%K11%" FunctionText="Szene" ObjectSize="1 Byte" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Enabled" ReadOnInitFlag="Disabled" DatapointType="DPST-18-1" />
               <ComObject Id="%AID%_O-%TT%%CC%012" Name="Ch%C%Lock" Text="Lock %Z%" Number="%K12%" FunctionText="Sperre" ObjectSize="1 Bit" ReadFlag="Enabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Enabled" ReadOnInitFlag="Enabled" DatapointType="DPST-1-1" />
+              <ComObject Id="%AID%_O-%TT%%CC%033" Name="Ch%C%Preset" Text="Preset %Z%" Number="%K24%" FunctionText="Preset" ObjectSize="1 Byte" ReadFlag="Enabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Enabled" ReadOnInitFlag="Enabled" DatapointType="DPST-5-5" />
             
+
               <!-- Metadaten Title, Album, Artist, Vendor-->
               <ComObject Id="%AID%_O-%TT%%CC%020" Name="Ch%C%SongMetadataTitle" Number="%K13%" ObjectSize="14 Bytes" Text="Title Amp %Z%" FunctionText="songMetadataTitle" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-16-1" />
               <ComObject Id="%AID%_O-%TT%%CC%021" Name="Ch%C%SongMetadataAlbum" Number="%K14%" ObjectSize="14 Bytes" Text="Album Amp %Z%" FunctionText="songMetadataAlbum" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-16-1" />
@@ -182,7 +197,9 @@
               <ComObject Id="%AID%_O-%TT%%CC%028" Name="Ch%C%PlayPauseStatus" Text="PlayPause Status Amp %Z%" Number="%K21%" FunctionText="Wert" ObjectSize="1 Bit" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-1-1" />
 
               <ComObject Id="%AID%_O-%TT%%CC%029" Name="Ch%C%AliveStatus" Text="Alive Status Amp %Z%" Number="%K22%" FunctionText="AliveStatus" ObjectSize="1 Bit" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPT-1" />
-            
+
+              <ComObject Id="%AID%_O-%TT%%CC%032" Name="Ch%C%AutoPlayStatus" Text="AutoPlay Status Amp %Z%" Number="%K23%" FunctionText="AutoPlayStatus" ObjectSize="1 Bit" ReadFlag="Enabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Enabled" ReadOnInitFlag="Enabled" DatapointType="DPT-1" />
+
             </ComObjectTable>
             <ComObjectRefs>
               <ComObjectRef Id="%AID%_O-%TT%%CC%001_R-%TT%%CC%00101" RefId="%AID%_O-%TT%%CC%001" /> <!-- Lautstärke Wert -->
@@ -211,6 +228,9 @@
               <ComObjectRef Id="%AID%_O-%TT%%CC%028_R-%TT%%CC%02801" RefId="%AID%_O-%TT%%CC%028" Text="Amp %Z%: PlayPause Status" />
 
               <ComObjectRef Id="%AID%_O-%TT%%CC%029_R-%TT%%CC%02901" RefId="%AID%_O-%TT%%CC%029" Text="Amp %Z%: AliveStatus" />
+              
+              <ComObjectRef Id="%AID%_O-%TT%%CC%032_R-%TT%%CC%03201" RefId="%AID%_O-%TT%%CC%032" Text="Amp %Z%: AutoPlayStatus" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%033_R-%TT%%CC%03301" RefId="%AID%_O-%TT%%CC%033" Text="Amp %Z%: Preset" />
 
             </ComObjectRefs>
           </Static>
@@ -267,6 +287,16 @@
                           </when>
                           <when test="2">
                             <ComObjectRefRef RefId="%AID%_O-%TT%%CC%012_R-%TT%%CC%01202" />
+                          </when>
+                        </choose>
+
+                        <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
+                        <ParameterSeparator Id="%AID%_PS-nnn" Text="AutoPlay" UIHint="Headline" />
+                        <!-- AutoPlayStatus -->
+                        <ParameterRefRef RefId="%AID%_P-%TT%%CC%032_R-%TT%%CC%03201" IndentLevel="1" />
+                        <choose ParamRefId="%AID%_P-%TT%%CC%032_R-%TT%%CC%03201">
+                          <when test="1">
+                            <ComObjectRefRef RefId="%AID%_O-%TT%%CC%032_R-%TT%%CC%03201" />
                           </when>
                         </choose>
 
@@ -403,6 +433,7 @@
                         <ComObjectRefRef RefId="%AID%_O-%TT%%CC%026_R-%TT%%CC%02601" /> <!-- Mute Status-->
                         <ComObjectRefRef RefId="%AID%_O-%TT%%CC%027_R-%TT%%CC%02701" /> <!-- Elapsed Time Status-->
                         <ComObjectRefRef RefId="%AID%_O-%TT%%CC%028_R-%TT%%CC%02801" /> <!-- PlayPause Status-->
+                        <ComObjectRefRef RefId="%AID%_O-%TT%%CC%033_R-%TT%%CC%03301" /> <!-- Preset -->
                         
                       </when>
                     </choose>

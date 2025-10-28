@@ -76,6 +76,10 @@
                   <Enumeration Text="Szene 8" Value="8" Id="%ENID%" />
                 </TypeRestriction>
               </ParameterType>
+              <ParameterType Id="%AID%_PT-Preset" Name="Preset">
+                <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="0" maxInclusive="8" />
+                <!-- TODO Wertebereich für Preset prüfen-->
+              </ParameterType>
             </ParameterTypes>
 
             <Parameters>

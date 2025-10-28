@@ -25,7 +25,7 @@ class PowerAmpModule : public OpenKNX::Module
   private:
     PowerAmpChannel *channel[OPENKNX_AMP_CHANNEL_COUNT];
     uint8_t NumChannels; // Number of channels defined in knxprod
-     uint8_t _numChannels = 0;
+    uint8_t _numChannels = 0;
 
     uint8_t _rxPins[OPENKNX_AMP_CHANNEL_COUNT];
     uint8_t _txPins[OPENKNX_AMP_CHANNEL_COUNT];
