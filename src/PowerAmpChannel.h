@@ -152,6 +152,9 @@ private:
 
 
     unsigned long AUTOPLAY_DELAY = 10000;  // 10 Sekunden
+    bool autoPlayPending = false;
+    unsigned long autoPlayStartTime = 0;
+
 
     /* Handler für UART Kommandos von Arylic*/
     using HandlerFn = std::function<void(const String&)>;

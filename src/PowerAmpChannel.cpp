@@ -181,17 +181,17 @@ void PowerAmpChannel::loop()
                 getDeviceStatus_STA();
                 break; // Rufe den Status des Geräts ab  consist with: current source,mute,volume,treble,bass,net,internet,playing,led,upgrading.
             case 1:
-                getMetadataArtist_ART();
-                break; // Rufe den Künstlernamen ab
+                //getMetadataArtist_ART(); // Rufe den Künstlernamen ab
+                break; 
             case 2:
-                getMetadataAlbum_ALB();
-                break; // Rufe den Albumnamen ab
+                //getMetadataAlbum_ALB(); // Rufe den Albumnamen ab
+                break; 
             case 3:
-                getMetadataTitle_TIT();
-                break; // Rufe den Titel ab
+                //getMetadataTitle_TIT(); // Rufe den Titel ab
+                break; 
             case 4:
-                getMetadataVendor_VND();
-                break; // Rufe den Vendor ab
+                //getMetadataVendor_VND(); // Rufe den Vendor ab
+                break; 
             }
             currentState++;
             lastStateTime = now;
@@ -1118,7 +1118,7 @@ void PowerAmpChannel::updateAlive()
             onetimeAutoPlayExecuted = false;
             startTimeMillis = millis();
             if (openknxPowerAmpModule.debug()) {
-                logDebugP("[AUTO] Alive erkannt – Custom Autoplay erneut erlaubt");
+                logDebugP("[AUTO] Alive erkannt - Custom Autoplay erneut erlaubt");
             }
         }
     }
@@ -1295,18 +1295,8 @@ void PowerAmpChannel::setKOInitialValues(void)
 
 void PowerAmpChannel::handleCustomAutoplay()
 {
-    static bool autoPlayPending = false;
-    static unsigned long autoPlayStartTime = 0;
-
-    // Nur wenn Alive, Feature aktiv und noch nicht ausgeführt
-    if (deviceAlive == false || onetimeAutoPlayExecuted == true || autoPlayEnabled == false || internetStatus == false || autoPlayEnabled == false)
-    {
-        autoPlayPending = false; // zurücksetzen
-        return;
-    }
-
     // prüfen ob Quelle "NET" und Gerät nicht spielt
-    if (deviceAlive == true  && playingStatus_PLA == false && autoPlayEnabled == true)
+    if (deviceAlive == true  && playingStatus_PLA == false && autoPlayEnabled == true && onetimeAutoPlayExecuted == false)
     {
         if (autoPlayPending == false)
         {
@@ -1329,5 +1319,10 @@ void PowerAmpChannel::handleCustomAutoplay()
 
             }
         }
+    }
+    else
+    {
+        // nichts tun 
+        return;
     }
 }

@@ -71,7 +71,7 @@
               </Parameter>
 
               <Union SizeInBit="640">
-                <Memory CodeSegment="%AID%_RS-04-00000" Offset="5" BitOffset="0" />
+                <Memory CodeSegment="%AID%_RS-04-00000" Offset="13" BitOffset="0" />
                 <Parameter Id="%AID%_UP-%TT%%CC%100" Name="Ch%C%Scene0" Offset="0" BitOffset="0" ParameterType="%AID%_PT-ValueSceneInNr" Text="Scene0" Value="0" />
                 <Parameter Id="%AID%_UP-%TT%%CC%101" Name="Ch%C%Scene1" Offset="1" BitOffset="0" ParameterType="%AID%_PT-ValueSceneInNr" Text="Scene1" Value="0" />
                 <Parameter Id="%AID%_UP-%TT%%CC%102" Name="Ch%C%Scene2" Offset="2" BitOffset="0" ParameterType="%AID%_PT-ValueSceneInNr" Text="Scene2" Value="0" />
@@ -293,7 +293,7 @@
                         <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
                         <ParameterSeparator Id="%AID%_PS-nnn" Text="AutoPlay" UIHint="Headline" />
                         <!-- AutoPlayStatus -->
-                        <ParameterRefRef RefId="%AID%_P-%TT%%CC%032_R-%TT%%CC%03201" IndentLevel="1" />
+                        <ParameterRefRef RefId="%AID%_P-%TT%%CC%032_R-%TT%%CC%03201" IndentLevel="1" HelpContext="AMP-Autoplay" />
                         <choose ParamRefId="%AID%_P-%TT%%CC%032_R-%TT%%CC%03201">
                           <when test="1">
                             <ComObjectRefRef RefId="%AID%_O-%TT%%CC%032_R-%TT%%CC%03201" />
@@ -433,7 +433,7 @@
                         <ComObjectRefRef RefId="%AID%_O-%TT%%CC%026_R-%TT%%CC%02601" /> <!-- Mute Status-->
                         <ComObjectRefRef RefId="%AID%_O-%TT%%CC%027_R-%TT%%CC%02701" /> <!-- Elapsed Time Status-->
                         <ComObjectRefRef RefId="%AID%_O-%TT%%CC%028_R-%TT%%CC%02801" /> <!-- PlayPause Status-->
-                        <ComObjectRefRef RefId="%AID%_O-%TT%%CC%033_R-%TT%%CC%03301" /> <!-- Preset -->
+                        <ComObjectRefRef RefId="%AID%_O-%TT%%CC%033_R-%TT%%CC%03301" /> <!-- Preset --> 
                         
                       </when>
                     </choose>
