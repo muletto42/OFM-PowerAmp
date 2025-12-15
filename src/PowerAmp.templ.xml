@@ -240,8 +240,8 @@
                 <when test="&gt;=%C%">
                   <ParameterBlock Id="%AID%_PB-nnn" Text="Amplifier %Z%: {{0: ...}}" TextParameterRefId="%AID%_P-%TT%%CC%001_R-%TT%%CC%00101" Icon="play-circle-outline" HelpContext="Empty" ShowInComObjectTree="true">
                     <ParameterSeparator Id="%AID%_PS-nnn" Text="Kanaldefinition" UIHint="Headline" />
-                    <ParameterRefRef RefId="%AID%_P-%TT%%CC%001_R-%TT%%CC%00101" IndentLevel="1" />
-                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%002_R-%TT%%CC%00201" IndentLevel="1" />
+                    <ParameterRefRef RefId="%AID%_P-%TT%%CC%001_R-%TT%%CC%00101" IndentLevel="1" HelpContext="%DOC%" />
+                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%002_R-%TT%%CC%00201" IndentLevel="1" HelpContext="%DOC%" />
                     <choose ParamRefId="%AID%_UP-%TT%%CC%002_R-%TT%%CC%00201">
                       <when test="2">
                         <ParameterSeparator Id="%AID%_PS-nnn" Text="Wenn ein Kanal funktionslos geschaltet wird, bleiben alle Parameter und GA-Zuweisungen erhalten, ohne dass der Kanal etwas macht. Dies kann bei einer Fehlersuche sinnvoll sein." />
@@ -250,7 +250,7 @@
                         <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
                         <ParameterSeparator Id="%AID%_PS-nnn" Text="Lautstärke" UIHint="Headline" />
                         <!-- Tag/Nacht -->
-                        <ParameterRefRef RefId="%AID%_P-%TT%%CC%007_R-%TT%%CC%00701" IndentLevel="1" /> 
+                        <ParameterRefRef RefId="%AID%_P-%TT%%CC%007_R-%TT%%CC%00701" IndentLevel="1" HelpContext="%DOC%" /> 
                         <choose ParamRefId="%AID%_P-%TT%%CC%007_R-%TT%%CC%00701">
                           <when test="1">
                             <ComObjectRefRef RefId="%AID%_O-%TT%%CC%010_R-%TT%%CC%01001" />
@@ -263,7 +263,7 @@
                         <choose ParamRefId="%AID%_P-%TT%%CC%007_R-%TT%%CC%00701">
                           <when test="0">
                             <!-- Lautstärke -->
-                            <ParameterRefRef RefId="%AID%_P-%TT%%CC%004_R-%TT%%CC%00401" IndentLevel="1" /> 
+                            <ParameterRefRef RefId="%AID%_P-%TT%%CC%004_R-%TT%%CC%00401" IndentLevel="1" HelpContext="%DOC%"/> 
                           </when>
                           <when test=">0">
                             <!-- Lautstärke (Tag) -->
@@ -273,14 +273,14 @@
                           </when>
                         </choose>
                         <!-- VolumeStep Value -->
-                        <ParameterRefRef RefId="%AID%_P-%TT%%CC%005_R-%TT%%CC%00501" IndentLevel="1" />
+                        <ParameterRefRef RefId="%AID%_P-%TT%%CC%005_R-%TT%%CC%00501" IndentLevel="1" HelpContext="%DOC%"/>
                         <!-- VolumeLimit-->
-                        <ParameterRefRef RefId="%AID%_P-%TT%%CC%031_R-%TT%%CC%03101" IndentLevel="1" />
+                        <ParameterRefRef RefId="%AID%_P-%TT%%CC%031_R-%TT%%CC%03101" IndentLevel="1" HelpContext="%DOC%"/>
 
                         <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
                         <ParameterSeparator Id="%AID%_PS-nnn" Text="Sperre" UIHint="Headline" />
                         <!-- Lock -->
-                        <ParameterRefRef RefId="%AID%_P-%TT%%CC%009_R-%TT%%CC%00901" IndentLevel="1" />
+                        <ParameterRefRef RefId="%AID%_P-%TT%%CC%009_R-%TT%%CC%00901" IndentLevel="1" HelpContext="%DOC%" />
                         <choose ParamRefId="%AID%_P-%TT%%CC%009_R-%TT%%CC%00901">
                           <when test="1">
                             <ComObjectRefRef RefId="%AID%_O-%TT%%CC%012_R-%TT%%CC%01201" />
@@ -293,7 +293,7 @@
                         <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
                         <ParameterSeparator Id="%AID%_PS-nnn" Text="AutoPlay" UIHint="Headline" />
                         <!-- AutoPlayStatus -->
-                        <ParameterRefRef RefId="%AID%_P-%TT%%CC%032_R-%TT%%CC%03201" IndentLevel="1" HelpContext="AMP-Autoplay" />
+                        <ParameterRefRef RefId="%AID%_P-%TT%%CC%032_R-%TT%%CC%03201" IndentLevel="1" HelpContext="AMP-Autoplay" HelpContext="%DOC%"/>
                         <choose ParamRefId="%AID%_P-%TT%%CC%032_R-%TT%%CC%03201">
                           <when test="1">
                             <ComObjectRefRef RefId="%AID%_O-%TT%%CC%032_R-%TT%%CC%03201" />
@@ -303,10 +303,10 @@
                         <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
                         <ParameterSeparator Id="%AID%_PS-nnn" Text="Alive" UIHint="Headline" />
                         <!-- AliveStatus -->
-                        <ParameterRefRef RefId="%AID%_P-%TT%%CC%030_R-%TT%%CC%03001" IndentLevel="1" /> 
+                        <ParameterRefRef RefId="%AID%_P-%TT%%CC%030_R-%TT%%CC%03001" IndentLevel="1" HelpContext="%DOC%" /> 
                         <choose ParamRefId="%AID%_P-%TT%%CC%030_R-%TT%%CC%03001">
                           <when test="1">
-                            <ParameterRefRef RefId="%AID%_P-%TT%%CC%029_R-%TT%%CC%02901" IndentLevel="1" />  <!-- Alive  -->
+                            <ParameterRefRef RefId="%AID%_P-%TT%%CC%029_R-%TT%%CC%02901" IndentLevel="1" HelpContext="%DOC%" />  <!-- Alive  -->
                             <ComObjectRefRef RefId="%AID%_O-%TT%%CC%029_R-%TT%%CC%02901" /> <!-- Alive Time Interval -->
                           </when>
                         </choose>
@@ -315,7 +315,7 @@
                         
                         <!-- Zusatzfunktionen - Szene  -->
                         <ParameterSeparator Id="%AID%_PS-nnn" Text="Szene" UIHint="Headline" />
-                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%020_R-%TT%%CC%02001" IndentLevel="1" />  <!-- TODO HELP Context HelpContext="%DOC%"-->
+                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%020_R-%TT%%CC%02001" IndentLevel="1" HelpContext="%DOC%"/>  
  
                         <!-- Szenensteuerung  AN/AUS -->
                         <choose ParamRefId="%AID%_UP-%TT%%CC%020_R-%TT%%CC%02001">

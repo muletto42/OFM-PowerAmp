@@ -1,11 +1,13 @@
 # OFM-PowerAmp
 
-Dieses Modul stellt eine Anbindung an die DIY-Produkte (Up2Stream) von Arylic bereit. Dafür wird die UART schnittstelle benutzt.
+Dieses Modul stellt eine Anbindung an die DIY-Produkte (Up2Stream) von Arylic bereit. Dafür wird die UART-Schnittstelle benutzt.
+Getestet wurde ausschließlich mit der Up2Stream Amp Stereo/Mono.
 
-Getestet wurde ausschließlich mit der Up2Stream Amp Stereo.
+## Release Notes
+- 0.1 erstes Release
 
 ## Features
-- native Steuerung der Audiowiedergabe via KNX GAs
+- native Steuerung der Audiowiedergabe via KNX
   
 
 ## Planned Features
@@ -24,6 +26,7 @@ Die Applikationsbeschreibung ist [hier]"(doc/Applikationsbeschreibung-.md)" zu f
 
 Getestete Hardware:
 - PiPico mit [PiPico BCU Connector](https://muster.ing-dom.de/Zubehoer/PiPico-BCU-Connector.html)
+- [PowerAmp Platine] (https://knx-user-forum.de/forum/projektforen/openknx/2038415-projektvorstellung-arylic-uart-connector)
 
 
 ## Einbindung in die Anwendung
