@@ -6,8 +6,6 @@
 Eine vollständige Applikationsbeschreibung ist unter folgendem Link verfügbar: [folgt]
 DOCCONTENT -->
 
-<!-- DOC -->
-## Beschreibung des Verstaerkermoduls
 Dieses Modul stellt eine Anbindung an die DIY-Produkte (Up2Stream) von Arylic bereit.  
 Dazu wird die UART-Schnittstelle verwendet.
 
@@ -90,7 +88,7 @@ Mit diesem Modul können PowerAmp-Kanäle parametrisiert werden.
 <!-- DOC -->
 #### **Beschreibung des Kanals**
 
-Der hier angegebene Name wird an verschiedenen Stellen verwendet, um diesen Kanal eindeutig zu identifizieren.
+Der hier angegebene Name wird an verschiedenen Stellen verwendet, um diesen Kanal eindeutig zu identifizieren. z.B. Küche, Bad, etc.
 
 <!-- DOC -->
 #### **Kanalaktivität**
