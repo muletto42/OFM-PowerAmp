@@ -62,12 +62,16 @@
                 <Memory CodeSegment="%AID%_RS-04-00000" Offset="10" BitOffset="0" />
               </Parameter>
 
-              <Parameter Id="%AID%_P-%TT%%CC%032" Name="%C%AutoPlay" ParameterType="%AID%_PT-CheckBox" Text="AutoPlay" Value="1" >
+              <Parameter Id="%AID%_P-%TT%%CC%032" Name="%C%AutoPlay" ParameterType="%AID%_PT-OnOffYesNo" Text="AutoPlay" Value="1" >
                 <Memory CodeSegment="%AID%_RS-04-00000" Offset="11" BitOffset="0" />
               </Parameter>
 
               <Parameter Id="%AID%_P-%TT%%CC%033" Name="%C%Preset" ParameterType="%AID%_PT-Preset" Text="Preset" Value="0">
                 <Memory CodeSegment="%AID%_RS-04-00000" Offset="12" BitOffset="0" />
+              </Parameter>
+              
+              <Parameter Id="%AID%_P-%TT%%CC%034" Name="%C%AutoMute" ParameterType="%AID%_PT-OnOffYesNo" Text="AutoMute bei Start" Value="1" >
+                <Memory CodeSegment="%AID%_RS-04-00000" Offset="14" BitOffset="0" />
               </Parameter>
 
               <Union SizeInBit="640">
@@ -104,7 +108,6 @@
             </Parameters>
 
             
-
             <ParameterRefs> 
               <ParameterRef Id="%AID%_P-%TT%%CC%001_R-%TT%%CC%00101" RefId="%AID%_P-%TT%%CC%001" />  <!-- Beschreibung des Kanals -->
               
@@ -294,12 +297,7 @@
                         <ParameterSeparator Id="%AID%_PS-nnn" Text="AutoPlay" UIHint="Headline" />
                         <!-- AutoPlayStatus -->
                         <ParameterRefRef RefId="%AID%_P-%TT%%CC%032_R-%TT%%CC%03201" IndentLevel="1" HelpContext="%DOC%"/>
-                        <choose ParamRefId="%AID%_P-%TT%%CC%032_R-%TT%%CC%03201">
-                          <when test="1">
-                            <ComObjectRefRef RefId="%AID%_O-%TT%%CC%032_R-%TT%%CC%03201" />
-                          </when>
-                        </choose>
-
+                  
                         <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
                         <ParameterSeparator Id="%AID%_PS-nnn" Text="Alive" UIHint="Headline" />
                         <!-- AliveStatus -->
@@ -434,6 +432,7 @@
                         <ComObjectRefRef RefId="%AID%_O-%TT%%CC%027_R-%TT%%CC%02701" /> <!-- Elapsed Time Status-->
                         <ComObjectRefRef RefId="%AID%_O-%TT%%CC%028_R-%TT%%CC%02801" /> <!-- PlayPause Status-->
                         <ComObjectRefRef RefId="%AID%_O-%TT%%CC%033_R-%TT%%CC%03301" /> <!-- Preset --> 
+                        <ComObjectRefRef RefId="%AID%_O-%TT%%CC%032_R-%TT%%CC%03201" /> <!-- AutoPlayStatus -->
                         
                       </when>
                     </choose>
@@ -447,3 +446,13 @@
     </Manufacturer>
   </ManufacturerData>
 </KNX>
+
+
+<!-- | **Element** | **Ein-Satz-Erklärung** | -->
+<!-- | ___________ | ______________________ | -->
+<!-- | **Parameter** | "Hier ist ein Parameter mit Typ, Speicher und Defaultwert" | -->
+<!-- | **ParameterRef** | "Ich nenne diesen Parameter jetzt anders" | -->
+<!-- | **ParameterRefRef** | "Zeige diesen umbenannten Parameter in der ETS-UI" | -->
+<!-- | **ComObject** | "Hier ist ein KO mit DPT und Flags" | -->
+<!-- | **ComObjectRef** | "Ich nenne dieses KO anders oder invertiere es" | -->
+<!-- | **ComObjectRefRef** | "Zeige dieses umbenannte KO in der ETS-UI" | -->

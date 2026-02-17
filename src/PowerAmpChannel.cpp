@@ -38,7 +38,7 @@ void PowerAmpChannel::processInputKo(GroupObject &iKo)
 {
     if (ParamAMP_ChActive != 1)
     {
-        logDebugP("processInputKo: channel not active");
+        logDebugP("processInputKo: channel not active (%u)", ParamAMP_ChActive);
         return;
     }
 
