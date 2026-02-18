@@ -133,6 +133,9 @@
               <!-- Preset -->
               <ParameterRef Id="%AID%_P-%TT%%CC%033_R-%TT%%CC%03301" RefId="%AID%_P-%TT%%CC%033" />
 
+              <!-- AutoMute -->
+              <ParameterRef Id="%AID%_P-%TT%%CC%034_R-%TT%%CC%03401" RefId="%AID%_P-%TT%%CC%034" />
+   
               <!--Szene--> 
               <ParameterRef Id="%AID%_UP-%TT%%CC%020_R-%TT%%CC%02001" RefId="%AID%_UP-%TT%%CC%020" />
 
@@ -203,6 +206,9 @@
 
               <ComObject Id="%AID%_O-%TT%%CC%032" Name="Ch%C%AutoPlayStatus" Text="AutoPlay Status Amp %Z%" Number="%K23%" FunctionText="AutoPlayStatus" ObjectSize="1 Bit" ReadFlag="Enabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Enabled" ReadOnInitFlag="Enabled" DatapointType="DPT-1" />
 
+              <ComObject Id="%AID%_O-%TT%%CC%034" Name="Ch%C%AutoMuteStatus" Text="AutoMute Status Amp %Z%" Number="%K25%" FunctionText="AutoMuteStatus" ObjectSize="1 Bit" ReadFlag="Enabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Enabled" ReadOnInitFlag="Enabled" DatapointType="DPT-1" />
+
+      
             </ComObjectTable>
             <ComObjectRefs>
               <ComObjectRef Id="%AID%_O-%TT%%CC%001_R-%TT%%CC%00101" RefId="%AID%_O-%TT%%CC%001" /> <!-- Lautstärke Wert -->
@@ -234,6 +240,7 @@
               
               <ComObjectRef Id="%AID%_O-%TT%%CC%032_R-%TT%%CC%03201" RefId="%AID%_O-%TT%%CC%032" Text="Amp %Z%: AutoPlayStatus" />
               <ComObjectRef Id="%AID%_O-%TT%%CC%033_R-%TT%%CC%03301" RefId="%AID%_O-%TT%%CC%033" Text="Amp %Z%: Preset" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%034_R-%TT%%CC%03401" RefId="%AID%_O-%TT%%CC%034" Text="Amp %Z%: AutoMuteStatus" />
 
             </ComObjectRefs>
           </Static>
@@ -297,6 +304,11 @@
                         <ParameterSeparator Id="%AID%_PS-nnn" Text="AutoPlay" UIHint="Headline" />
                         <!-- AutoPlayStatus -->
                         <ParameterRefRef RefId="%AID%_P-%TT%%CC%032_R-%TT%%CC%03201" IndentLevel="1" HelpContext="%DOC%"/>
+
+                        <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
+                        <ParameterSeparator Id="%AID%_PS-nnn" Text="AutoMute" UIHint="Headline" />
+                        <!-- AutoMuteStatus -->
+                        <ParameterRefRef RefId="%AID%_P-%TT%%CC%034_R-%TT%%CC%03401" IndentLevel="1" HelpContext="AMP-AutoMute"/>
                   
                         <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
                         <ParameterSeparator Id="%AID%_PS-nnn" Text="Alive" UIHint="Headline" />
@@ -433,6 +445,7 @@
                         <ComObjectRefRef RefId="%AID%_O-%TT%%CC%028_R-%TT%%CC%02801" /> <!-- PlayPause Status-->
                         <ComObjectRefRef RefId="%AID%_O-%TT%%CC%033_R-%TT%%CC%03301" /> <!-- Preset --> 
                         <ComObjectRefRef RefId="%AID%_O-%TT%%CC%032_R-%TT%%CC%03201" /> <!-- AutoPlayStatus -->
+                        <ComObjectRefRef RefId="%AID%_O-%TT%%CC%034_R-%TT%%CC%03401" /> <!-- AutoMuteStatus -->
                         
                       </when>
                     </choose>

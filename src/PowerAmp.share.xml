@@ -22,7 +22,7 @@
                 </TypeRestriction>
               </ParameterType>
               <ParameterType Id="%AID%_PT-Volume" Name="Volume">
-                <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="1" maxInclusive="100" UIHint="Slider" />
+                <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="0" maxInclusive="100" UIHint="Slider" />
               </ParameterType>
               <ParameterType Id="%AID%_PT-VolumeStepValue" Name="VolumeStepValue">
                 <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="1" maxInclusive="10" UIHint="Slider" />

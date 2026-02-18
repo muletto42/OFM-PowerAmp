@@ -66,7 +66,15 @@ void PowerAmpChannel::processInputKo(GroupObject &iKo)
             else if (value == 0)
             {
                 // 0 = Decrease 
-                currentVolume = currentVolume - currentVolumeStepValue;
+
+                if (currentVolume < currentVolumeStepValue)
+                {
+                    currentVolume = 0;
+                }
+                else
+                {
+                    currentVolume = currentVolume - currentVolumeStepValue;
+                }  
             }
             setVolume_VOL(currentVolume);
             break;
@@ -113,7 +121,7 @@ void PowerAmpChannel::processInputKo(GroupObject &iKo)
         {
             logDebugP("processInputKo: source");
             uint8_t srcVal = KoAMP_ChSource.value(DPT_Value_1_Ucount); // Wert als uint8_t holen
-            enumSource currentSource = static_cast<enumSource>(srcVal);
+            currentSource = static_cast<enumSource>(srcVal);
             setSource_SRC(currentSource);
             break;
         }
@@ -140,6 +148,12 @@ void PowerAmpChannel::processInputKo(GroupObject &iKo)
             logDebugP("processInputKo: autoplay_status");
             bool autoplayValue = KoAMP_ChAutoPlayStatus.value(DPT_Switch);
             setAutoplay_APL(autoplayValue);
+            break;
+        }
+        case AMP_KoChAutoMuteStatus:
+        {
+            logDebugP("processInputKo: autoMute_status");
+            autoMuteEnabled = KoAMP_ChAutoMuteStatus.value(DPT_Switch);
             break;
         }
         case AMP_KoChPreset:
@@ -205,6 +219,7 @@ void PowerAmpChannel::loop()
     }
     checkAliveStatus();
     handleCustomAutoplay();
+    handleCustomAutoMute();
 }
 
 void PowerAmpChannel::setup(bool configured)
@@ -240,6 +255,13 @@ void PowerAmpChannel::setup(bool configured)
     if (openknxPowerAmpModule.debug()) {
         logDebugP("[INIT] Custom Autoplay: %d", autoPlayEnabled);
     }
+
+    // --- AutoMute initialisieren ---
+    onetimeAutoMuteExecuted = false;
+    autoMuteEnabled = (ParamAMP_AutoMute == 1); // oder wie dein ETS-Param heißt
+    if (openknxPowerAmpModule.debug()) {
+        logDebugP("[INIT] AutoMute: %d", autoMuteEnabled);
+    }
 }
 
 void PowerAmpChannel::sendRawCommandToArylic(const String command)
@@ -249,7 +271,13 @@ void PowerAmpChannel::sendRawCommandToArylic(const String command)
         logDebugP("[SEND] sendRawCommandToArylic: %s", command.c_str());
     }
     
-    mySerial->print(command + "\r\n");
+    // mySerial->print(command + "\r\n");
+
+    // Das Arylic-Protokoll definiert nur ";" als Terminator.
+    // Besser: nur ";" senden (das ist bereits im command enthalten):
+    mySerial->print(command);
+    // mySerial->write('\r');
+    // mySerial->write('\n');
     mySerial->flush(); // Wartet, bis die Übertragung der ausgehenden seriellen Daten abgeschlossen ist.
 }
 
@@ -409,7 +437,7 @@ void PowerAmpChannel::setMute_MUT(bool onoff)
 {
     if (openknxPowerAmpModule.debug())
     {
-        logDebugP("[setMute] MuteMode: %d", muteStatus_MUT);
+        logDebugP("[setMute] MuteMode: %d", onoff);
     }
     sendRawCommandToArylic("MUT:" + String(onoff) + ";");
 }
@@ -430,10 +458,9 @@ void PowerAmpChannel::setAutoplay_APL(bool onoff)
     KoAMP_ChAutoPlayStatus.value(onoff, DPT_Switch);
 }
 
-bool PowerAmpChannel::getAutoplay_APL(void)
+void PowerAmpChannel::getAutoplay_APL(void)
 {
     sendRawCommandToArylic("APL;"); 
-    return autoplayStatus_APL; // Gibt den aktuellen Autoplay-Status zurück, es wird der alte Wert zurückgegeben.
 }
 
 void PowerAmpChannel::getMetadataTitle_TIT(void)
@@ -458,10 +485,6 @@ void PowerAmpChannel::getMetadataVendor_VND(void)
 
 void PowerAmpChannel::handleIncomingData(void)
 {
-    static String uartBuffer = "";           //  Puffer für (unvollständige) Nachrichten
-    static unsigned long lastReceiveTime = 0; // Zeitstempel des letzten Zeichens
-    static uint32_t errorCount = 0;          // Fehlerzähler
-
     // Prüfen, ob Daten im UART-Puffer liegen
     while (mySerial->available() > 0)
     {
@@ -541,8 +564,8 @@ void PowerAmpChannel::handleIncomingData(void)
         // Überlauf-Schutz (wichtig bei SoftwareSerial)
         if (uartBuffer.length() > 256)
         {
-            errorCount++;
-            logErrorP("[UART] Buffer overflow (len=%u), clearing! Total errors: %lu", uartBuffer.length(), errorCount);
+            uartErrorCount++;
+            logErrorP("[UART] Buffer overflow (len=%u), clearing! Total errors: %lu", uartBuffer.length(), uartErrorCount);
             uartBuffer = "";
         }
     }
@@ -550,8 +573,8 @@ void PowerAmpChannel::handleIncomingData(void)
     // Timeout-Erkennung: falls eine Nachricht nie abgeschlossen wird
     if (uartBuffer.length() > 0 && (millis() - lastReceiveTime > 1000))
     {
-        errorCount++;
-        logErrorP("[UART] Timeout waiting for ';' (buffer cleared). Total errors: %lu", errorCount);
+        uartErrorCount++;
+        logErrorP("[UART] Timeout waiting for ';' (buffer cleared). Total errors: %lu", uartErrorCount);
         uartBuffer = "";
     }
 }
@@ -1116,9 +1139,16 @@ void PowerAmpChannel::updateAlive()
         // Nach Alive-Wiederkehr ggf. Autoplay triggern
         if (autoPlayEnabled) {
             onetimeAutoPlayExecuted = false;
-            startTimeMillis = millis();
             if (openknxPowerAmpModule.debug()) {
                 logDebugP("[AUTO] Alive erkannt - Custom Autoplay erneut erlaubt");
+            }
+        }
+        // Nach Alive-Wiederkehr ggf. Automute triggern 
+         if (autoMuteEnabled) {
+            onetimeAutoMuteExecuted = false;
+            autoMutePending = false; 
+            if (openknxPowerAmpModule.debug()) {
+                logDebugP("[AUTO] Alive erkannt - Custom Automute erneut erlaubt");
             }
         }
     }
@@ -1127,14 +1157,15 @@ void PowerAmpChannel::updateAlive()
 void PowerAmpChannel::checkAliveStatus()
 {
     unsigned long currentMillis = millis();
-    static bool lastAliveState = false; // zum Erkennen von Statuswechseln
-
+  
     // Wenn Gerät als alive markiert ist, aber zu lange keine Antwort kam → DEAD
     if (deviceAlive && (currentMillis - lastResponseMillis_Alive > alive_timeout))
     {
         deviceAlive = false;
        // logInfoP("[DEAD] AMP antwortet nicht!");
         lastAliveState = deviceAlive;
+        // nicht mehr erreichbar - Meldungen und Infos an Display via KO löschen
+        resetStatiInfos();
     }
 
     // Zyklische Alive-Meldung 
@@ -1200,7 +1231,7 @@ void PowerAmpChannel::processInputKoDayNight(GroupObject &ko)
 {
     bool value = ko.value(DPT_Switch);
 
-    if (ParamAMP_DayNight == 1 && value == 0 || ParamAMP_DayNight == 2 && value == 1)
+    if ((ParamAMP_DayNight == 1 && value == 0) || (ParamAMP_DayNight == 2 && value == 1))
         return night();
 
     return day();
@@ -1225,7 +1256,7 @@ void PowerAmpChannel::processInputKoLock(GroupObject &ko)
 {
     bool value = ko.value(DPT_Switch);
 
-    if (ParamAMP_Lock == 1 && value == 1 || ParamAMP_Lock == 2 && value == 0)
+    if ((ParamAMP_Lock == 1 && value == 1 || ParamAMP_Lock == 2 && value == 0))
         return lock();
 
     return unlock();
@@ -1240,36 +1271,24 @@ void PowerAmpChannel::processInputKoScene(GroupObject &ko)
 
     uint8_t Szenennummer = ko.value(DPT_SceneNumber);
     Szenennummer += 1;
-    logDebugP("processInputKoScene: Szenennummer %i", Szenennummer);
+    logDebugP("processInputKoScene: Szenennummer %u", Szenennummer);
+
     for (uint8_t i = 0; i < 9; i++)
     {
-        uint8_t sceneId     = knx.paramByte(sceneBlocks[i].scene);
-        uint8_t sceneQuelle = 0;
-        uint8_t sceneVolume = 0;
+        uint8_t sceneId = knx.paramByte(sceneBlocks[i].scene);
 
-        logDebugP("Block %i -> Szenennummer: %i", i + 1, sceneId);
+        if (sceneId == 0) continue;              // "Nicht genutzt"
+        if (sceneId != Szenennummer) continue;   // ← fehlt in deiner Version
 
-        if (sceneId == 0) 
-        {
-            logDebugP("Keine Szene definiert (Block %i)", i + 1);
-        }
-        else if (sceneId >= 1 && sceneId <= 8) 
-        {
-            // Quelle/Volume anhand der SceneId laden
-            sceneQuelle = knx.paramByte(sceneBlocks[sceneId].quelle);
-            sceneVolume = knx.paramByte(sceneBlocks[sceneId].volume);
+        uint8_t sceneQuelle = knx.paramByte(sceneBlocks[i].quelle);  // i, nicht sceneId
+        uint8_t sceneVolume = knx.paramByte(sceneBlocks[i].volume);  // i, nicht sceneId
 
-            logInfoP("Block %i -> Scene %i: Quelle %i, Volume %i", i, sceneId, sceneQuelle, sceneVolume);
-
-            enumSource currentSource = static_cast<enumSource>(sceneQuelle);
-            setSource_SRC(currentSource);
-            setVolume_VOL(sceneVolume);
-        }
-        else 
-        {
-            logDebugP("Ungültige Szenennummer %i (Block %i)", sceneId, i + 1);
-        }
+        currentSource = static_cast<enumSource>(sceneQuelle);
+        setSource_SRC(currentSource);
+        setVolume_VOL(sceneVolume);
+        return;
     }
+    logDebugP("Keine passende Szene für Nummer %u", Szenennummer);
 }
 
 void PowerAmpChannel::setKOInitialValues(void)
@@ -1295,6 +1314,21 @@ void PowerAmpChannel::setKOInitialValues(void)
 
 void PowerAmpChannel::handleCustomAutoplay()
 {
+    if (autoPlayPending && playingStatus_PLA)
+    {
+        autoPlayPending = false;
+        onetimeAutoPlayExecuted = true;
+        logInfoP("[AUTO] Already playing, autoplay cancelled");
+        return;
+    }
+    // zusätzlicher
+    if (autoPlayPending && !deviceAlive)
+    {
+        autoPlayPending = false;
+        logInfoP("[AUTO] Device not alive, autoplay cancelled");
+        return;
+    }
+
     // prüfen ob Quelle "NET" und Gerät nicht spielt
     if (deviceAlive == true  && playingStatus_PLA == false && autoPlayEnabled == true && onetimeAutoPlayExecuted == false)
     {
@@ -1305,6 +1339,7 @@ void PowerAmpChannel::handleCustomAutoplay()
             autoPlayPending = true;
             setAutoplay_APL(true); // Wer Autoplay bestellt, bekommt Autoplay
         }
+
 
         if (internetStatus == true && string_currentSource == "NET")
         {
@@ -1326,3 +1361,46 @@ void PowerAmpChannel::handleCustomAutoplay()
         return;
     }
 }
+
+void PowerAmpChannel::handleCustomAutoMute()
+{
+    if (!deviceAlive || !autoMuteEnabled || onetimeAutoMuteExecuted) return;
+
+    if (!autoMutePending)
+    {
+        autoMutePending = true;
+        autoMuteStartTime = millis();
+        logInfoP("[AUTOMUTE] Mute geplant in %lums", AUTOMUTE_DELAY);
+        return;
+    }
+
+    if (millis() - autoMuteStartTime >= AUTOMUTE_DELAY)
+    {
+        setMute_MUT(true);
+        onetimeAutoMuteExecuted = true;
+        autoMutePending = false;
+        logInfoP("[AUTOMUTE] Mute ausgeführt");
+    }
+}
+
+void PowerAmpChannel::resetStatiInfos()
+{
+    logInfoP("[dead] reset Stati");
+    currentVolume = 0;
+    string_currentSource = "";
+    elapsedTime_ELP = ""; 
+    songMetadataVendor ="";
+    songMetadataAlbum ="";
+    songMetadataArtist ="";
+    songMetadataTitle ="";
+
+    String empty = "";
+    KoAMP_ChVolumeStatus.value((uint8_t)0, DPT_Scaling);
+    KoAMP_ChSourceStatus.value(empty.c_str(), DPT_String_8859_1);
+    KoAMP_ChSongMetadataTitle.value(empty.c_str(), DPT_String_8859_1);
+    KoAMP_ChSongMetadataArtist.value(empty.c_str(), DPT_String_8859_1);
+    KoAMP_ChSongMetadataAlbum.value(empty.c_str(), DPT_String_8859_1);
+    KoAMP_ChSongMetadataVendor.value(empty.c_str(), DPT_String_8859_1);
+    KoAMP_ChElapsedTime.value(empty.c_str(), DPT_String_8859_1);
+}
+

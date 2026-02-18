@@ -39,7 +39,7 @@ private:
     void getDeviceStatus_STA(void); // get device status, available in network playback and bluetooth
 
     void setAutoplay_APL(bool onoff); // AUTOPLAY[:{onoff}] set autoplay
-    bool getAutoplay_APL(void);
+    void getAutoplay_APL(void);
 
     void getMetadataTitle_TIT(void);
     void getMetadataArtist_ART(void);
@@ -102,6 +102,8 @@ private:
     uint8_t volumeFixedOutput = 0;
     uint8_t balanceSetting = 0;
     uint8_t wifiStatus = 0;
+
+    bool lastAliveState = false;
 
     struct SceneParams {
         uint16_t scene;
@@ -232,10 +234,19 @@ private:
     void updateAlive(void);
 
 
+
+    // --- Automute ---
+    bool autoMutePending = false;
+    unsigned long autoMuteStartTime = 0;
+    const unsigned long AUTOMUTE_DELAY = 200; // 200ms nach Alive-Erkennung
+
+    bool autoMuteEnabled = true;  // ETS-Parameter: soll nach Boot automatisch muten?
+    bool onetimeAutoMuteExecuted = false;   // verhindert mehrfachen Start
+    void handleCustomAutoMute(void);
+
     // --- Autoplay-System ---
     bool autoPlayEnabled = false;  // ETS-Parameter: soll nach Boot automatisch starten?
     bool onetimeAutoPlayExecuted = false;   // verhindert mehrfachen Start
-    unsigned long startTimeMillis = 0;      // für Boot-Timer
     void handleCustomAutoplay(void);
 
     bool _currentNight = false;
@@ -249,6 +260,12 @@ private:
     void unlock();
     void lock();
     void setKOInitialValues(void);
+    void resetStatiInfos(void);
+    
+    // -- fuer handleIncomingData
+    String uartBuffer = "";
+    unsigned long lastReceiveTime = 0;
+    uint32_t uartErrorCount = 0;
 
 public:
     PowerAmpChannel(uint8_t iChannelNumber, Stream* serialStream = nullptr);
@@ -258,7 +275,6 @@ public:
     const std::string name() override;
     void setup(bool configured) override;
     void loop() override;
-    void processAfterStartupDelay();
     void processInputKo(GroupObject &ko) override;
 
     void setVolume_VOL(uint8_t volume);
@@ -266,8 +282,6 @@ public:
     void setMute_MUT(bool onoff);
     bool getMute_MUT(void);
 
-    void save();
-    void restore();
     bool isActive();
         
     // Alive-Handling um zu prüfen ob der Endstufe noch oder überhaupt schon da ist.

@@ -155,6 +155,12 @@ Hier wird festgelegt, wie sich der Kanal bei einer zentralen Sperre verhält.
 Autoplay startet die Wiedergabe nach einem Neustart automatisch.  
 Ist Internetradio als Quelle gewählt, wird gewartet, bis eine Internetverbindung verfügbar ist.
 
+<!-- DOC -->
+#### **AutoMute**
+
+Ist Automute aktiv, so wird das Gerät gemutet gestartet. Im Hintergrund läuft ggfs. bereits die Wiedergabe weiter oder wurde gestartet.
+
+
 
 #### **Alive**	
 
