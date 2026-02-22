@@ -16,130 +16,140 @@
           -->
           <Static>
             <Parameters>
+               <!-- Kanalname und -nummer (kein Speicher nötig) -->
               <Parameter Id="%AID%_P-%TT%%CC%001" Name="Ch%C%Name" ParameterType="%AID%_PT-Text40Byte" Text="Beschreibung des Kanals" Value="" />
               <Parameter Id="%AID%_P-%TT%%CC%051" Name="Ch%C%Number" ParameterType="%AID%_PT-ValueDpt5" Text="Nummer des Kanals" Value="%C%" Access="None" />
               
-              <Union SizeInBit="8">
-                <Memory CodeSegment="%AID%_RS-04-00000" Offset="0" BitOffset="0" />
-                <Parameter Id="%AID%_UP-%TT%%CC%002" Name="Ch%C%Active" ParameterType="%AID%_PT-AMPChannelActive" Offset="0" BitOffset="0" Text="Kanalaktivität" Value="0" />
-              </Union>
+              <!-- Memory Layout
+              Union SizeInBit="72" (9 Bytes, Offset 0-8)
+                ├── Byte 0: Flags-A (Active, ScenesActive, mute, AutoPlay, AutoMute, AliveCheckBox)
+                ├── Byte 1: Flags-B (DayNight Bit0-1, Lock Bit2-3)
+                ├── Byte 2: Source
+                ├── Byte 3: VolumeDay
+                ├── Byte 4: VolumeNight
+                ├── Byte 5: VolumeStepValue
+                ├── Byte 6: AliveTimeInterval
+                ├── Byte 7: LimitMaxVolume
+                └── Byte 8: Preset
 
-              <!--Szene-->
-              <Union SizeInBit="8">
-                <Memory CodeSegment="%AID%_RS-04-00000" Offset="0" BitOffset="0" />
-                <Parameter Id="%AID%_UP-%TT%%CC%020" Name="Ch%C%ScenesActive" ParameterType="%AID%_PT-OnOffYesNo" Offset="0" BitOffset="0" Text="Szenen aktivieren" Value="0" />
-              </Union>
-                            
-              <Parameter Id="%AID%_P-%TT%%CC%010" Name="%C%Source" ParameterType="%AID%_PT-Source" Text="Quelle" Value="0">
-                <Memory CodeSegment="%AID%_RS-04-00000" Offset="1" BitOffset="0" />
-              </Parameter>
-              <Parameter Id="%AID%_P-%TT%%CC%004" Name="%C%VolumeDay" ParameterType="%AID%_PT-Volume" Text="" Value="25">
-                <Memory CodeSegment="%AID%_RS-04-00000" Offset="2" BitOffset="0" />
-              </Parameter>
-              <Parameter Id="%AID%_P-%TT%%CC%003" Name="%C%VolumeNight" ParameterType="%AID%_PT-Volume" Text="" Value="15">
-                <Memory CodeSegment="%AID%_RS-04-00000" Offset="3" BitOffset="0" />
-              </Parameter>
-               <Parameter Id="%AID%_P-%TT%%CC%005" Name="%C%VolumeStepValue" ParameterType="%AID%_PT-VolumeStepValue" Text="" Value="5">
-                <Memory CodeSegment="%AID%_RS-04-00000" Offset="4" BitOffset="0" />
-              </Parameter>
-              <Parameter Id="%AID%_P-%TT%%CC%008" Name="%C%mute" ParameterType="%AID%_PT-mute" Text="Mute" Value="0">
-                <Memory CodeSegment="%AID%_RS-04-00000" Offset="5" BitOffset="0" />
-              </Parameter>
+              Union SizeInBit="216" (27 Bytes, Offset 9-35)
+                ├── SceneNr    0-8: Offset 0-8
+                ├── SceneQuelle 0-8: Offset 9-17
+                └── SceneVolume 0-8: Offset 18-26 
+              -->
 
-              <Parameter Id="%AID%_P-%TT%%CC%007" Name="%C%DayNight" ParameterType="%AID%_PT-DayNight" Text="Tag/Nacht-Objekt" Value="0" >
-                <Memory CodeSegment="%AID%_RS-04-00000" Offset="6" BitOffset="0" />
-              </Parameter>
-              <Parameter Id="%AID%_P-%TT%%CC%009" Name="%C%Lock" ParameterType="%AID%_PT-AMPLock" Text="Zentrale Sperre" Value="0" >
-                <Memory CodeSegment="%AID%_RS-04-00000" Offset="7" BitOffset="0" />
-              </Parameter>
-              <Parameter Id="%AID%_P-%TT%%CC%029" Name="%C%AliveTimeInterval" ParameterType="%AID%_PT-AMPAliveTimeInterval" Text="AliveTimeInterval" Value="30" >
-                <Memory CodeSegment="%AID%_RS-04-00000" Offset="8" BitOffset="0" />
-              </Parameter>
-              <Parameter Id="%AID%_P-%TT%%CC%030" Name="%C%AliveCheckBox" ParameterType="%AID%_PT-CheckBox" Text="AliveEnable" Value="1" >
+              <Union SizeInBit="72">
+                <Memory CodeSegment="%AID%_RS-04-00000" Offset="0" BitOffset="0" />
+
+                <!-- Byte 0: Flags-A -->
+                <!-- 2 Bit: Kanalaktivität (Werte 0/1/2) -->
+                <Parameter Id="%AID%_UP-%TT%%CC%002" Name="Ch%C%Active"          ParameterType="%AID%_PT-AMPChannelActive" Offset="0" BitOffset="0" Text="Kanalaktivität"    Value="0" />
+                <!-- 1 Bit: Szenen -->
+                <Parameter Id="%AID%_UP-%TT%%CC%020" Name="Ch%C%ScenesActive"    ParameterType="%AID%_PT-OnOffYesNo"       Offset="0" BitOffset="2" Text="Szenen aktivieren" Value="0" />
+                <!-- 1 Bit: Mute -->
+                <Parameter Id="%AID%_UP-%TT%%CC%008" Name="%C%mute"              ParameterType="%AID%_PT-mute"             Offset="0" BitOffset="3" Text="Mute"               Value="0" />
+                <!-- 1 Bit: AutoPlay -->
+                <Parameter Id="%AID%_UP-%TT%%CC%032" Name="%C%AutoPlay"          ParameterType="%AID%_PT-OnOffYesNo"       Offset="0" BitOffset="4" Text="AutoPlay"           Value="1" />
+                <!-- 1 Bit: AutoMute -->
+                <Parameter Id="%AID%_UP-%TT%%CC%034" Name="%C%AutoMute"          ParameterType="%AID%_PT-OnOffYesNo"       Offset="0" BitOffset="5" Text="AutoMute bei Start" Value="1" />
+                <!-- 1 Bit: AliveCheckBox -->
+                <Parameter Id="%AID%_UP-%TT%%CC%030" Name="%C%AliveCheckBox"     ParameterType="%AID%_PT-CheckBox"         Offset="0" BitOffset="6" Text="AliveEnable"        Value="1" />
+                <!-- Bit 7: reserviert -->
+
+                <!-- Byte 1: Flags-B -->
+                <!-- 2 Bit: Tag/Nacht (0=aus, 1=Tag(1)/Nacht(0), 2=Tag(0)/Nacht(1)) -->
+                <Parameter Id="%AID%_UP-%TT%%CC%007" Name="%C%DayNight"          ParameterType="%AID%_PT-DayNight"         Offset="1" BitOffset="0" Text="Tag/Nacht-Objekt"  Value="0" />
+                <!-- 2 Bit: Sperre (0=aus, 1=Sperre(1)/Frei(0), 2=Sperre(0)/Frei(1)) -->
+                <Parameter Id="%AID%_UP-%TT%%CC%009" Name="%C%Lock"              ParameterType="%AID%_PT-AMPLock"          Offset="1" BitOffset="2" Text="Zentrale Sperre"   Value="0" />
+                <!-- Bit 4-7: reserviert -->
+
+                <!-- Byte 2: Quelle -->
+                <Parameter Id="%AID%_UP-%TT%%CC%010" Name="%C%Source"            ParameterType="%AID%_PT-Source"           Offset="2" BitOffset="0" Text="Quelle"             Value="0" />
+                <!-- Byte 3: Lautstärke Tag -->
+                <Parameter Id="%AID%_UP-%TT%%CC%004" Name="%C%VolumeDay"         ParameterType="%AID%_PT-Volume"           Offset="3" BitOffset="0" Text=""                   Value="25" />
+                <!-- Byte 4: Lautstärke Nacht -->
+                <Parameter Id="%AID%_UP-%TT%%CC%003" Name="%C%VolumeNight"       ParameterType="%AID%_PT-Volume"           Offset="4" BitOffset="0" Text=""                   Value="15" />
+                <!-- Byte 5: Lautstärke Schrittweite -->
+                <Parameter Id="%AID%_UP-%TT%%CC%005" Name="%C%VolumeStepValue"   ParameterType="%AID%_PT-VolumeStepValue"  Offset="5" BitOffset="0" Text=""                   Value="5" />
+                <!-- Byte 6: Alive Zeitintervall -->
+                <Parameter Id="%AID%_UP-%TT%%CC%029" Name="%C%AliveTimeInterval" ParameterType="%AID%_PT-AMPAliveTimeInterval" Offset="6" BitOffset="0" Text="AliveTimeInterval" Value="30" />
+                <!-- Byte 7: Max-Lautstärke Limit -->
+                <Parameter Id="%AID%_UP-%TT%%CC%031" Name="%C%LimitMaxVolume"    ParameterType="%AID%_PT-LimitmaxVolume"   Offset="7" BitOffset="0" Text=""                   Value="60" />
+                <!-- Byte 8: Preset -->
+                <Parameter Id="%AID%_UP-%TT%%CC%033" Name="%C%Preset"            ParameterType="%AID%_PT-Preset"           Offset="8" BitOffset="0" Text="Preset"             Value="0" />
+              </Union>
+                          
+              <Union SizeInBit="216">
                 <Memory CodeSegment="%AID%_RS-04-00000" Offset="9" BitOffset="0" />
-              </Parameter>
-              <Parameter Id="%AID%_P-%TT%%CC%031" Name="%C%LimitMaxVolume" ParameterType="%AID%_PT-LimitmaxVolume" Text="" Value="60">
-                <Memory CodeSegment="%AID%_RS-04-00000" Offset="10" BitOffset="0" />
-              </Parameter>
 
-              <Parameter Id="%AID%_P-%TT%%CC%032" Name="%C%AutoPlay" ParameterType="%AID%_PT-OnOffYesNo" Text="AutoPlay" Value="1" >
-                <Memory CodeSegment="%AID%_RS-04-00000" Offset="11" BitOffset="0" />
-              </Parameter>
+                <!-- Szenen-Nummern -->
+                <Parameter Id="%AID%_UP-%TT%%CC%100" Name="Ch%C%Scene0" Offset="0"  BitOffset="0" ParameterType="%AID%_PT-ValueSceneInNr" Text="Scene0" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%101" Name="Ch%C%Scene1" Offset="1"  BitOffset="0" ParameterType="%AID%_PT-ValueSceneInNr" Text="Scene1" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%102" Name="Ch%C%Scene2" Offset="2"  BitOffset="0" ParameterType="%AID%_PT-ValueSceneInNr" Text="Scene2" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%103" Name="Ch%C%Scene3" Offset="3"  BitOffset="0" ParameterType="%AID%_PT-ValueSceneInNr" Text="Scene3" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%104" Name="Ch%C%Scene4" Offset="4"  BitOffset="0" ParameterType="%AID%_PT-ValueSceneInNr" Text="Scene4" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%105" Name="Ch%C%Scene5" Offset="5"  BitOffset="0" ParameterType="%AID%_PT-ValueSceneInNr" Text="Scene5" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%106" Name="Ch%C%Scene6" Offset="6"  BitOffset="0" ParameterType="%AID%_PT-ValueSceneInNr" Text="Scene6" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%107" Name="Ch%C%Scene7" Offset="7"  BitOffset="0" ParameterType="%AID%_PT-ValueSceneInNr" Text="Scene7" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%108" Name="Ch%C%Scene8" Offset="8"  BitOffset="0" ParameterType="%AID%_PT-ValueSceneInNr" Text="Scene8" Value="0" />
 
-              <Parameter Id="%AID%_P-%TT%%CC%033" Name="%C%Preset" ParameterType="%AID%_PT-Preset" Text="Preset" Value="0">
-                <Memory CodeSegment="%AID%_RS-04-00000" Offset="12" BitOffset="0" />
-              </Parameter>
-              
-              <Parameter Id="%AID%_P-%TT%%CC%034" Name="%C%AutoMute" ParameterType="%AID%_PT-OnOffYesNo" Text="AutoMute bei Start" Value="1" >
-                <Memory CodeSegment="%AID%_RS-04-00000" Offset="14" BitOffset="0" />
-              </Parameter>
+                <!-- Quellen -->
+                <Parameter Id="%AID%_UP-%TT%%CC%120" Name="Ch%C%SceneQuelle0" Offset="9"  BitOffset="0" ParameterType="%AID%_PT-Source" Text="SceneQuelle0" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%121" Name="Ch%C%SceneQuelle1" Offset="10" BitOffset="0" ParameterType="%AID%_PT-Source" Text="SceneQuelle1" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%122" Name="Ch%C%SceneQuelle2" Offset="11" BitOffset="0" ParameterType="%AID%_PT-Source" Text="SceneQuelle2" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%123" Name="Ch%C%SceneQuelle3" Offset="12" BitOffset="0" ParameterType="%AID%_PT-Source" Text="SceneQuelle3" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%124" Name="Ch%C%SceneQuelle4" Offset="13" BitOffset="0" ParameterType="%AID%_PT-Source" Text="SceneQuelle4" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%125" Name="Ch%C%SceneQuelle5" Offset="14" BitOffset="0" ParameterType="%AID%_PT-Source" Text="SceneQuelle5" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%126" Name="Ch%C%SceneQuelle6" Offset="15" BitOffset="0" ParameterType="%AID%_PT-Source" Text="SceneQuelle6" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%127" Name="Ch%C%SceneQuelle7" Offset="16" BitOffset="0" ParameterType="%AID%_PT-Source" Text="SceneQuelle7" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%128" Name="Ch%C%SceneQuelle8" Offset="17" BitOffset="0" ParameterType="%AID%_PT-Source" Text="SceneQuelle8" Value="0" />
 
-              <Union SizeInBit="640">
-                <Memory CodeSegment="%AID%_RS-04-00000" Offset="13" BitOffset="0" />
-                <Parameter Id="%AID%_UP-%TT%%CC%100" Name="Ch%C%Scene0" Offset="0" BitOffset="0" ParameterType="%AID%_PT-ValueSceneInNr" Text="Scene0" Value="0" />
-                <Parameter Id="%AID%_UP-%TT%%CC%101" Name="Ch%C%Scene1" Offset="1" BitOffset="0" ParameterType="%AID%_PT-ValueSceneInNr" Text="Scene1" Value="0" />
-                <Parameter Id="%AID%_UP-%TT%%CC%102" Name="Ch%C%Scene2" Offset="2" BitOffset="0" ParameterType="%AID%_PT-ValueSceneInNr" Text="Scene2" Value="0" />
-                <Parameter Id="%AID%_UP-%TT%%CC%103" Name="Ch%C%Scene3" Offset="3" BitOffset="0" ParameterType="%AID%_PT-ValueSceneInNr" Text="Scene3" Value="0" />
-                <Parameter Id="%AID%_UP-%TT%%CC%104" Name="Ch%C%Scene4" Offset="4" BitOffset="0" ParameterType="%AID%_PT-ValueSceneInNr" Text="Scene4" Value="0" />
-                <Parameter Id="%AID%_UP-%TT%%CC%105" Name="Ch%C%Scene5" Offset="5" BitOffset="0" ParameterType="%AID%_PT-ValueSceneInNr" Text="Scene5" Value="0" />
-                <Parameter Id="%AID%_UP-%TT%%CC%106" Name="Ch%C%Scene6" Offset="6" BitOffset="0" ParameterType="%AID%_PT-ValueSceneInNr" Text="Scene6" Value="0" />
-                <Parameter Id="%AID%_UP-%TT%%CC%107" Name="Ch%C%Scene7" Offset="7" BitOffset="0" ParameterType="%AID%_PT-ValueSceneInNr" Text="Scene7" Value="0" />
-                <Parameter Id="%AID%_UP-%TT%%CC%108" Name="Ch%C%Scene8" Offset="8" BitOffset="0" ParameterType="%AID%_PT-ValueSceneInNr" Text="Scene8" Value="0" />
-                <Parameter Id="%AID%_UP-%TT%%CC%120" Name="Ch%C%SceneQuelle0" Offset="20" BitOffset="0" ParameterType="%AID%_PT-Source" Text="SceneQuelle0" Value="0" />
-                <Parameter Id="%AID%_UP-%TT%%CC%121" Name="Ch%C%SceneQuelle1" Offset="21" BitOffset="0" ParameterType="%AID%_PT-Source" Text="SceneQuelle1" Value="0" />
-                <Parameter Id="%AID%_UP-%TT%%CC%122" Name="Ch%C%SceneQuelle2" Offset="22" BitOffset="0" ParameterType="%AID%_PT-Source" Text="SceneQuelle2" Value="0" />
-                <Parameter Id="%AID%_UP-%TT%%CC%123" Name="Ch%C%SceneQuelle3" Offset="23" BitOffset="0" ParameterType="%AID%_PT-Source" Text="SceneQuelle3" Value="0" />
-                <Parameter Id="%AID%_UP-%TT%%CC%124" Name="Ch%C%SceneQuelle4" Offset="24" BitOffset="0" ParameterType="%AID%_PT-Source" Text="SceneQuelle4" Value="0" />
-                <Parameter Id="%AID%_UP-%TT%%CC%125" Name="Ch%C%SceneQuelle5" Offset="25" BitOffset="0" ParameterType="%AID%_PT-Source" Text="SceneQuelle5" Value="0" />
-                <Parameter Id="%AID%_UP-%TT%%CC%126" Name="Ch%C%SceneQuelle6" Offset="26" BitOffset="0" ParameterType="%AID%_PT-Source" Text="SceneQuelle6" Value="0" />
-                <Parameter Id="%AID%_UP-%TT%%CC%127" Name="Ch%C%SceneQuelle7" Offset="27" BitOffset="0" ParameterType="%AID%_PT-Source" Text="SceneQuelle7" Value="0" />
-                <Parameter Id="%AID%_UP-%TT%%CC%128" Name="Ch%C%SceneQuelle8" Offset="28" BitOffset="0" ParameterType="%AID%_PT-Source" Text="SceneQuelle8" Value="0" />
-                <Parameter Id="%AID%_UP-%TT%%CC%140" Name="Ch%C%SceneVolume0" Offset="40" BitOffset="0" ParameterType="%AID%_PT-Volume" Text="SceneVolume0" Value="10" />
-                <Parameter Id="%AID%_UP-%TT%%CC%141" Name="Ch%C%SceneVolume1" Offset="41" BitOffset="0" ParameterType="%AID%_PT-Volume" Text="SceneVolume1" Value="10" />
-                <Parameter Id="%AID%_UP-%TT%%CC%142" Name="Ch%C%SceneVolume2" Offset="42" BitOffset="0" ParameterType="%AID%_PT-Volume" Text="SceneVolume2" Value="10" />
-                <Parameter Id="%AID%_UP-%TT%%CC%143" Name="Ch%C%SceneVolume3" Offset="43" BitOffset="0" ParameterType="%AID%_PT-Volume" Text="SceneVolume3" Value="10" />
-                <Parameter Id="%AID%_UP-%TT%%CC%144" Name="Ch%C%SceneVolume4" Offset="44" BitOffset="0" ParameterType="%AID%_PT-Volume" Text="SceneVolume4" Value="10" />
-                <Parameter Id="%AID%_UP-%TT%%CC%145" Name="Ch%C%SceneVolume5" Offset="45" BitOffset="0" ParameterType="%AID%_PT-Volume" Text="SceneVolume5" Value="10" />
-                <Parameter Id="%AID%_UP-%TT%%CC%146" Name="Ch%C%SceneVolume6" Offset="46" BitOffset="0" ParameterType="%AID%_PT-Volume" Text="SceneVolume6" Value="10" />
-                <Parameter Id="%AID%_UP-%TT%%CC%147" Name="Ch%C%SceneVolume7" Offset="47" BitOffset="0" ParameterType="%AID%_PT-Volume" Text="SceneVolume7" Value="10" />
-                <Parameter Id="%AID%_UP-%TT%%CC%148" Name="Ch%C%SceneVolume8" Offset="48" BitOffset="0" ParameterType="%AID%_PT-Volume" Text="SceneVolume8" Value="10" />
+                <!-- Lautstärken -->
+                <Parameter Id="%AID%_UP-%TT%%CC%140" Name="Ch%C%SceneVolume0" Offset="18" BitOffset="0" ParameterType="%AID%_PT-Volume" Text="SceneVolume0" Value="10" />
+                <Parameter Id="%AID%_UP-%TT%%CC%141" Name="Ch%C%SceneVolume1" Offset="19" BitOffset="0" ParameterType="%AID%_PT-Volume" Text="SceneVolume1" Value="10" />
+                <Parameter Id="%AID%_UP-%TT%%CC%142" Name="Ch%C%SceneVolume2" Offset="20" BitOffset="0" ParameterType="%AID%_PT-Volume" Text="SceneVolume2" Value="10" />
+                <Parameter Id="%AID%_UP-%TT%%CC%143" Name="Ch%C%SceneVolume3" Offset="21" BitOffset="0" ParameterType="%AID%_PT-Volume" Text="SceneVolume3" Value="10" />
+                <Parameter Id="%AID%_UP-%TT%%CC%144" Name="Ch%C%SceneVolume4" Offset="22" BitOffset="0" ParameterType="%AID%_PT-Volume" Text="SceneVolume4" Value="10" />
+                <Parameter Id="%AID%_UP-%TT%%CC%145" Name="Ch%C%SceneVolume5" Offset="23" BitOffset="0" ParameterType="%AID%_PT-Volume" Text="SceneVolume5" Value="10" />
+                <Parameter Id="%AID%_UP-%TT%%CC%146" Name="Ch%C%SceneVolume6" Offset="24" BitOffset="0" ParameterType="%AID%_PT-Volume" Text="SceneVolume6" Value="10" />
+                <Parameter Id="%AID%_UP-%TT%%CC%147" Name="Ch%C%SceneVolume7" Offset="25" BitOffset="0" ParameterType="%AID%_PT-Volume" Text="SceneVolume7" Value="10" />
+                <Parameter Id="%AID%_UP-%TT%%CC%148" Name="Ch%C%SceneVolume8" Offset="26" BitOffset="0" ParameterType="%AID%_PT-Volume" Text="SceneVolume8" Value="10" />
               </Union>
               
             </Parameters>
 
             
             <ParameterRefs> 
+              <!-- Kanalname und -nummer -->
               <ParameterRef Id="%AID%_P-%TT%%CC%001_R-%TT%%CC%00101" RefId="%AID%_P-%TT%%CC%001" />  <!-- Beschreibung des Kanals -->
               
-              <ParameterRef Id="%AID%_P-%TT%%CC%004_R-%TT%%CC%00401" RefId="%AID%_P-%TT%%CC%004" Text="Lautstaerke" />
-              <ParameterRef Id="%AID%_P-%TT%%CC%004_R-%TT%%CC%00402" RefId="%AID%_P-%TT%%CC%004" Text="Lautstaerke (Tag)" />
-              <ParameterRef Id="%AID%_P-%TT%%CC%003_R-%TT%%CC%00301" RefId="%AID%_P-%TT%%CC%003" Text="Lautstaerke (Nacht)" />
-              <ParameterRef Id="%AID%_P-%TT%%CC%008_R-%TT%%CC%00801" RefId="%AID%_P-%TT%%CC%008" />
-              <ParameterRef Id="%AID%_P-%TT%%CC%005_R-%TT%%CC%00501" RefId="%AID%_P-%TT%%CC%005" Text="Schrittweite Lautstaerke" />
-              <ParameterRef Id="%AID%_P-%TT%%CC%031_R-%TT%%CC%03101" RefId="%AID%_P-%TT%%CC%031" Text="Begrenzung max Lautstaerke" />
-              <!-- <ParameterRef Id="%AID%_P-%TT%%CC%006_R-%TT%%CC%00601" RefId="%AID%_P-%TT%%CC%006" /> -->
-              <ParameterRef Id="%AID%_P-%TT%%CC%007_R-%TT%%CC%00701" RefId="%AID%_P-%TT%%CC%007" />
-              <ParameterRef Id="%AID%_P-%TT%%CC%009_R-%TT%%CC%00901" RefId="%AID%_P-%TT%%CC%009" />
-              
+
+               <!-- Flags-A: Kanalaktivität, Szenen, Mute, AutoPlay, AutoMute, AliveCheckBox -->
               <ParameterRef Id="%AID%_UP-%TT%%CC%002_R-%TT%%CC%00201" RefId="%AID%_UP-%TT%%CC%002" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%020_R-%TT%%CC%02001" RefId="%AID%_UP-%TT%%CC%020" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%008_R-%TT%%CC%00801" RefId="%AID%_UP-%TT%%CC%008" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%032_R-%TT%%CC%03201" RefId="%AID%_UP-%TT%%CC%032" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%034_R-%TT%%CC%03401" RefId="%AID%_UP-%TT%%CC%034" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%030_R-%TT%%CC%03001" RefId="%AID%_UP-%TT%%CC%030" />
 
-              <!-- Alive Time Interval -->
-              <ParameterRef Id="%AID%_P-%TT%%CC%029_R-%TT%%CC%02901" RefId="%AID%_P-%TT%%CC%029" Text="Sende Alive Status alle x Sekunden" />
-              <ParameterRef Id="%AID%_P-%TT%%CC%030_R-%TT%%CC%03001" RefId="%AID%_P-%TT%%CC%030" />
+              <!-- Flags-B: DayNight, Lock -->
+              <ParameterRef Id="%AID%_UP-%TT%%CC%007_R-%TT%%CC%00701" RefId="%AID%_UP-%TT%%CC%007" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%009_R-%TT%%CC%00901" RefId="%AID%_UP-%TT%%CC%009" />
 
-              <!-- AutoPlay -->
-              <ParameterRef Id="%AID%_P-%TT%%CC%032_R-%TT%%CC%03201" RefId="%AID%_P-%TT%%CC%032" />
+              <!-- Lautstärke: zwei Varianten (mit und ohne Tag/Nacht) -->
+              <ParameterRef Id="%AID%_UP-%TT%%CC%004_R-%TT%%CC%00401" RefId="%AID%_UP-%TT%%CC%004" Text="Lautstaerke" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%004_R-%TT%%CC%00402" RefId="%AID%_UP-%TT%%CC%004" Text="Lautstaerke (Tag)" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%003_R-%TT%%CC%00301" RefId="%AID%_UP-%TT%%CC%003" Text="Lautstaerke (Nacht)" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%005_R-%TT%%CC%00501" RefId="%AID%_UP-%TT%%CC%005" Text="Schrittweite Lautstaerke" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%031_R-%TT%%CC%03101" RefId="%AID%_UP-%TT%%CC%031" Text="Begrenzung max Lautstaerke" />
+
+              <!-- Alive -->
+              <ParameterRef Id="%AID%_UP-%TT%%CC%029_R-%TT%%CC%02901" RefId="%AID%_UP-%TT%%CC%029" Text="Sende Alive Status alle x Sekunden" />
 
               <!-- Preset -->
-              <ParameterRef Id="%AID%_P-%TT%%CC%033_R-%TT%%CC%03301" RefId="%AID%_P-%TT%%CC%033" />
-
-              <!-- AutoMute -->
-              <ParameterRef Id="%AID%_P-%TT%%CC%034_R-%TT%%CC%03401" RefId="%AID%_P-%TT%%CC%034" />
-   
-              <!--Szene--> 
-              <ParameterRef Id="%AID%_UP-%TT%%CC%020_R-%TT%%CC%02001" RefId="%AID%_UP-%TT%%CC%020" />
-
-              <!-- Szenen -->
+              <ParameterRef Id="%AID%_UP-%TT%%CC%033_R-%TT%%CC%03301" RefId="%AID%_UP-%TT%%CC%033" />
+              
+              <!-- Szenen-Nummern -->
               <ParameterRef Id="%AID%_UP-%TT%%CC%100_R-%TT%%CC%10001" RefId="%AID%_UP-%TT%%CC%100" />
               <ParameterRef Id="%AID%_UP-%TT%%CC%101_R-%TT%%CC%10101" RefId="%AID%_UP-%TT%%CC%101" />
               <ParameterRef Id="%AID%_UP-%TT%%CC%102_R-%TT%%CC%10201" RefId="%AID%_UP-%TT%%CC%102" />
@@ -150,6 +160,7 @@
               <ParameterRef Id="%AID%_UP-%TT%%CC%107_R-%TT%%CC%10701" RefId="%AID%_UP-%TT%%CC%107" />
               <ParameterRef Id="%AID%_UP-%TT%%CC%108_R-%TT%%CC%10801" RefId="%AID%_UP-%TT%%CC%108" />
 
+              <!-- Szenen-Quellen -->
               <ParameterRef Id="%AID%_UP-%TT%%CC%120_R-%TT%%CC%12001" RefId="%AID%_UP-%TT%%CC%120" />
               <ParameterRef Id="%AID%_UP-%TT%%CC%121_R-%TT%%CC%12101" RefId="%AID%_UP-%TT%%CC%121" />
               <ParameterRef Id="%AID%_UP-%TT%%CC%122_R-%TT%%CC%12201" RefId="%AID%_UP-%TT%%CC%122" />
@@ -160,6 +171,7 @@
               <ParameterRef Id="%AID%_UP-%TT%%CC%127_R-%TT%%CC%12701" RefId="%AID%_UP-%TT%%CC%127" />
               <ParameterRef Id="%AID%_UP-%TT%%CC%128_R-%TT%%CC%12801" RefId="%AID%_UP-%TT%%CC%128" />
 
+              <!-- Szenen-Lautstärken -->
               <ParameterRef Id="%AID%_UP-%TT%%CC%140_R-%TT%%CC%14001" RefId="%AID%_UP-%TT%%CC%140" />
               <ParameterRef Id="%AID%_UP-%TT%%CC%141_R-%TT%%CC%14101" RefId="%AID%_UP-%TT%%CC%141" />
               <ParameterRef Id="%AID%_UP-%TT%%CC%142_R-%TT%%CC%14201" RefId="%AID%_UP-%TT%%CC%142" />
@@ -169,8 +181,6 @@
               <ParameterRef Id="%AID%_UP-%TT%%CC%146_R-%TT%%CC%14601" RefId="%AID%_UP-%TT%%CC%146" />
               <ParameterRef Id="%AID%_UP-%TT%%CC%147_R-%TT%%CC%14701" RefId="%AID%_UP-%TT%%CC%147" />
               <ParameterRef Id="%AID%_UP-%TT%%CC%148_R-%TT%%CC%14801" RefId="%AID%_UP-%TT%%CC%148" />
-
-
             </ParameterRefs>
 
             <ComObjectTable>
@@ -260,8 +270,8 @@
                         <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
                         <ParameterSeparator Id="%AID%_PS-nnn" Text="Lautstärke" UIHint="Headline" />
                         <!-- Tag/Nacht -->
-                        <ParameterRefRef RefId="%AID%_P-%TT%%CC%007_R-%TT%%CC%00701" IndentLevel="1" /> 
-                        <choose ParamRefId="%AID%_P-%TT%%CC%007_R-%TT%%CC%00701">
+                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%007_R-%TT%%CC%00701" IndentLevel="1" /> 
+                        <choose ParamRefId="%AID%_UP-%TT%%CC%007_R-%TT%%CC%00701">
                           <when test="1">
                             <ComObjectRefRef RefId="%AID%_O-%TT%%CC%010_R-%TT%%CC%01001" />
                           </when>
@@ -270,28 +280,28 @@
                           </when>
                         </choose>
                         <!-- Volume -->
-                        <choose ParamRefId="%AID%_P-%TT%%CC%007_R-%TT%%CC%00701">
+                        <choose ParamRefId="%AID%_UP-%TT%%CC%007_R-%TT%%CC%00701">
                           <when test="0">
                             <!-- Lautstärke -->
-                            <ParameterRefRef RefId="%AID%_P-%TT%%CC%004_R-%TT%%CC%00401" IndentLevel="1" HelpContext="AMP-Lautstaerke"/> 
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%004_R-%TT%%CC%00401" IndentLevel="1" HelpContext="AMP-Lautstaerke"/> 
                           </when>
                           <when test=">0">
                             <!-- Lautstärke (Tag) -->
-                            <ParameterRefRef RefId="%AID%_P-%TT%%CC%004_R-%TT%%CC%00402" IndentLevel="1" HelpContext="AMP-Lautstaerke-Tag" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%004_R-%TT%%CC%00402" IndentLevel="1" HelpContext="AMP-Lautstaerke-Tag" />
                             <!-- Lautstärke (Nacht) -->
-                            <ParameterRefRef RefId="%AID%_P-%TT%%CC%003_R-%TT%%CC%00301" IndentLevel="1" HelpContext="AMP-Lautstaerke-Nacht"/>
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%003_R-%TT%%CC%00301" IndentLevel="1" HelpContext="AMP-Lautstaerke-Nacht"/>
                           </when>
                         </choose>
                         <!-- VolumeStep Value -->
-                        <ParameterRefRef RefId="%AID%_P-%TT%%CC%005_R-%TT%%CC%00501" IndentLevel="1" HelpContext="AMP-Schrittweite-Lautstaerke"/>
+                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%005_R-%TT%%CC%00501" IndentLevel="1" HelpContext="AMP-Schrittweite-Lautstaerke"/>
                         <!-- VolumeLimit-->
-                        <ParameterRefRef RefId="%AID%_P-%TT%%CC%031_R-%TT%%CC%03101" IndentLevel="1" HelpContext="AMP-Begrenzung-max-Lautstaerke"/>
+                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%031_R-%TT%%CC%03101" IndentLevel="1" HelpContext="AMP-Begrenzung-max-Lautstaerke"/>
 
                         <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
                         <ParameterSeparator Id="%AID%_PS-nnn" Text="Sperre" UIHint="Headline" />
                         <!-- Lock -->
-                        <ParameterRefRef RefId="%AID%_P-%TT%%CC%009_R-%TT%%CC%00901" IndentLevel="1" HelpContext="%DOC%" />
-                        <choose ParamRefId="%AID%_P-%TT%%CC%009_R-%TT%%CC%00901">
+                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%009_R-%TT%%CC%00901" IndentLevel="1" HelpContext="%DOC%" />
+                        <choose ParamRefId="%AID%_UP-%TT%%CC%009_R-%TT%%CC%00901">
                           <when test="1">
                             <ComObjectRefRef RefId="%AID%_O-%TT%%CC%012_R-%TT%%CC%01201" />
                           </when>
@@ -303,20 +313,20 @@
                         <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
                         <ParameterSeparator Id="%AID%_PS-nnn" Text="AutoPlay" UIHint="Headline" />
                         <!-- AutoPlayStatus -->
-                        <ParameterRefRef RefId="%AID%_P-%TT%%CC%032_R-%TT%%CC%03201" IndentLevel="1" HelpContext="%DOC%"/>
+                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%032_R-%TT%%CC%03201" IndentLevel="1" HelpContext="%DOC%"/>
 
                         <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
                         <ParameterSeparator Id="%AID%_PS-nnn" Text="AutoMute" UIHint="Headline" />
                         <!-- AutoMuteStatus -->
-                        <ParameterRefRef RefId="%AID%_P-%TT%%CC%034_R-%TT%%CC%03401" IndentLevel="1" HelpContext="AMP-AutoMute"/>
+                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%034_R-%TT%%CC%03401" IndentLevel="1" HelpContext="AMP-AutoMute"/>
                   
                         <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
                         <ParameterSeparator Id="%AID%_PS-nnn" Text="Alive" UIHint="Headline" />
                         <!-- AliveStatus -->
-                        <ParameterRefRef RefId="%AID%_P-%TT%%CC%030_R-%TT%%CC%03001" IndentLevel="1" HelpContext="%DOC%" /> 
-                        <choose ParamRefId="%AID%_P-%TT%%CC%030_R-%TT%%CC%03001">
+                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%030_R-%TT%%CC%03001" IndentLevel="1" HelpContext="%DOC%" /> 
+                        <choose ParamRefId="%AID%_UP-%TT%%CC%030_R-%TT%%CC%03001">
                           <when test="1">
-                            <ParameterRefRef RefId="%AID%_P-%TT%%CC%029_R-%TT%%CC%02901" IndentLevel="1" HelpContext="%DOC%" />  <!-- Alive  -->
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%029_R-%TT%%CC%02901" IndentLevel="1" HelpContext="%DOC%" />  <!-- Alive  -->
                             <ComObjectRefRef RefId="%AID%_O-%TT%%CC%029_R-%TT%%CC%02901" /> <!-- Alive Time Interval -->
                           </when>
                         </choose>
@@ -414,7 +424,7 @@
                                 </choose>
                                 <choose ParamRefId="%AID%_UP-%TT%%CC%108_R-%TT%%CC%10801">
                                   <when test=">0">
-                                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%148_R-%TT%%CC%14801" Cell="9,2" />  <!-- Quelle -->
+                                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%128_R-%TT%%CC%12801" Cell="9,2" />  <!-- Quelle -->
                                     <ParameterRefRef RefId="%AID%_UP-%TT%%CC%148_R-%TT%%CC%14801" Cell="9,3" />  <!-- Lautstärke -->
                                   </when>
                                 </choose>
@@ -426,7 +436,6 @@
                         
                         <ComObjectRefRef RefId="%AID%_O-%TT%%CC%001_R-%TT%%CC%00101" /> <!-- Lautstärke Wert -->
                         <ComObjectRefRef RefId="%AID%_O-%TT%%CC%002_R-%TT%%CC%00201" /> <!-- Lautstärke Step -->
-                        <!-- <ComObjectRefRef RefId="%AID%_O-%TT%%CC%003_R-%TT%%CC%00301" /> Lautstärke - -->
                         <ComObjectRefRef RefId="%AID%_O-%TT%%CC%004_R-%TT%%CC%00401" /> <!-- Quelle -->
                         <ComObjectRefRef RefId="%AID%_O-%TT%%CC%005_R-%TT%%CC%00501" /> <!-- Mute -->
                         <ComObjectRefRef RefId="%AID%_O-%TT%%CC%006_R-%TT%%CC%00601" /> <!-- PlayPause -->
