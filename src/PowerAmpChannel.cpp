@@ -36,9 +36,9 @@ const std::string PowerAmpChannel::name()
 // will be called once a KO received a telegram
 void PowerAmpChannel::processInputKo(GroupObject &iKo)
 {
-    if (ParamAMP_ChActive != 1)
+    if (!_channelActive)
     {
-        logDebugP("processInputKo: channel not active (%u)", ParamAMP_ChActive);
+        logDebugP("processInputKo: channel %u not active", _channelIndex);
         return;
     }
 
@@ -172,6 +172,7 @@ void PowerAmpChannel::processInputKo(GroupObject &iKo)
 
 void PowerAmpChannel::loop()
 {
+    if (!_channelActive) return;
     handleIncomingData();
 
     unsigned long now = millis();
@@ -195,16 +196,16 @@ void PowerAmpChannel::loop()
                 getDeviceStatus_STA();
                 break; // Rufe den Status des Geräts ab  consist with: current source,mute,volume,treble,bass,net,internet,playing,led,upgrading.
             case 1:
-                //getMetadataArtist_ART(); // Rufe den Künstlernamen ab
+                getMetadataArtist_ART(); // Rufe den Künstlernamen ab
                 break; 
             case 2:
-                //getMetadataAlbum_ALB(); // Rufe den Albumnamen ab
+                getMetadataAlbum_ALB(); // Rufe den Albumnamen ab
                 break; 
             case 3:
-                //getMetadataTitle_TIT(); // Rufe den Titel ab
+                getMetadataTitle_TIT(); // Rufe den Titel ab
                 break; 
             case 4:
-                //getMetadataVendor_VND(); // Rufe den Vendor ab
+                getMetadataVendor_VND(); // Rufe den Vendor ab
                 break; 
             }
             currentState++;
@@ -224,23 +225,27 @@ void PowerAmpChannel::loop()
 
 void PowerAmpChannel::setup(bool configured)
 {
-    if (!mySerial)
+    _channelActive = configured && (ParamAMP_ChActive == 1);
+    if (!_channelActive) 
     {
-        logErrorP("Channel %u: no serial assigned!", _channelIndex);
+        logDebugP("Channel %u: not active!", _channelIndex);
         return;
     }
-    logInfoP("Channel %u setup done", _channelIndex);
-    logInfoP("paramActive: %i", AMP_ChActive);
 
-     currentVolumeStepValue = 5;
-     currentVolumeLimit = 100;
 
-    if (configured)
+    if (!mySerial)
     {
-        currentVolumeStepValue = ParamAMP_VolumeStepValue;
-        currentVolumeLimit = ParamAMP_LimitMaxVolume;
-        currentVolume = ParamAMP_VolumeDay;
+        logErrorP("Channel %u: no serial assigned - channel disabled!", _channelIndex);
+        _channelActive = false;
+        return;
     }
+
+    currentVolumeStepValue = ParamAMP_VolumeStepValue;
+    currentVolumeLimit     = ParamAMP_LimitMaxVolume;
+    currentVolume          = ParamAMP_VolumeDay;
+
+    logInfoP("Channel %u setup done (active=%d, stepValue=%d, currentVol=%d, maxVol=%d)",
+             _channelIndex, ParamAMP_ChActive, currentVolumeStepValue, currentVolume, currentVolumeLimit);
     mySerial->setTimeout(1000); // 1000 ms, als Backup
     setKOInitialValues(); 
     
@@ -251,14 +256,14 @@ void PowerAmpChannel::setup(bool configured)
 
     // --- Autoplay initialisieren ---
     onetimeAutoPlayExecuted = false;
-    autoPlayEnabled = (ParamAMP_AutoPlay == 1); // oder wie dein ETS-Param heißt
+    autoPlayEnabled = (ParamAMP_AutoPlay == 1); // ETS-Param 
     if (openknxPowerAmpModule.debug()) {
         logDebugP("[INIT] Custom Autoplay: %d", autoPlayEnabled);
     }
 
     // --- AutoMute initialisieren ---
     onetimeAutoMuteExecuted = false;
-    autoMuteEnabled = (ParamAMP_AutoMute == 1); // oder wie dein ETS-Param heißt
+    autoMuteEnabled = (ParamAMP_AutoMute == 1); // ETS-Param 
     if (openknxPowerAmpModule.debug()) {
         logDebugP("[INIT] AutoMute: %d", autoMuteEnabled);
     }
@@ -676,7 +681,7 @@ void PowerAmpChannel::processSTACommand(const String commandValue)
 
 bool PowerAmpChannel::isActive()
 {
-    return ParamAMP_ChActive; // Gibt den Aktivitätsstatus des Kanals zurück
+    return _channelActive; // Gibt den Aktivitätsstatus des Kanals zurück
 }
 
 void PowerAmpChannel::sendVolumeStatusKO(void)
@@ -962,24 +967,28 @@ void PowerAmpChannel::handleDeviceStatusSummary_STA(const String& val) {
 }
 
 void PowerAmpChannel::handleTitle_TIT(const String& val) {
+    if (songMetadataTitle == val) return;   // nichts geändert -> nichts senden
     songMetadataTitle = val;
     KoAMP_ChSongMetadataTitle.value(songMetadataTitle.c_str(), DPT_String_8859_1);
     if (openknxPowerAmpModule.debug()) logDebugP("[INFO] Title updated: %s", val.c_str());
 }
 
 void PowerAmpChannel::handleArtist_ART(const String& val) {
+    if (songMetadataArtist == val) return;   // nichts geändert -> nichts senden
     songMetadataArtist = val;
     KoAMP_ChSongMetadataArtist.value(songMetadataArtist.c_str(), DPT_String_8859_1);
     if (openknxPowerAmpModule.debug()) logDebugP("[INFO] Artist updated: %s", val.c_str());
 }
 
 void PowerAmpChannel::handleAlbum_ALB(const String& val) {
+    if (songMetadataAlbum == val) return;   // nichts geändert -> nichts senden
     songMetadataAlbum = val;
     KoAMP_ChSongMetadataAlbum.value(songMetadataAlbum.c_str(), DPT_String_8859_1);
     if (openknxPowerAmpModule.debug()) logDebugP("[INFO] Album updated: %s", val.c_str());
 }
 
 void PowerAmpChannel::handleVendor_VND(const String& val) {
+    if (songMetadataVendor == val) return;   // nichts geändert -> nichts senden
     songMetadataVendor = val;
     KoAMP_ChSongMetadataVendor.value(songMetadataVendor.c_str(), DPT_String_8859_1);
     if (openknxPowerAmpModule.debug()) logDebugP("[INFO] Vendor updated: %s", val.c_str());
@@ -1162,9 +1171,8 @@ void PowerAmpChannel::checkAliveStatus()
     if (deviceAlive && (currentMillis - lastResponseMillis_Alive > alive_timeout))
     {
         deviceAlive = false;
-       // logInfoP("[DEAD] AMP antwortet nicht!");
-        lastAliveState = deviceAlive;
-        // nicht mehr erreichbar - Meldungen und Infos an Display via KO löschen
+        // lastAliveState hier NICHT setzen – der Change-Check im Interval-Block
+        // soll den Übergang alive→dead erkennen und den Log ausgeben.
         resetStatiInfos();
     }
 
@@ -1256,7 +1264,7 @@ void PowerAmpChannel::processInputKoLock(GroupObject &ko)
 {
     bool value = ko.value(DPT_Switch);
 
-    if ((ParamAMP_Lock == 1 && value == 1 || ParamAMP_Lock == 2 && value == 0))
+    if ((ParamAMP_Lock == 1 && value == 1) || (ParamAMP_Lock == 2 && value == 0))
         return lock();
 
     return unlock();
@@ -1265,23 +1273,26 @@ void PowerAmpChannel::processInputKoLock(GroupObject &ko)
 void PowerAmpChannel::processInputKoScene(GroupObject &ko)
 {
     if (!ParamAMP_ChScenesActive)
-    {
         return;
-    }
 
     uint8_t Szenennummer = ko.value(DPT_SceneNumber);
-    Szenennummer += 1;
+    Szenennummer += 1; // DPT_SceneNumber ist 0-basiert, ETS-Szenen sind 1-basiert
     logDebugP("processInputKoScene: Szenennummer %u", Szenennummer);
 
     for (uint8_t i = 0; i < 9; i++)
     {
+        // sceneBlocks[i].scene enthält den Parameteroffset für ParamAMP_ChSceneX,
+        // der vom OpenKNXproducer generiert wurde – knx.paramByte() ist hier korrekt,
+        // da die generierten ParamAMP_ChSceneX-Makros selbst nur den Offset kapseln.
         uint8_t sceneId = knx.paramByte(sceneBlocks[i].scene);
 
-        if (sceneId == 0) continue;              // "Nicht genutzt"
-        if (sceneId != Szenennummer) continue;   // ← fehlt in deiner Version
+        if (sceneId == 0) continue;             // "Nicht genutzt"
+        if (sceneId != Szenennummer) continue;  // nicht die gesuchte Szene
 
-        uint8_t sceneQuelle = knx.paramByte(sceneBlocks[i].quelle);  // i, nicht sceneId
-        uint8_t sceneVolume = knx.paramByte(sceneBlocks[i].volume);  // i, nicht sceneId
+        uint8_t sceneQuelle = knx.paramByte(sceneBlocks[i].quelle);
+        uint8_t sceneVolume = knx.paramByte(sceneBlocks[i].volume);
+
+        logDebugP("Szene %u gefunden: Quelle=%u, Volume=%u", Szenennummer, sceneQuelle, sceneVolume);
 
         currentSource = static_cast<enumSource>(sceneQuelle);
         setSource_SRC(currentSource);
@@ -1314,6 +1325,11 @@ void PowerAmpChannel::setKOInitialValues(void)
 
 void PowerAmpChannel::handleCustomAutoplay()
 {
+    // Abbruch: bereits gestartet oder nicht relevant
+    if (!autoPlayEnabled || onetimeAutoPlayExecuted) return;
+    if (!deviceAlive) return;
+
+    // Abbruch: läuft schon
     if (autoPlayPending && playingStatus_PLA)
     {
         autoPlayPending = false;
@@ -1321,44 +1337,25 @@ void PowerAmpChannel::handleCustomAutoplay()
         logInfoP("[AUTO] Already playing, autoplay cancelled");
         return;
     }
-    // zusätzlicher
-    if (autoPlayPending && !deviceAlive)
+
+    // Pending starten
+    if (!autoPlayPending)
     {
+        logInfoP("[AUTO] Starte Wiedergabe in 3 Sekunden");
+        autoPlayStartTime = millis();
+        autoPlayPending = true;
+        return; // nächster loop()-Tick prüft den Timer
+    }
+
+    // Warten auf Bedingungen: Internet + Quelle NET + Timer abgelaufen
+    if (internetStatus && string_currentSource == "NET" &&
+        (millis() - autoPlayStartTime >= AUTOPLAY_DELAY))
+    {
+        setAutoplay_APL(true);  // APL erst setzen wenn wir auch wirklich spielen
+        playPause_POP();
+        onetimeAutoPlayExecuted = true;
         autoPlayPending = false;
-        logInfoP("[AUTO] Device not alive, autoplay cancelled");
-        return;
-    }
-
-    // prüfen ob Quelle "NET" und Gerät nicht spielt
-    if (deviceAlive == true  && playingStatus_PLA == false && autoPlayEnabled == true && onetimeAutoPlayExecuted == false)
-    {
-        if (autoPlayPending == false)
-        {
-            logInfoP("[AUTO] Starte Wiedergabe in 3 Sekunden");
-            autoPlayStartTime = millis();
-            autoPlayPending = true;
-            setAutoplay_APL(true); // Wer Autoplay bestellt, bekommt Autoplay
-        }
-
-
-        if (internetStatus == true && string_currentSource == "NET")
-        {
-            // Internet is available and source is NET
-
-            if (millis() - autoPlayStartTime >= 3000)
-            {
-                playPause_POP();
-                onetimeAutoPlayExecuted = true;
-                autoPlayPending = false;
-                logInfoP("[AUTO]  Wiedergabe automatisch gestartet");
-
-            }
-        }
-    }
-    else
-    {
-        // nichts tun 
-        return;
+        logInfoP("[AUTO] Wiedergabe automatisch gestartet");
     }
 }
 
@@ -1403,4 +1400,3 @@ void PowerAmpChannel::resetStatiInfos()
     KoAMP_ChSongMetadataVendor.value(empty.c_str(), DPT_String_8859_1);
     KoAMP_ChElapsedTime.value(empty.c_str(), DPT_String_8859_1);
 }
-

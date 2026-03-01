@@ -16,14 +16,14 @@ class PowerAmpModule : public OpenKNX::Module
     void showHelp() override;
     bool processCommand(const std::string command, bool diagnose) override;
     bool debug();
-    void loop();
-    void setup(bool configured);
+    void loop() override;
+    void setup(bool configured) override;
     const std::string name() override;
     const std::string version() override;
     void setSerialChannelPins(const uint8_t pins[][4], uint8_t numChannels);
 
   private:
-    PowerAmpChannel *channel[OPENKNX_AMP_CHANNEL_COUNT];
+    PowerAmpChannel *channel[OPENKNX_AMP_CHANNEL_COUNT] = {}; // init mit // channel[0] = nullptr, // channel[1] = nullptr, usw
     uint8_t NumChannels; // Number of channels defined in knxprod
     uint8_t _numChannels = 0;
 

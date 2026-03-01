@@ -50,6 +50,7 @@ void PowerAmpModule::loop()
 {
     for (uint8_t i = 0; i < MIN(ParamAMP_VisibleChannels, OPENKNX_AMP_CHANNEL_COUNT); i++)
     {
+        if (channel[i] == nullptr) continue;
         channel[i]->loop();
     }
 }
@@ -107,9 +108,9 @@ void PowerAmpModule::processInputKo(GroupObject &iKo)
 
     for (uint8_t i = 0; i < MIN(ParamAMP_VisibleChannels, OPENKNX_AMP_CHANNEL_COUNT); i++)
     {
+        if (channel[i] == nullptr) continue;
         logDebugP("channel[ %i ]", i+1);
-        channel[i]->processInputKo(iKo);
-        
+        channel[i]->processInputKo(iKo); 
     }
     logIndentDown();
 }

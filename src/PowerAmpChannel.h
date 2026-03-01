@@ -153,7 +153,7 @@ private:
     int currentState = -1;  // -1 bedeutet "wartet auf nächsten Start"
 
 
-    unsigned long AUTOPLAY_DELAY = 10000;  // 10 Sekunden
+    unsigned long AUTOPLAY_DELAY = 5000;   // ms Wartezeit vor automatischer Wiedergabe
     bool autoPlayPending = false;
     unsigned long autoPlayStartTime = 0;
 
