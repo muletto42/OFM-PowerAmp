@@ -143,17 +143,21 @@ void PowerAmpChannel::processInputKo(GroupObject &iKo)
             processInputKoScene(iKo);
             break;
         }
-        case AMP_KoChAutoPlayStatus:
+        case AMP_KoChAutoPlay:
         {
-            logDebugP("processInputKo: autoplay_status");
-            bool autoplayValue = KoAMP_ChAutoPlayStatus.value(DPT_Switch);
-            setAutoplay_APL(autoplayValue);
+            logDebugP("processInputKo: autoPlay_command");
+            autoPlayEnabled = KoAMP_ChAutoPlay.value(DPT_Switch);
+            setAutoplay_APL(autoPlayEnabled);
+            KoAMP_ChAutoPlayStatus.value(autoPlayEnabled, DPT_Switch);
+            
             break;
         }
-        case AMP_KoChAutoMuteStatus:
+        case AMP_KoChAutoMute:
         {
-            logDebugP("processInputKo: autoMute_status");
-            autoMuteEnabled = KoAMP_ChAutoMuteStatus.value(DPT_Switch);
+            logDebugP("processInputKo: autoMute_command");
+            autoMuteEnabled = KoAMP_ChAutoMute.value(DPT_Switch);
+            KoAMP_ChAutoMuteStatus.value(autoMuteEnabled, DPT_Switch);
+            ParamAMP_AutoMute = autoMuteEnabled; // persistent speichern
             break;
         }
         case AMP_KoChPreset:
@@ -927,6 +931,7 @@ void PowerAmpChannel:: handlePrevious_PRE(const String& v) {
 
 void PowerAmpChannel:: handlePreset_PST(const String& v) {
     presetStatus = v.toInt();
+    KoAMP_ChPresetStatus.value(presetStatus, DPT_DecimalFactor);
     if (openknxPowerAmpModule.debug()) {
         logDebugP("[INFO] PST Preset updated: %d", presetStatus);
     }
@@ -969,28 +974,28 @@ void PowerAmpChannel::handleDeviceStatusSummary_STA(const String& val) {
 void PowerAmpChannel::handleTitle_TIT(const String& val) {
     if (songMetadataTitle == val) return;   // nichts geändert -> nichts senden
     songMetadataTitle = val;
-    KoAMP_ChSongMetadataTitle.value(songMetadataTitle.c_str(), DPT_String_8859_1);
+    KoAMP_ChSongTitle.value(songMetadataTitle.c_str(), DPT_String_8859_1);
     if (openknxPowerAmpModule.debug()) logDebugP("[INFO] Title updated: %s", val.c_str());
 }
 
 void PowerAmpChannel::handleArtist_ART(const String& val) {
     if (songMetadataArtist == val) return;   // nichts geändert -> nichts senden
     songMetadataArtist = val;
-    KoAMP_ChSongMetadataArtist.value(songMetadataArtist.c_str(), DPT_String_8859_1);
+    KoAMP_ChSongArtist.value(songMetadataArtist.c_str(), DPT_String_8859_1);
     if (openknxPowerAmpModule.debug()) logDebugP("[INFO] Artist updated: %s", val.c_str());
 }
 
 void PowerAmpChannel::handleAlbum_ALB(const String& val) {
     if (songMetadataAlbum == val) return;   // nichts geändert -> nichts senden
     songMetadataAlbum = val;
-    KoAMP_ChSongMetadataAlbum.value(songMetadataAlbum.c_str(), DPT_String_8859_1);
+    KoAMP_ChSongAlbum.value(songMetadataAlbum.c_str(), DPT_String_8859_1);
     if (openknxPowerAmpModule.debug()) logDebugP("[INFO] Album updated: %s", val.c_str());
 }
 
 void PowerAmpChannel::handleVendor_VND(const String& val) {
     if (songMetadataVendor == val) return;   // nichts geändert -> nichts senden
     songMetadataVendor = val;
-    KoAMP_ChSongMetadataVendor.value(songMetadataVendor.c_str(), DPT_String_8859_1);
+    KoAMP_ChSongVendor.value(songMetadataVendor.c_str(), DPT_String_8859_1);
     if (openknxPowerAmpModule.debug()) logDebugP("[INFO] Vendor updated: %s", val.c_str());
 }
 
@@ -1311,10 +1316,10 @@ void PowerAmpChannel::setKOInitialValues(void)
     KoAMP_ChMuteStatus.value(muteStatus_MUT, DPT_Switch);
     KoAMP_ChAliveStatus.value(deviceAlive, DPT_Switch);
     KoAMP_ChLock.value(_currentLocked, DPT_Switch);
-    KoAMP_ChSongMetadataTitle.value(empty.c_str(), DPT_String_8859_1);
-    KoAMP_ChSongMetadataArtist.value(empty.c_str(), DPT_String_8859_1);
-    KoAMP_ChSongMetadataAlbum.value(empty.c_str(), DPT_String_8859_1);
-    KoAMP_ChSongMetadataVendor.value(empty.c_str(), DPT_String_8859_1);
+    KoAMP_ChSongTitle.value(empty.c_str(), DPT_String_8859_1);
+    KoAMP_ChSongArtist.value(empty.c_str(), DPT_String_8859_1);
+    KoAMP_ChSongAlbum.value(empty.c_str(), DPT_String_8859_1);
+    KoAMP_ChSongVendor.value(empty.c_str(), DPT_String_8859_1);
     KoAMP_ChElapsedTime.value(empty.c_str(), DPT_String_8859_1);
 
     if (openknxPowerAmpModule.debug())
@@ -1394,9 +1399,9 @@ void PowerAmpChannel::resetStatiInfos()
     String empty = "";
     KoAMP_ChVolumeStatus.value((uint8_t)0, DPT_Scaling);
     KoAMP_ChSourceStatus.value(empty.c_str(), DPT_String_8859_1);
-    KoAMP_ChSongMetadataTitle.value(empty.c_str(), DPT_String_8859_1);
-    KoAMP_ChSongMetadataArtist.value(empty.c_str(), DPT_String_8859_1);
-    KoAMP_ChSongMetadataAlbum.value(empty.c_str(), DPT_String_8859_1);
-    KoAMP_ChSongMetadataVendor.value(empty.c_str(), DPT_String_8859_1);
+    KoAMP_ChSongTitle.value(empty.c_str(), DPT_String_8859_1);
+    KoAMP_ChSongArtist.value(empty.c_str(), DPT_String_8859_1);
+    KoAMP_ChSongAlbum.value(empty.c_str(), DPT_String_8859_1);
+    KoAMP_ChSongVendor.value(empty.c_str(), DPT_String_8859_1);
     KoAMP_ChElapsedTime.value(empty.c_str(), DPT_String_8859_1);
 }

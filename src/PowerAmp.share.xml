@@ -49,6 +49,7 @@
                   <Enumeration Text="Line-In" Value="3" Id="%ENID%" />
                   <Enumeration Text="Optical" Value="4" Id="%ENID%" />
                   <Enumeration Text="Coax" Value="5" Id="%ENID%" />
+                  <Enumeration Text="USBDAC" Value="6" Id="%ENID%" />
                 </TypeRestriction>
               </ParameterType>
               <ParameterType Id="%AID%_PT-mute" Name="mute">
