@@ -32,10 +32,12 @@
                 ├── Byte 7: LimitMaxVolume
                 └── Byte 8: Preset
 
-              Union SizeInBit="216" (27 Bytes, Offset 9-35)
-                ├── SceneNr    0-8: Offset 0-8
-                ├── SceneQuelle 0-8: Offset 9-17
-                └── SceneVolume 0-8: Offset 18-26 
+              Union SizeInBit="360" (45 Bytes, Offset 9-53)
+                ├── SceneNr      0-8: Offset  0- 8
+                ├── SceneQuelle  0-8: Offset  9-17
+                ├── SceneVolume  0-8: Offset 18-26
+                ├── SceneMute    0-8: Offset 27-35   
+                └── ScenePreset  0-8: Offset 36-44   
               -->
 
               <Union SizeInBit="72">
@@ -79,7 +81,7 @@
                 <Parameter Id="%AID%_UP-%TT%%CC%033" Name="%C%Preset"            ParameterType="%AID%_PT-Preset"           Offset="8" BitOffset="0" Text="Preset"             Value="0" />
               </Union>
                           
-              <Union SizeInBit="216">
+              <Union SizeInBit="360">
                 <Memory CodeSegment="%AID%_RS-04-00000" Offset="9" BitOffset="0" />
 
                 <!-- Szenen-Nummern -->
@@ -114,8 +116,29 @@
                 <Parameter Id="%AID%_UP-%TT%%CC%146" Name="Ch%C%SceneVolume6" Offset="24" BitOffset="0" ParameterType="%AID%_PT-Volume" Text="SceneVolume6" Value="10" />
                 <Parameter Id="%AID%_UP-%TT%%CC%147" Name="Ch%C%SceneVolume7" Offset="25" BitOffset="0" ParameterType="%AID%_PT-Volume" Text="SceneVolume7" Value="10" />
                 <Parameter Id="%AID%_UP-%TT%%CC%148" Name="Ch%C%SceneVolume8" Offset="26" BitOffset="0" ParameterType="%AID%_PT-Volume" Text="SceneVolume8" Value="10" />
-              </Union>
               
+                <!-- Szenen-Mute -->
+                <Parameter Id="%AID%_UP-%TT%%CC%160" Name="Ch%C%SceneMute0" Offset="27" BitOffset="0" ParameterType="%AID%_PT-SceneMuteState" Text="SceneMute0" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%161" Name="Ch%C%SceneMute1" Offset="28" BitOffset="0" ParameterType="%AID%_PT-SceneMuteState" Text="SceneMute1" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%162" Name="Ch%C%SceneMute2" Offset="29" BitOffset="0" ParameterType="%AID%_PT-SceneMuteState" Text="SceneMute2" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%163" Name="Ch%C%SceneMute3" Offset="30" BitOffset="0" ParameterType="%AID%_PT-SceneMuteState" Text="SceneMute3" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%164" Name="Ch%C%SceneMute4" Offset="31" BitOffset="0" ParameterType="%AID%_PT-SceneMuteState" Text="SceneMute4" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%165" Name="Ch%C%SceneMute5" Offset="32" BitOffset="0" ParameterType="%AID%_PT-SceneMuteState" Text="SceneMute5" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%166" Name="Ch%C%SceneMute6" Offset="33" BitOffset="0" ParameterType="%AID%_PT-SceneMuteState" Text="SceneMute6" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%167" Name="Ch%C%SceneMute7" Offset="34" BitOffset="0" ParameterType="%AID%_PT-SceneMuteState" Text="SceneMute7" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%168" Name="Ch%C%SceneMute8" Offset="35" BitOffset="0" ParameterType="%AID%_PT-SceneMuteState" Text="SceneMute8" Value="0" />
+
+                <!-- Szenen-Preset -->
+                <Parameter Id="%AID%_UP-%TT%%CC%170" Name="Ch%C%ScenePreset0" Offset="36" BitOffset="0" ParameterType="%AID%_PT-ScenePreset" Text="ScenePreset0" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%171" Name="Ch%C%ScenePreset1" Offset="37" BitOffset="0" ParameterType="%AID%_PT-ScenePreset" Text="ScenePreset1" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%172" Name="Ch%C%ScenePreset2" Offset="38" BitOffset="0" ParameterType="%AID%_PT-ScenePreset" Text="ScenePreset2" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%173" Name="Ch%C%ScenePreset3" Offset="39" BitOffset="0" ParameterType="%AID%_PT-ScenePreset" Text="ScenePreset3" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%174" Name="Ch%C%ScenePreset4" Offset="40" BitOffset="0" ParameterType="%AID%_PT-ScenePreset" Text="ScenePreset4" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%175" Name="Ch%C%ScenePreset5" Offset="41" BitOffset="0" ParameterType="%AID%_PT-ScenePreset" Text="ScenePreset5" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%176" Name="Ch%C%ScenePreset6" Offset="42" BitOffset="0" ParameterType="%AID%_PT-ScenePreset" Text="ScenePreset6" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%177" Name="Ch%C%ScenePreset7" Offset="43" BitOffset="0" ParameterType="%AID%_PT-ScenePreset" Text="ScenePreset7" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%178" Name="Ch%C%ScenePreset8" Offset="44" BitOffset="0" ParameterType="%AID%_PT-ScenePreset" Text="ScenePreset8" Value="0" />
+              </Union>
             </Parameters>
 
             
@@ -181,11 +204,33 @@
               <ParameterRef Id="%AID%_UP-%TT%%CC%146_R-%TT%%CC%14601" RefId="%AID%_UP-%TT%%CC%146" />
               <ParameterRef Id="%AID%_UP-%TT%%CC%147_R-%TT%%CC%14701" RefId="%AID%_UP-%TT%%CC%147" />
               <ParameterRef Id="%AID%_UP-%TT%%CC%148_R-%TT%%CC%14801" RefId="%AID%_UP-%TT%%CC%148" />
+
+              <!-- Szenen-Mute -->
+              <ParameterRef Id="%AID%_UP-%TT%%CC%160_R-%TT%%CC%16001" RefId="%AID%_UP-%TT%%CC%160" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%161_R-%TT%%CC%16101" RefId="%AID%_UP-%TT%%CC%161" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%162_R-%TT%%CC%16201" RefId="%AID%_UP-%TT%%CC%162" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%163_R-%TT%%CC%16301" RefId="%AID%_UP-%TT%%CC%163" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%164_R-%TT%%CC%16401" RefId="%AID%_UP-%TT%%CC%164" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%165_R-%TT%%CC%16501" RefId="%AID%_UP-%TT%%CC%165" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%166_R-%TT%%CC%16601" RefId="%AID%_UP-%TT%%CC%166" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%167_R-%TT%%CC%16701" RefId="%AID%_UP-%TT%%CC%167" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%168_R-%TT%%CC%16801" RefId="%AID%_UP-%TT%%CC%168" />
+
+              <!-- Szenen-Preset -->
+              <ParameterRef Id="%AID%_UP-%TT%%CC%170_R-%TT%%CC%17001" RefId="%AID%_UP-%TT%%CC%170" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%171_R-%TT%%CC%17101" RefId="%AID%_UP-%TT%%CC%171" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%172_R-%TT%%CC%17201" RefId="%AID%_UP-%TT%%CC%172" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%173_R-%TT%%CC%17301" RefId="%AID%_UP-%TT%%CC%173" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%174_R-%TT%%CC%17401" RefId="%AID%_UP-%TT%%CC%174" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%175_R-%TT%%CC%17501" RefId="%AID%_UP-%TT%%CC%175" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%176_R-%TT%%CC%17601" RefId="%AID%_UP-%TT%%CC%176" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%177_R-%TT%%CC%17701" RefId="%AID%_UP-%TT%%CC%177" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%178_R-%TT%%CC%17801" RefId="%AID%_UP-%TT%%CC%178" />
             </ParameterRefs>
 
 <!--
 K1   VolumeValue       Lautstärke setzen          Write    DPST-5-1
-K2   VolumeStep        Lautstärke ▲▼              Write    DPST-1-7
+K2   VolumeStep        Lautstärke hoch/runtet     Write    DPST-1-7
 K3   Source            Quelle wählen              Write    DPT-5
 K4   MuteOnOff         Stumm schalten             Write    DPST-1-1
 K5   PlayPause         Play / Pause               Write    DPST-1-10
@@ -394,6 +439,9 @@ K27  Vendor            Dienst / Quelle            Read DPST-16-1
                                   <Column Id="%AID%_PB-nnn_C-1" Name="Col1" Text="Szene" Width="25%"/>
                                   <Column Id="%AID%_PB-nnn_C-2" Name="Col2" Text="Quelle" Width="50%"/>
                                   <Column Id="%AID%_PB-nnn_C-3" Name="Col3" Text="Lautstärke" Width="25%"/>
+                                  <Column Id="%AID%_PB-nnn_C-4" Name="Col4" Text="Mute" Width="25%"/>
+                                  <Column Id="%AID%_PB-nnn_C-5" Name="Col5" Text="Preset" Width="25%"/>
+
                                 </Columns>
                                 <ParameterRefRef RefId="%AID%_UP-%TT%%CC%100_R-%TT%%CC%10001" Cell="1,1" />
                                 <ParameterRefRef RefId="%AID%_UP-%TT%%CC%101_R-%TT%%CC%10101" Cell="2,1" />
@@ -408,54 +456,72 @@ K27  Vendor            Dienst / Quelle            Read DPST-16-1
                                   <when test=">0">
                                     <ParameterRefRef RefId="%AID%_UP-%TT%%CC%120_R-%TT%%CC%12001" Cell="1,2" />  <!-- Quelle -->
                                     <ParameterRefRef RefId="%AID%_UP-%TT%%CC%140_R-%TT%%CC%14001" Cell="1,3" />  <!-- Lautstärke -->
+                                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%160_R-%TT%%CC%16001" Cell="1,4" />  <!-- Mute -->
+                                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%170_R-%TT%%CC%17001" Cell="1,5" />  <!-- Preset -->
                                   </when>
                                 </choose>
                                 <choose ParamRefId="%AID%_UP-%TT%%CC%101_R-%TT%%CC%10101">
                                   <when test=">0">
                                     <ParameterRefRef RefId="%AID%_UP-%TT%%CC%121_R-%TT%%CC%12101" Cell="2,2" />  <!-- Quelle -->
                                     <ParameterRefRef RefId="%AID%_UP-%TT%%CC%141_R-%TT%%CC%14101" Cell="2,3" />  <!-- Lautstärke -->
+                                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%161_R-%TT%%CC%16101" Cell="2,4" />  <!-- Mute -->
+                                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%171_R-%TT%%CC%17101" Cell="2,5" />  <!-- Preset -->
                                   </when>
                                 </choose>
                                 <choose ParamRefId="%AID%_UP-%TT%%CC%102_R-%TT%%CC%10201">
                                   <when test=">0">
                                     <ParameterRefRef RefId="%AID%_UP-%TT%%CC%122_R-%TT%%CC%12201" Cell="3,2" />  <!-- Quelle -->
                                     <ParameterRefRef RefId="%AID%_UP-%TT%%CC%142_R-%TT%%CC%14201" Cell="3,3" />  <!-- Lautstärke -->
+                                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%162_R-%TT%%CC%16201" Cell="3,4" />  <!-- Mute -->
+                                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%172_R-%TT%%CC%17201" Cell="3,5" />  <!-- Preset -->
                                   </when>
                                 </choose>
                                 <choose ParamRefId="%AID%_UP-%TT%%CC%103_R-%TT%%CC%10301">
                                   <when test=">0">
                                     <ParameterRefRef RefId="%AID%_UP-%TT%%CC%123_R-%TT%%CC%12301" Cell="4,2" />  <!-- Quelle -->
                                     <ParameterRefRef RefId="%AID%_UP-%TT%%CC%143_R-%TT%%CC%14301" Cell="4,3" />  <!-- Lautstärke -->
+                                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%163_R-%TT%%CC%16301" Cell="4,4" />  <!-- Mute -->
+                                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%173_R-%TT%%CC%17301" Cell="4,5" />  <!-- Preset -->                                    
                                   </when>
                                 </choose>
                                 <choose ParamRefId="%AID%_UP-%TT%%CC%104_R-%TT%%CC%10401">
                                   <when test=">0">
                                     <ParameterRefRef RefId="%AID%_UP-%TT%%CC%124_R-%TT%%CC%12401" Cell="5,2" />  <!-- Quelle -->
                                     <ParameterRefRef RefId="%AID%_UP-%TT%%CC%144_R-%TT%%CC%14401" Cell="5,3" />  <!-- Lautstärke -->
+                                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%164_R-%TT%%CC%16401" Cell="5,4" />  <!-- Mute -->
+                                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%174_R-%TT%%CC%17401" Cell="5,5" />  <!-- Preset -->  
                                   </when>
                                 </choose>
                                 <choose ParamRefId="%AID%_UP-%TT%%CC%105_R-%TT%%CC%10501">
                                   <when test=">0">
                                     <ParameterRefRef RefId="%AID%_UP-%TT%%CC%125_R-%TT%%CC%12501" Cell="6,2" />  <!-- Quelle -->
                                     <ParameterRefRef RefId="%AID%_UP-%TT%%CC%145_R-%TT%%CC%14501" Cell="6,3" />  <!-- Lautstärke -->
+                                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%165_R-%TT%%CC%16501" Cell="6,4" />  <!-- Mute -->
+                                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%175_R-%TT%%CC%17501" Cell="6,5" />  <!-- Preset -->
                                   </when>
                                 </choose>
                                 <choose ParamRefId="%AID%_UP-%TT%%CC%106_R-%TT%%CC%10601">
                                   <when test=">0">
                                     <ParameterRefRef RefId="%AID%_UP-%TT%%CC%126_R-%TT%%CC%12601" Cell="7,2" />  <!-- Quelle -->
                                     <ParameterRefRef RefId="%AID%_UP-%TT%%CC%146_R-%TT%%CC%14601" Cell="7,3" />  <!-- Lautstärke -->
+                                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%166_R-%TT%%CC%16601" Cell="7,4" />  <!-- Mute -->
+                                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%176_R-%TT%%CC%17601" Cell="7,5" />  <!-- Preset --> 
                                   </when>
                                 </choose>
                                 <choose ParamRefId="%AID%_UP-%TT%%CC%107_R-%TT%%CC%10701">
                                   <when test=">0">
                                     <ParameterRefRef RefId="%AID%_UP-%TT%%CC%127_R-%TT%%CC%12701" Cell="8,2" />  <!-- Quelle -->
                                     <ParameterRefRef RefId="%AID%_UP-%TT%%CC%147_R-%TT%%CC%14701" Cell="8,3" />  <!-- Lautstärke -->
+                                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%167_R-%TT%%CC%16701" Cell="8,4" />  <!-- Mute -->
+                                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%177_R-%TT%%CC%17701" Cell="8,5" />  <!-- Preset -->
                                   </when>
                                 </choose>
                                 <choose ParamRefId="%AID%_UP-%TT%%CC%108_R-%TT%%CC%10801">
                                   <when test=">0">
                                     <ParameterRefRef RefId="%AID%_UP-%TT%%CC%128_R-%TT%%CC%12801" Cell="9,2" />  <!-- Quelle -->
                                     <ParameterRefRef RefId="%AID%_UP-%TT%%CC%148_R-%TT%%CC%14801" Cell="9,3" />  <!-- Lautstärke -->
+                                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%168_R-%TT%%CC%16801" Cell="9,4" />  <!-- Mute -->
+                                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%178_R-%TT%%CC%17801" Cell="9,5" />  <!-- Preset -->                                    
                                   </when>
                                 </choose>
                               </ParameterBlock>

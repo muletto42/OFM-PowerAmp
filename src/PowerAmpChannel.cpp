@@ -1318,7 +1318,7 @@ void PowerAmpChannel::processInputKoScene(GroupObject &ko)
     Szenennummer += 1; // DPT_SceneNumber ist 0-basiert, ETS-Szenen sind 1-basiert
     logDebugP("processInputKoScene: Szenennummer %u", Szenennummer);
 
-    for (uint8_t i = 0; i < 9; i++)
+    for (uint8_t i = 0; i < AMP_SCENE_COUNT; i++)
     {
         // sceneBlocks[i].scene enthält den Parameteroffset für ParamAMP_ChSceneX,
         // der vom OpenKNXproducer generiert wurde – knx.paramByte() ist hier korrekt,
@@ -1330,12 +1330,39 @@ void PowerAmpChannel::processInputKoScene(GroupObject &ko)
 
         uint8_t sceneQuelle = knx.paramByte(sceneBlocks[i].quelle);
         uint8_t sceneVolume = knx.paramByte(sceneBlocks[i].volume);
+        uint8_t sceneMute   = knx.paramByte(sceneBlocks[i].mute);   // 0=kein Änderung, 1=Mute, 2=Unmute
+        uint8_t scenePreset = knx.paramByte(sceneBlocks[i].preset); // 0=nicht genutzt, 1-8=Preset
 
-        logDebugP("Szene %u gefunden: Quelle=%u, Volume=%u", Szenennummer, sceneQuelle, sceneVolume);
+        logDebugP("Szene %u: Quelle=%u, Volume=%u, Mute=%u, Preset=%u", Szenennummer, sceneQuelle, sceneVolume, sceneMute, scenePreset);
 
-        currentSource = static_cast<enumSource>(sceneQuelle);
-        setSource_SRC(currentSource);
-        setVolume_VOL(sceneVolume);
+        // Quelle setzen (0 = nicht ändern)
+        if (sceneQuelle != 0)
+        {
+            currentSource = static_cast<enumSource>(sceneQuelle);
+            setSource_SRC(currentSource);
+        }
+
+        // Lautstärke setzen (0 = nicht ändern)
+        if (sceneVolume != 0)
+        {
+            setVolume_VOL(sceneVolume);
+        }
+
+        // Mute: 0=keine Aktion, 1=Mute ein, 2=Mute aus
+        if (sceneMute == 1)
+        {
+            setMute_MUT(true);
+        }
+        else if (sceneMute == 2)
+        {
+            setMute_MUT(false);
+        }
+
+        // Preset: 0=nicht genutzt
+        if (scenePreset != 0)
+        {
+            startAndPlayPresetPlaylist_PST(scenePreset);
+        }
         return;
     }
     logDebugP("Keine passende Szene für Nummer %u", Szenennummer);

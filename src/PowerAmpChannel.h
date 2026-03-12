@@ -105,25 +105,27 @@ private:
 
     bool lastAliveState = false;
 
+    static constexpr uint8_t AMP_SCENE_COUNT = 9;
     struct SceneParams {
         uint16_t scene;
         uint16_t quelle;
         uint16_t volume;
+        uint16_t mute; 
+        uint16_t preset;
     };
 
-    // Alle 9 Szenenblöcke in einer Lookup-Tabelle
-    const SceneParams sceneBlocks[9] = {
-        { ParamAMP_ChScene0, ParamAMP_ChSceneQuelle0, ParamAMP_ChSceneVolume0 },
-        { ParamAMP_ChScene1, ParamAMP_ChSceneQuelle1, ParamAMP_ChSceneVolume1 },
-        { ParamAMP_ChScene2, ParamAMP_ChSceneQuelle2, ParamAMP_ChSceneVolume2 },
-        { ParamAMP_ChScene3, ParamAMP_ChSceneQuelle3, ParamAMP_ChSceneVolume3 },
-        { ParamAMP_ChScene4, ParamAMP_ChSceneQuelle4, ParamAMP_ChSceneVolume4 },
-        { ParamAMP_ChScene5, ParamAMP_ChSceneQuelle5, ParamAMP_ChSceneVolume5 },
-        { ParamAMP_ChScene6, ParamAMP_ChSceneQuelle6, ParamAMP_ChSceneVolume6 },
-        { ParamAMP_ChScene7, ParamAMP_ChSceneQuelle7, ParamAMP_ChSceneVolume7 },
-        { ParamAMP_ChScene8, ParamAMP_ChSceneQuelle8, ParamAMP_ChSceneVolume8 }
+    // Szenenblöcke in einer Lookup-Tabelle
+    const SceneParams sceneBlocks[AMP_SCENE_COUNT] = {
+        { ParamAMP_ChScene0, ParamAMP_ChSceneQuelle0, ParamAMP_ChSceneVolume0, ParamAMP_ChSceneMute0, ParamAMP_ChScenePreset0 },
+        { ParamAMP_ChScene1, ParamAMP_ChSceneQuelle1, ParamAMP_ChSceneVolume1, ParamAMP_ChSceneMute1, ParamAMP_ChScenePreset1 },
+        { ParamAMP_ChScene2, ParamAMP_ChSceneQuelle2, ParamAMP_ChSceneVolume2, ParamAMP_ChSceneMute2, ParamAMP_ChScenePreset2 },
+        { ParamAMP_ChScene3, ParamAMP_ChSceneQuelle3, ParamAMP_ChSceneVolume3, ParamAMP_ChSceneMute3, ParamAMP_ChScenePreset3 },
+        { ParamAMP_ChScene4, ParamAMP_ChSceneQuelle4, ParamAMP_ChSceneVolume4, ParamAMP_ChSceneMute4, ParamAMP_ChScenePreset4 },
+        { ParamAMP_ChScene5, ParamAMP_ChSceneQuelle5, ParamAMP_ChSceneVolume5, ParamAMP_ChSceneMute5, ParamAMP_ChScenePreset5 },
+        { ParamAMP_ChScene6, ParamAMP_ChSceneQuelle6, ParamAMP_ChSceneVolume6, ParamAMP_ChSceneMute6, ParamAMP_ChScenePreset6 },
+        { ParamAMP_ChScene7, ParamAMP_ChSceneQuelle7, ParamAMP_ChSceneVolume7, ParamAMP_ChSceneMute7, ParamAMP_ChScenePreset7 },
+        { ParamAMP_ChScene8, ParamAMP_ChSceneQuelle8, ParamAMP_ChSceneVolume8, ParamAMP_ChSceneMute8, ParamAMP_ChScenePreset8 },
     };
-
 
     // Private Methode zur Verarbeitung von empfangenen Zeilen
     void handleIncomingData(void);
