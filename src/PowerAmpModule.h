@@ -4,6 +4,8 @@
 #include "hardware.h"
 #include "knxprod.h"
 
+#define AMP_FLASH_MAGIC_WORD_LEN 4
+#define AMP_FLASH_VERSION        1
 class PowerAmpModule : public OpenKNX::Module
 {
   protected:
@@ -22,9 +24,13 @@ class PowerAmpModule : public OpenKNX::Module
     const std::string version() override;
     void setSerialChannelPins(const uint8_t pins[][4], uint8_t numChannels);
 
+    // flash handling für gespeicherte Zustaende
+    uint16_t flashSize() override;
+    void writeFlash() override;
+    void readFlash(const uint8_t *iBuffer, const uint16_t iSize) override;
+
   private:
-    PowerAmpChannel *channel[OPENKNX_AMP_CHANNEL_COUNT] = {}; // init mit // channel[0] = nullptr, // channel[1] = nullptr, usw
-    uint8_t NumChannels; // Number of channels defined in knxprod
+    PowerAmpChannel *_channels[OPENKNX_AMP_CHANNEL_COUNT] = {}; // init mit // channel[0] = nullptr, // channel[1] = nullptr, usw
     uint8_t _numChannels = 0;
 
     uint8_t _rxPins[OPENKNX_AMP_CHANNEL_COUNT];
@@ -36,6 +42,8 @@ class PowerAmpModule : public OpenKNX::Module
 
     // Hilfsfunktion für HW-Serial
     SerialUART* getHardwareSerial(uint8_t port);
+
+    static const uint8_t _magicWord[AMP_FLASH_MAGIC_WORD_LEN];
 };
 
 extern PowerAmpModule openknxPowerAmpModule;

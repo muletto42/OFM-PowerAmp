@@ -200,19 +200,19 @@ K13  AutoMute          AutoMute ein/aus           Write    DPST-1-1
 K14  Preset            Preset starten             Write    DPT-5
 _____________________________________________________________________
 
-K20  VolumeStatus      Lautstärke aktuell         Read DPST-5-1
-K21  SourceStatus      Quelle aktuell             Read DPST-16-1
-K22  MuteStatus        Stumm aktiv                Read DPST-1-1
-K23  PlayingStatus     Wiedergabe aktiv           Read DPST-1-1
-K24  AliveStatus       Gerät erreichbar           Read DPT-1
-K25  AutoPlayStatus    AutoPlay aktiv             Read DPST-1-1   
-K26  AutoMuteStatus    AutoMute aktiv             Read DPST-1-1   
-K27  PresetStatus      Aktiver Preset             Read DPT-5      
-K28  ElapsedTime       Spielzeit                  Read DPST-16-1
-K29  Title             Titel                      Read DPST-16-1
-K30  Artist            Künstler                   Read DPST-16-1
-K31  Album             Album                      Read DPST-16-1
-K32  Vendor            Dienst / Quelle            Read DPST-16-1
+K15  VolumeStatus      Lautstärke aktuell         Read DPST-5-1
+K16  SourceStatus      Quelle aktuell             Read DPST-16-1
+K17  MuteStatus        Stumm aktiv                Read DPST-1-1
+K18  PlayingStatus     Wiedergabe aktiv           Read DPST-1-1
+K19  AliveStatus       Gerät erreichbar           Read DPT-1
+K20  AutoPlayStatus    AutoPlay aktiv             Read DPST-1-1   
+K21  AutoMuteStatus    AutoMute aktiv             Read DPST-1-1   
+K22  PresetStatus      Aktiver Preset             Read DPT-5      
+K23  ElapsedTime       Spielzeit                  Read DPST-16-1
+K24  Title             Titel                      Read DPST-16-1
+K25  Artist            Künstler                   Read DPST-16-1
+K26  Album             Album                      Read DPST-16-1
+K27  Vendor            Dienst / Quelle            Read DPST-16-1
 -->
             <ComObjectTable>
               <!-- Die Number="%Kxyz%" muss aufsteigend ohne "Löcher" sein -->
@@ -234,19 +234,19 @@ K32  Vendor            Dienst / Quelle            Read DPST-16-1
               <ComObject Id="%AID%_O-%TT%%CC%033" Name="Ch%C%Preset"       Text="Preset starten %Z%"      Number="%K14%" FunctionText="Preset"         ObjectSize="1 Byte" ReadFlag="Disabled" WriteFlag="Enabled"  CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Enabled"  ReadOnInitFlag="Disabled" DatapointType="DPT-5"     />
 
               <!-- Rückmeldung -->
-              <ComObject Id="%AID%_O-%TT%%CC%024" Name="Ch%C%VolumeStatus"    Text="Lautstärke aktuell %Z%"  Number="%K20%" FunctionText="Status"      ObjectSize="1 Byte" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-5-1"  />
-              <ComObject Id="%AID%_O-%TT%%CC%025" Name="Ch%C%SourceStatus"    Text="Quelle aktuell %Z%"      Number="%K21%" FunctionText="Status"      ObjectSize="14 Bytes" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-16-1" />
-              <ComObject Id="%AID%_O-%TT%%CC%026" Name="Ch%C%MuteStatus"      Text="Stumm aktiv %Z%"         Number="%K22%" FunctionText="Status"      ObjectSize="1 Bit"  ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-1-1"  />
-              <ComObject Id="%AID%_O-%TT%%CC%028" Name="Ch%C%PlayingStatus"   Text="Wiedergabe aktiv %Z%"    Number="%K23%" FunctionText="Status"      ObjectSize="1 Bit"  ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-1-1"  />
-              <ComObject Id="%AID%_O-%TT%%CC%029" Name="Ch%C%AliveStatus"     Text="Gerät erreichbar %Z%"    Number="%K24%" FunctionText="Alive"       ObjectSize="1 Bit"  ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPT-1"     />
-              <ComObject Id="%AID%_O-%TT%%CC%032" Name="Ch%C%AutoPlayStatus"  Text="AutoPlay aktiv %Z%"      Number="%K25%" FunctionText="Status"      ObjectSize="1 Bit"  ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-1-1"  />
-              <ComObject Id="%AID%_O-%TT%%CC%034" Name="Ch%C%AutoMuteStatus"  Text="AutoMute aktiv %Z%"      Number="%K26%" FunctionText="Status"      ObjectSize="1 Bit"  ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-1-1"  />
-              <ComObject Id="%AID%_O-%TT%%CC%037" Name="Ch%C%PresetStatus"    Text="Aktiver Preset %Z%"      Number="%K27%" FunctionText="Status"      ObjectSize="1 Byte" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPT-5"     />
-              <ComObject Id="%AID%_O-%TT%%CC%027" Name="Ch%C%ElapsedTime"     Text="Spielzeit %Z%"           Number="%K28%" FunctionText="Status"      ObjectSize="14 Bytes" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-16-1" />
-              <ComObject Id="%AID%_O-%TT%%CC%020" Name="Ch%C%SongTitle"       Text="Titel %Z%"               Number="%K29%" FunctionText="Metadata"    ObjectSize="14 Bytes" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-16-1" />
-              <ComObject Id="%AID%_O-%TT%%CC%022" Name="Ch%C%SongArtist"      Text="Künstler %Z%"            Number="%K30%" FunctionText="Metadata"    ObjectSize="14 Bytes" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-16-1" />
-              <ComObject Id="%AID%_O-%TT%%CC%021" Name="Ch%C%SongAlbum"       Text="Album %Z%"               Number="%K31%" FunctionText="Metadata"    ObjectSize="14 Bytes" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-16-1" />
-              <ComObject Id="%AID%_O-%TT%%CC%023" Name="Ch%C%SongVendor"      Text="Dienst / Quelle %Z%"     Number="%K32%" FunctionText="Metadata"    ObjectSize="14 Bytes" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-16-1" />
+              <ComObject Id="%AID%_O-%TT%%CC%024" Name="Ch%C%VolumeStatus"    Text="Lautstärke aktuell %Z%"  Number="%K15%" FunctionText="Status"      ObjectSize="1 Byte" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-5-1"  />
+              <ComObject Id="%AID%_O-%TT%%CC%025" Name="Ch%C%SourceStatus"    Text="Quelle aktuell %Z%"      Number="%K16%" FunctionText="Status"      ObjectSize="14 Bytes" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-16-1" />
+              <ComObject Id="%AID%_O-%TT%%CC%026" Name="Ch%C%MuteStatus"      Text="Stumm aktiv %Z%"         Number="%K17%" FunctionText="Status"      ObjectSize="1 Bit"  ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-1-1"  />
+              <ComObject Id="%AID%_O-%TT%%CC%028" Name="Ch%C%PlayingStatus"   Text="Wiedergabe aktiv %Z%"    Number="%K18%" FunctionText="Status"      ObjectSize="1 Bit"  ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-1-1"  />
+              <ComObject Id="%AID%_O-%TT%%CC%029" Name="Ch%C%AliveStatus"     Text="Gerät erreichbar %Z%"    Number="%K19%" FunctionText="Alive"       ObjectSize="1 Bit"  ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPT-1"     />
+              <ComObject Id="%AID%_O-%TT%%CC%032" Name="Ch%C%AutoPlayStatus"  Text="AutoPlay aktiv %Z%"      Number="%K20%" FunctionText="Status"      ObjectSize="1 Bit"  ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-1-1"  />
+              <ComObject Id="%AID%_O-%TT%%CC%034" Name="Ch%C%AutoMuteStatus"  Text="AutoMute aktiv %Z%"      Number="%K21%" FunctionText="Status"      ObjectSize="1 Bit"  ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-1-1"  />
+              <ComObject Id="%AID%_O-%TT%%CC%037" Name="Ch%C%PresetStatus"    Text="Aktiver Preset %Z%"      Number="%K22%" FunctionText="Status"      ObjectSize="1 Byte" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPT-5"     />
+              <ComObject Id="%AID%_O-%TT%%CC%027" Name="Ch%C%ElapsedTime"     Text="Spielzeit %Z%"           Number="%K23%" FunctionText="Status"      ObjectSize="14 Bytes" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-16-1" />
+              <ComObject Id="%AID%_O-%TT%%CC%020" Name="Ch%C%SongTitle"       Text="Titel %Z%"               Number="%K24%" FunctionText="Metadata"    ObjectSize="14 Bytes" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-16-1" />
+              <ComObject Id="%AID%_O-%TT%%CC%022" Name="Ch%C%SongArtist"      Text="Künstler %Z%"            Number="%K25%" FunctionText="Metadata"    ObjectSize="14 Bytes" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-16-1" />
+              <ComObject Id="%AID%_O-%TT%%CC%021" Name="Ch%C%SongAlbum"       Text="Album %Z%"               Number="%K26%" FunctionText="Metadata"    ObjectSize="14 Bytes" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-16-1" />
+              <ComObject Id="%AID%_O-%TT%%CC%023" Name="Ch%C%SongVendor"      Text="Dienst / Quelle %Z%"     Number="%K27%" FunctionText="Metadata"    ObjectSize="14 Bytes" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-16-1" />
             </ComObjectTable>
       
             <ComObjectRefs>

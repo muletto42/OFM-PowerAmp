@@ -22,13 +22,18 @@ PowerAmpModule openknxPowerAmpModule;
 
 PowerAmpModule::PowerAmpModule()
 {
+    for (uint8_t i = 0; i < OPENKNX_AMP_CHANNEL_COUNT; i++)
+    {
+        _channels[i] = new PowerAmpChannel(i);  // ohne Serial, nur Platzhalter, damit restore() schon funktioniert
+        // Serial wird in setup() per _channels[i]->setSerial(serial) nachgereicht
+    }
 }
 
 PowerAmpModule::~PowerAmpModule()
 {
-    for (uint8_t i = 0; i < _numChannels; i++)
+    for (uint8_t i = 0; i < OPENKNX_AMP_CHANNEL_COUNT; i++)
     {
-        delete channel[i];
+        delete _channels[i];
     }
     for (auto *sw : _swSerialInstances)
     {
@@ -50,16 +55,16 @@ void PowerAmpModule::loop()
 {
     for (uint8_t i = 0; i < MIN(ParamAMP_VisibleChannels, OPENKNX_AMP_CHANNEL_COUNT); i++)
     {
-        if (channel[i] == nullptr) continue;
-        channel[i]->loop();
+        if (_channels[i] == nullptr) continue;
+        _channels[i]->loop();
     }
 }
 
 void PowerAmpModule::setup(bool configured)
 {
     // Number of available channels is the minimum of configured and available channels
-    NumChannels = MIN(ParamAMP_VisibleChannels, OPENKNX_AMP_CHANNEL_COUNT);
-    for (uint8_t i = 0; i < NumChannels; i++)
+    _numChannels  = MIN(ParamAMP_VisibleChannels, OPENKNX_AMP_CHANNEL_COUNT);
+    for (uint8_t i = 0; i < _numChannels ; i++)
     {
         // prüfen obs Pins gültig sind
         if (_rxPins[i] == 0xFF || _txPins[i] == 0xFF || _rxPins[i] == 0x00 || _txPins[i] == 0x00)
@@ -95,8 +100,9 @@ void PowerAmpModule::setup(bool configured)
             logInfoP("Channel %u: SoftwareSerial RX=%d TX=%d", i, _rxPins[i], _txPins[i]);
         }
 
-        channel[i] = new PowerAmpChannel(i, serial);
-        channel[i]->setup(configured);
+        // setup() statt _channels[i] = new PowerAmpChannel(i, serial): // alt wird im Konstruktor gemacht, damit man aus dem Flash lesen kann
+        _channels[i]->setSerial(serial);
+        _channels[i]->setup(configured);
     }
 }
 
@@ -108,9 +114,9 @@ void PowerAmpModule::processInputKo(GroupObject &iKo)
 
     for (uint8_t i = 0; i < MIN(ParamAMP_VisibleChannels, OPENKNX_AMP_CHANNEL_COUNT); i++)
     {
-        if (channel[i] == nullptr) continue;
+        if (_channels[i] == nullptr) continue;
         logDebugP("channel[ %i ]", i+1);
-        channel[i]->processInputKo(iKo); 
+        _channels[i]->processInputKo(iKo); 
     }
     logIndentDown();
 }
@@ -146,7 +152,7 @@ bool PowerAmpModule::processCommand(const std::string command, bool diagnose)
                 return true;
             }
 
-            const uint16_t channelIdx = std::stoi(command.substr(12, 1)) - 1;
+            const uint16_t channelIdx = std::stoi(command.substr(11, 1)) - 1;
 
             if (channelIdx >= OPENKNX_AMP_CHANNEL_COUNT)
             {
@@ -155,12 +161,12 @@ bool PowerAmpModule::processCommand(const std::string command, bool diagnose)
             }
 
             if (command.length() == 14)
-                value = std::stoi(command.substr(14, 1));
+                value = std::stoi(command.substr(13, 1));
             else if (command.length() == 15)
-                value = std::stoi(command.substr(14, 2));
+                value = std::stoi(command.substr(13, 2));
             else if (command.length() == 16)
             {
-                value = std::stoi(command.substr(14, 3));
+                value = std::stoi(command.substr(13, 3));
                 if (value != 100)
                 {
                     logDebugP("Invalid volume value, must be 0-100");
@@ -179,14 +185,14 @@ bool PowerAmpModule::processCommand(const std::string command, bool diagnose)
                 return true;
             }
 
-            if (channel[channelIdx] == nullptr)
+            if (_channels[channelIdx] == nullptr)
             {
                 logDebugP("Channel %d not initialized", channelIdx + 1);
                 return true;
             }
             else
             {
-                channel[channelIdx]->setVolume_VOL(value);
+                _channels[channelIdx]->setVolume_VOL(value);
                 logDebugP("Set volume of channel %d to %d", channelIdx + 1, value);
             }
 
@@ -217,13 +223,13 @@ bool PowerAmpModule::processCommand(const std::string command, bool diagnose)
                 return true;
             }
 
-            if (channel[channelIdx] == nullptr)
+            if (_channels[channelIdx] == nullptr)
             {
                 logDebugP("Channel %d not initialized", channelIdx + 1);
                 return true;
             }
 
-            channel[channelIdx]->setMute_MUT(muteValue);
+            _channels[channelIdx]->setMute_MUT(muteValue);
             logDebugP("Set mute of channel %d to %s", channelIdx + 1, muteValue ? "ON" : "OFF");
 
             return true;
@@ -240,7 +246,6 @@ bool PowerAmpModule::debug()
 
 void PowerAmpModule::setSerialChannelPins(const uint8_t channelPins[][4], uint8_t numChannels)
 {
-     _numChannels = numChannels;
     for (uint8_t i = 0; i < numChannels; i++) 
     {
         _rxPins[i]      = channelPins[i][0];
@@ -261,4 +266,68 @@ SerialUART* PowerAmpModule::getHardwareSerial(uint8_t port)
     default:
         return nullptr;
     }
+}
+
+
+const uint8_t PowerAmpModule::_magicWord[AMP_FLASH_MAGIC_WORD_LEN] = {'x','A','M','P'};
+
+
+uint16_t PowerAmpModule::flashSize()
+{
+    // [4] Magic Word + [1] Version + [N] je 1 Byte pro Kanal
+    return 4 + 1 + OPENKNX_AMP_CHANNEL_COUNT;
+}
+
+
+void PowerAmpModule::writeFlash()
+{
+    logDebugP("writing");
+
+    // magic word
+    for (size_t i = 0; i < AMP_FLASH_MAGIC_WORD_LEN; i++)
+    {
+        openknx.flash.writeByte(_magicWord[i]);
+    }
+
+    // version
+    openknx.flash.writeByte(AMP_FLASH_VERSION);
+
+    for (uint8_t i = 0; i < OPENKNX_AMP_CHANNEL_COUNT; i++)
+    {
+        _channels[i]->save();
+    }
+    logDebugP("write [done]");
+}
+
+void PowerAmpModule::readFlash(const uint8_t* data, const uint16_t size)
+{
+    if (size < 4 + 1) // no channels present
+    {
+        logDebugP("Flash data short!");
+        return;
+    }
+    
+    for (size_t i = 0; i < AMP_FLASH_MAGIC_WORD_LEN; i++)
+    {
+        if (openknx.flash.readByte() != _magicWord[i])
+        {
+            logDebugP("Wrong magic-word!");
+            return;
+        }
+    }
+
+
+    const uint8_t version = openknx.flash.readByte();
+    if (version != 1) // version unknown
+    {
+        logDebugP("Wrong version (%d)", version);
+        return;
+    }
+
+    const uint8_t n = MIN((uint8_t)(size - 5), OPENKNX_AMP_CHANNEL_COUNT);
+    for (uint8_t i = 0; i < n; i++)
+    {
+        _channels[i]->restore();
+    }
+    logDebugP("read [done]");
 }

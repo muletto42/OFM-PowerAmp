@@ -69,7 +69,7 @@ private:
     bool nextStatus = false;
     bool previousStatus = false;
     uint8_t presetStatus = 0;
-    bool loopModeStatus = false;
+    String loopModeStatus = "";
     bool bluetoothStatus = false;
     bool ledStatus = false;
     bool upgradingStatus = false;
@@ -127,10 +127,10 @@ private:
 
     // Private Methode zur Verarbeitung von empfangenen Zeilen
     void handleIncomingData(void);
-    void processReceivedUARTCommand(const String commandType, const String commandValue);
-    void sendRawCommandToArylic(const String command);
-    void processSTACommand(const String commandValue);
-    enumSource sourceStringToInt(const String source);
+    void processReceivedUARTCommand(const String &commandType, const String &commandValue);
+    void sendRawCommandToArylic(const String &command);
+    void processSTACommand(const String &commandValue);
+    enumSource sourceStringToInt(const String &source);
 
     void sendVolumeStatusKO(void);
     void sendSourceStatusKO(void);
@@ -165,66 +165,66 @@ private:
     void initHandlers();
 
         // einzelne Handler
-        void handleDeviceStatusSummary_STA(const String& val);
-        void handleSystemOperations_SYS(const String& val);
-        void handleInternetStatus_WWW(const String& val);
-        void handleDeviceName_NAM(const String& val);
-        void handleEthernetStatus_ETH(const String& val);
-        void handleWifiStatus_WIF(const String& val);
-        void handleTriggerWifiSetup_WRS(const String& val);
-        void handleWifiSignalStrength_WSS(const String& val);
-        void handleBluetoothSignalStrength_BSS(const String& val);
-        void handleIpAddress_IPA(const String& val);
-        void handleLocalTime_TME(const String& val);
-        void handleEnablePinCodeBT_COE(const String& val);
-        void handlePinCodeBT_COD(const String& val);
-        void handleSource_SRC(const String& val);
-        void handlePlayOrPause_POP(const String& val);
-        void handleStop_STP(const String& val);
-        void handleNext_NXT(const String& val);
-        void handlePrevious_PRE(const String& val);
-        void handlePreset_PST(const String& val);
-        void handleLoopMode_LPM(const String& val);
-        void handleBluetooth_BTC(const String& val);
-        void handleNetworkPlayingStatus_PLA(const String& val);
-        void handleChannel_CHN(const String& val);
-        void handleMultiRoomMode_MRM(const String& val);
-        void handleTitle_TIT(const String& val);
-        void handleArtist_ART(const String& val);
-        void handleAlbum_ALB(const String& val);
-        void handleVendor_VND(const String& val);
-        void handleElapsed_ELP(const String& val);
-        void handlePlaylist_PLI(const String& val);
-        void handleAutoplay_APL(const String& val);
-        void handleAudioOutput_AUD(const String& val);
-        void handleVolume_VOL(const String& val);
-        void handleMute_MUT(const String& val);
-        void handleBass_BAS(const String& val);
-        void handleTreble_TRE(const String& val);
-        void handleMid_MID(const String& val);
-        void handleVirtualBass_VBS(const String& val);
-        void handleBalance_BAL(const String& val);
-        void handleVolumeFixedOutput_VOF(const String& val);
-        void handleVolumeGroupedPlayback_VOG(const String& val);    
-        void handleQuerySystemEQGroup_PEQ(const String& val);
-        void handleEQGroup_EQS(const String& val);
-        void handleVolumeStep_VST(const String& val);
-        void handleEnableEQ_EQE(const String& val);
-        void handleCrossfilter_CFE(const String& val);
-        void handleCrossfilterFrequencyPoint_CFF(const String& val);
-        void handleVersion_VER(const String& val);
-        void handleLed_LED(const String& val);
-        void handleBeep_BEP(const String& val);
-        void handlePromptVoice_PMT(const String& val);
-        void handleDelayTimeToAutoMute_DLY(const String& val);
-        void handleMaxVolume_MXV(const String& val);
-        void handleAutoSwitchMode_ASW(const String& val);
-        void handlePowerOnMode_POM(const String& val);
-        void handleVolumeSyncFeature_VOS(const String& val);
-        void handleListSources_LST(const String& val);
-        void handleStandbyOnPower_SOP(const String& val);
+        void handleDeviceStatusSummary_STA(const String &val);
+        void handleSystemOperations_SYS(const String &val);
+        void handleInternetStatus_WWW(const String &val);
+        void handleDeviceName_NAM(const String &val);
+        void handleEthernetStatus_ETH(const String &val);
+        void handleWifiStatus_WIF(const String &val);
+        void handleTriggerWifiSetup_WRS(const String &val);
+        void handleWifiSignalStrength_WSS(const String &val);
+        void handleBluetoothSignalStrength_BSS(const String &val);
+        void handleIpAddress_IPA(const String &val);
+        void handleLocalTime_TME(const String &val);
+        void handleEnablePinCodeBT_COE(const String &val);
+        void handlePinCodeBT_COD(const String &val);
+        void handleSource_SRC(const String &val);
+        void handlePlayOrPause_POP(const String &val);
+        void handleStop_STP(const String &val);
+        void handleNext_NXT(const String &val);
+        void handlePrevious_PRE(const String &val);
+        void handlePreset_PST(const String &val);
+        void handleLoopMode_LPM(const String &val);
+        void handleBluetooth_BTC(const String &val);
+        void handleNetworkPlayingStatus_PLA(const String &val);
+        void handleChannel_CHN(const String &val);
+        void handleMultiRoomMode_MRM(const String &val);
+        void handleTitle_TIT(const String &val);
+        void handleArtist_ART(const String &val);
+        void handleAlbum_ALB(const String &val);
+        void handleVendor_VND(const String &val);
+        void handleElapsed_ELP(const String &val);
+        void handlePlaylist_PLI(const String &val);
+        void handleAutoplay_APL(const String &val);
+        void handleAudioOutput_AUD(const String &val);
+        void handleVolume_VOL(const String &val);
+        void handleMute_MUT(const String &val);
+        void handleBass_BAS(const String &val);
+        void handleTreble_TRE(const String &val);
+        void handleMid_MID(const String &val);
+        void handleVirtualBass_VBS(const String &val);
+        void handleBalance_BAL(const String &val);
+        void handleVolumeFixedOutput_VOF(const String &val);
+        void handleVolumeGroupedPlayback_VOG(const String &val);    
+        void handleQuerySystemEQGroup_PEQ(const String &val);
+        void handleEQGroup_EQS(const String &val);
+        void handleVolumeStep_VST(const String &val);
+        void handleEnableEQ_EQE(const String &val);
+        void handleCrossfilter_CFE(const String &val);
+        void handleCrossfilterFrequencyPoint_CFF(const String &val);
+        void handleVersion_VER(const String &val);
+        void handleLed_LED(const String &val);
+        void handleBeep_BEP(const String &val);
+        void handlePromptVoice_PMT(const String &val);
+        void handleDelayTimeToAutoMute_DLY(const String &val);
+        void handleMaxVolume_MXV(const String &val);
+        void handleAutoSwitchMode_ASW(const String &val);
+        void handlePowerOnMode_POM(const String &val);
+        void handleVolumeSyncFeature_VOS(const String &val);
+        void handleListSources_LST(const String &val);
+        void handleStandbyOnPower_SOP(const String &val);
 
-        String hexStringToAsciiString(String hexString);
+        String hexStringToAsciiString(const String &hexString);
 
     // Alive-Monitoring
     unsigned long lastResponseMillis_Alive = 0;
@@ -286,4 +286,7 @@ public:
         
     // Alive-Handling um zu prüfen ob der Endstufe noch oder überhaupt schon da ist.
     void checkAliveStatus();   // regelmäßig in loop() aufrufen
+
+    void save();     // called by PowerAmpModule::writeFlash()
+    void restore();  // called by PowerAmpModule::readFlash()
 };
