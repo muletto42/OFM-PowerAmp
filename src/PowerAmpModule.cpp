@@ -22,16 +22,17 @@ PowerAmpModule openknxPowerAmpModule;
 
 PowerAmpModule::PowerAmpModule()
 {
-    for (uint8_t i = 0; i < OPENKNX_AMP_CHANNEL_COUNT; i++)
-    {
-        _channels[i] = new PowerAmpChannel(i);  // ohne Serial, nur Platzhalter, damit restore() schon funktioniert
-        // Serial wird in setup() per _channels[i]->setSerial(serial) nachgereicht
-    }
+    // for (uint8_t i = 0; i < OPENKNX_AMP_CHANNEL_COUNT; i++)
+    // {
+    //     _channels[i] = new PowerAmpChannel(i);  // ohne Serial, nur Platzhalter, damit restore() schon funktioniert
+    //     // Serial wird in setup() per _channels[i]->setSerial(serial) nachgereicht
+    //     logInfoP("Channel %d: new PowerAmpChannel", i);
+    // }
 }
 
 PowerAmpModule::~PowerAmpModule()
 {
-    for (uint8_t i = 0; i < OPENKNX_AMP_CHANNEL_COUNT; i++)
+    for (uint8_t i = 0; i < _numChannels; i++)
     {
         delete _channels[i];
     }
@@ -55,40 +56,39 @@ void PowerAmpModule::loop()
 {
     for (uint8_t i = 0; i < MIN(ParamAMP_VisibleChannels, OPENKNX_AMP_CHANNEL_COUNT); i++)
     {
-        if (_channels[i] == nullptr) continue;
+         if (_channels[i] == nullptr) continue;
         _channels[i]->loop();
     }
 }
-
 void PowerAmpModule::setup(bool configured)
 {
+    logInfoP("setup() START");
+    
     // Number of available channels is the minimum of configured and available channels
-    _numChannels  = MIN(ParamAMP_VisibleChannels, OPENKNX_AMP_CHANNEL_COUNT);
-    for (uint8_t i = 0; i < _numChannels ; i++)
+    _numChannels = MIN(ParamAMP_VisibleChannels, OPENKNX_AMP_CHANNEL_COUNT);
+    logInfoP("_numChannels=%d", _numChannels);
+    for (uint8_t i = 0; i < _numChannels; i++)
     {
-        // prüfen obs Pins gültig sind
-        if (_rxPins[i] == 0xFF || _txPins[i] == 0xFF || _rxPins[i] == 0x00 || _txPins[i] == 0x00)
+        logInfoP("Channel %d: pin check", i);
+        if (_rxPins[i] == 0xFF || _txPins[i] == 0xFF || 
+            _rxPins[i] == 0x00 || _txPins[i] == 0x00)
         {
-            logErrorP("Channel %u: invalid RX/TX pin configuration (RX=%d, TX=%d)", i, _rxPins[i], _txPins[i]);
+            logErrorP("Channel %d: invalid pins", i);
             continue;
         }
+
+        logInfoP("Channel %d: serial init", i);
         Stream *serial = nullptr;
         if (_isHardware[i])
         {
             SerialUART *hw = getHardwareSerial(_hwPort[i]);
-            //HardwareSerial *hw = &Serial2
             if (hw)
             {
                 hw->setRX(_rxPins[i]);
                 hw->setTX(_txPins[i]);
                 hw->begin(BAUD_ARLYIC);
                 serial = hw;
-                logInfoP("Channel %u: HardwareSerial%d RX=%d TX=%d", i, _hwPort[i], _rxPins[i], _txPins[i]);
-            }
-            else
-            {
-                logErrorP("Channel %u: invalid HardwareSerial port %d (RP2040 supports only 1=Serial1, 2=Serial2)", i, _hwPort[i]);
-                continue;
+                logInfoP("Channel %d: HW serial ok", i);
             }
         }
         else
@@ -97,14 +97,69 @@ void PowerAmpModule::setup(bool configured)
             sw->begin(BAUD_ARLYIC);
             _swSerialInstances.push_back(sw);
             serial = sw;
-            logInfoP("Channel %u: SoftwareSerial RX=%d TX=%d", i, _rxPins[i], _txPins[i]);
+            logInfoP("Channel %d: SW serial ok", i);
         }
 
-        // setup() statt _channels[i] = new PowerAmpChannel(i, serial): // alt wird im Konstruktor gemacht, damit man aus dem Flash lesen kann
-        _channels[i]->setSerial(serial);
+        logInfoP("Channel %d: new PowerAmpChannel", i);
+        _channels[i] = new PowerAmpChannel(i, serial);
         _channels[i]->setup(configured);
+        
     }
+    logInfoP("setup() DONE");
 }
+
+// void PowerAmpModule::setup(bool configured)
+// {
+//     // Number of available channels is the minimum of configured and available channels
+//     _numChannels  = MIN(ParamAMP_VisibleChannels, OPENKNX_AMP_CHANNEL_COUNT);
+//     for (uint8_t i = 0; i < _numChannels ; i++)
+//     {
+//         // prüfen obs Pins gültig sind
+//         if (_rxPins[i] == 0xFF || _txPins[i] == 0xFF || _rxPins[i] == 0x00 || _txPins[i] == 0x00)
+//         {
+//             logErrorP("Channel %u: invalid RX/TX pin configuration (RX=%d, TX=%d)", i, _rxPins[i], _txPins[i]);
+//             continue;
+//         }
+//         Stream *serial = nullptr;
+//         if (_isHardware[i])
+//         {
+//             SerialUART *hw = getHardwareSerial(_hwPort[i]);
+//             //HardwareSerial *hw = &Serial2
+//             if (hw)
+//             {
+//                 hw->setRX(_rxPins[i]);
+//                 hw->setTX(_txPins[i]);
+//                 hw->begin(BAUD_ARLYIC);
+//                 serial = hw;
+//                 logInfoP("Channel %u: HardwareSerial%d RX=%d TX=%d", i, _hwPort[i], _rxPins[i], _txPins[i]);
+//             }
+//             else
+//             {
+//                 logErrorP("Channel %u: invalid HardwareSerial port %d (RP2040 supports only 1=Serial1, 2=Serial2)", i, _hwPort[i]);
+//                 continue;
+//             }
+//         }
+//         else
+//         {
+//             auto *sw = new SoftwareSerial(_rxPins[i], _txPins[i]);
+//             sw->begin(BAUD_ARLYIC);
+//             _swSerialInstances.push_back(sw);
+//             serial = sw;
+//             logInfoP("Channel %u: SoftwareSerial RX=%d TX=%d", i, _rxPins[i], _txPins[i]);
+//         }
+
+//         // setup() statt _channels[i] = new PowerAmpChannel(i, serial): // alt wird im Konstruktor gemacht, damit man aus dem Flash lesen kann
+//         _channels[i]->setSerial(serial);
+//         _channels[i]->setup(configured);
+//     }
+
+//     if (_flashCacheValid)
+//     {
+//         for (uint8_t i = 0; i < OPENKNX_AMP_CHANNEL_COUNT; i++)
+//             if (_channels[i] != nullptr)
+//                 _channels[i]->restoreFromByte(_flashCache[i]);
+//     }
+// }
 
 // will be called once a KO received a telegram
 void PowerAmpModule::processInputKo(GroupObject &iKo)
@@ -115,7 +170,7 @@ void PowerAmpModule::processInputKo(GroupObject &iKo)
     for (uint8_t i = 0; i < MIN(ParamAMP_VisibleChannels, OPENKNX_AMP_CHANNEL_COUNT); i++)
     {
         if (_channels[i] == nullptr) continue;
-        logDebugP("channel[ %i ]", i+1);
+        logDebugP("_channels[ %i ]", i+1);
         _channels[i]->processInputKo(iKo); 
     }
     logIndentDown();
@@ -268,8 +323,12 @@ SerialUART* PowerAmpModule::getHardwareSerial(uint8_t port)
     }
 }
 
-
-const uint8_t PowerAmpModule::_magicWord[AMP_FLASH_MAGIC_WORD_LEN] = {'x','A','M','P'};
+const uint8_t PowerAmpModule::_magicWord[AMP_FLASH_MAGIC_WORD_LEN] = {
+    'x',
+    'A',
+    'M',
+    'P',
+};
 
 
 uint16_t PowerAmpModule::flashSize()
@@ -279,28 +338,29 @@ uint16_t PowerAmpModule::flashSize()
 }
 
 
-void PowerAmpModule::writeFlash()
+ void PowerAmpModule::writeFlash()
 {
     logDebugP("writing");
 
     // magic word
     for (size_t i = 0; i < AMP_FLASH_MAGIC_WORD_LEN; i++)
-    {
         openknx.flash.writeByte(_magicWord[i]);
-    }
 
     // version
-    openknx.flash.writeByte(AMP_FLASH_VERSION);
+    openknx.flash.writeByte(1);
 
-    for (uint8_t i = 0; i < OPENKNX_AMP_CHANNEL_COUNT; i++)
+    for (uint8_t i = 0; i < AMP_ChannelCount; i++)
     {
         _channels[i]->save();
     }
     logDebugP("write [done]");
 }
 
+
+
 void PowerAmpModule::readFlash(const uint8_t* data, const uint16_t size)
 {
+    logIndentUp();
     if (size < 4 + 1) // no channels present
     {
         logDebugP("Flash data short!");
@@ -324,10 +384,13 @@ void PowerAmpModule::readFlash(const uint8_t* data, const uint16_t size)
         return;
     }
 
-    const uint8_t n = MIN((uint8_t)(size - 5), OPENKNX_AMP_CHANNEL_COUNT);
+    const uint8_t chDataMaxCount = (size - 4 - 1) / (1);
+    logDebugP("Found %d of %d channels", chDataMaxCount, OPENKNX_AMP_CHANNEL_COUNT);
+    const uint8_t n = MIN(chDataMaxCount, OPENKNX_AMP_CHANNEL_COUNT);
     for (uint8_t i = 0; i < n; i++)
     {
         _channels[i]->restore();
     }
     logDebugP("read [done]");
+    logIndentDown();
 }

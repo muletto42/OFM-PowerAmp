@@ -291,4 +291,5 @@ public:
 
     void save();     // called by PowerAmpModule::writeFlash()
     void restore();  // called by PowerAmpModule::readFlash()
+   
 };
