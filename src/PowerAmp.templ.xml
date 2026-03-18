@@ -298,7 +298,7 @@ K27  Vendor            Dienst / Quelle            Read DPST-16-1
               <!-- mit dem TextParameterRefId wird der Text aus der Beschreibung mit in den Text des KO übernommen -->
               <!-- Steuerung -->
               <ComObjectRef Id="%AID%_O-%TT%%CC%001_R-%TT%%CC%00101" RefId="%AID%_O-%TT%%CC%001" Text="{{0:Amp %Z%}}: Lautstärke Wert"    TextParameterRefId="%AID%_P-%TT%%CC%001_R-%TT%%CC%00101" /> <!-- Lautstärke Wert -->
-              <ComObjectRef Id="%AID%_O-%TT%%CC%002_R-%TT%%CC%00201" RefId="%AID%_O-%TT%%CC%002" Text="{{0:Amp %Z%}}: Lautstärke Schrit"  TextParameterRefId="%AID%_P-%TT%%CC%001_R-%TT%%CC%00101" /> <!-- Lautstärke Step -->
+              <ComObjectRef Id="%AID%_O-%TT%%CC%002_R-%TT%%CC%00201" RefId="%AID%_O-%TT%%CC%002" Text="{{0:Amp %Z%}}: Lautstärke Schritt" TextParameterRefId="%AID%_P-%TT%%CC%001_R-%TT%%CC%00101" /> <!-- Lautstärke Step -->
               <ComObjectRef Id="%AID%_O-%TT%%CC%004_R-%TT%%CC%00401" RefId="%AID%_O-%TT%%CC%004" Text="{{0:Amp %Z%}}: Quelle wählen"      TextParameterRefId="%AID%_P-%TT%%CC%001_R-%TT%%CC%00101" /> <!-- Quelle -->
               <ComObjectRef Id="%AID%_O-%TT%%CC%005_R-%TT%%CC%00501" RefId="%AID%_O-%TT%%CC%005" Text="{{0:Amp %Z%}}: Mute ein/aus"       TextParameterRefId="%AID%_P-%TT%%CC%001_R-%TT%%CC%00101" /> <!-- Mute -->
               <ComObjectRef Id="%AID%_O-%TT%%CC%006_R-%TT%%CC%00601" RefId="%AID%_O-%TT%%CC%006" Text="{{0:Amp %Z%}}: Play / Pause"       TextParameterRefId="%AID%_P-%TT%%CC%001_R-%TT%%CC%00101" /> <!-- PlayPause -->
