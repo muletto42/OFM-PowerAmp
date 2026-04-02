@@ -344,12 +344,14 @@ uint16_t PowerAmpModule::flashSize()
 
     // magic word
     for (size_t i = 0; i < AMP_FLASH_MAGIC_WORD_LEN; i++)
+    {
         openknx.flash.writeByte(_magicWord[i]);
-
+    }
+    
     // version
     openknx.flash.writeByte(1);
 
-    for (uint8_t i = 0; i < AMP_ChannelCount; i++)
+    for (uint8_t i = 0; i < OPENKNX_AMP_CHANNEL_COUNT; i++)
     {
         _channels[i]->save();
     }
