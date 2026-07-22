@@ -1213,6 +1213,7 @@ void PowerAmpChannel::checkAliveStatus()
         // lastAliveState hier NICHT setzen – der Change-Check im Interval-Block
         // soll den Übergang alive -> dead erkennen und den Log ausgeben.
         resetStatiInfos();
+        setMute_MUT (true);
     }
 
     // Zyklische Alive-Meldung 
