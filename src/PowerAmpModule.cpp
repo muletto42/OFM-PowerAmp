@@ -54,18 +54,17 @@ const std::string PowerAmpModule::version()
 
 void PowerAmpModule::loop()
 {
-    for (uint8_t i = 0; i < MIN(ParamAMP_VisibleChannels, OPENKNX_AMP_CHANNEL_COUNT); i++)
+    for (uint8_t i = 0; i < OPENKNX_AMP_CHANNEL_COUNT; i++)
     {
          if (_channels[i] == nullptr) continue;
-        _channels[i]->loop();
+            _channels[i]->loop();
     }
 }
 void PowerAmpModule::setup(bool configured)
 {
     logInfoP("setup() START");
     
-    // Number of available channels is the minimum of configured and available channels
-    _numChannels = MIN(ParamAMP_VisibleChannels, OPENKNX_AMP_CHANNEL_COUNT);
+    _numChannels = OPENKNX_AMP_CHANNEL_COUNT;
     logInfoP("_numChannels=%d", _numChannels);
     for (uint8_t i = 0; i < _numChannels; i++)
     {
@@ -111,7 +110,7 @@ void PowerAmpModule::setup(bool configured)
 // void PowerAmpModule::setup(bool configured)
 // {
 //     // Number of available channels is the minimum of configured and available channels
-//     _numChannels  = MIN(ParamAMP_VisibleChannels, OPENKNX_AMP_CHANNEL_COUNT);
+//     _numChannels  = OPENKNX_AMP_CHANNEL_COUNT;
 //     for (uint8_t i = 0; i < _numChannels ; i++)
 //     {
 //         // prüfen obs Pins gültig sind
@@ -167,7 +166,7 @@ void PowerAmpModule::processInputKo(GroupObject &iKo)
     logDebugP("[Modul] processInputKo");
     logIndentUp();
 
-    for (uint8_t i = 0; i < MIN(ParamAMP_VisibleChannels, OPENKNX_AMP_CHANNEL_COUNT); i++)
+    for (uint8_t i = 0; i < OPENKNX_AMP_CHANNEL_COUNT; i++)
     {
         if (_channels[i] == nullptr) continue;
         logDebugP("_channels[ %i ]", i+1);
@@ -353,7 +352,10 @@ uint16_t PowerAmpModule::flashSize()
 
     for (uint8_t i = 0; i < OPENKNX_AMP_CHANNEL_COUNT; i++)
     {
-        _channels[i]->save();
+        if (_channels[i] != nullptr)
+            _channels[i]->save();
+        else
+            openknx.flash.writeByte(0);
     }
     logDebugP("write [done]");
 }
@@ -391,7 +393,10 @@ void PowerAmpModule::readFlash(const uint8_t* data, const uint16_t size)
     const uint8_t n = MIN(chDataMaxCount, OPENKNX_AMP_CHANNEL_COUNT);
     for (uint8_t i = 0; i < n; i++)
     {
-        _channels[i]->restore();
+        if (_channels[i] != nullptr)
+            _channels[i]->restore();
+        else
+            openknx.flash.readByte();
     }
     logDebugP("read [done]");
     logIndentDown();

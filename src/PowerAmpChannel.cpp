@@ -231,10 +231,10 @@ void PowerAmpChannel::loop()
 
 void PowerAmpChannel::setup(bool configured)
 {
-    _channelActive = configured && (ParamAMP_ChActive == 1);
+    _channelActive = configured && (ParamAMP_ChActive == 1) && (ParamAMP_ChSuspended == 0);
     if (!_channelActive) 
     {
-        logDebugP("Channel %u: not active!", _channelIndex);
+        logDebugP("Channel %u: not active or suspended!", _channelIndex);
         return;
     }
 
@@ -718,7 +718,7 @@ void PowerAmpChannel::processSTACommand(const String &commandValue)
 
 bool PowerAmpChannel::isActive()
 {
-    return _channelActive; // Gibt den Aktivitätsstatus des Kanals zurück
+    return _channelActive && (ParamAMP_ChSuspended == 0); // suspendierte Kanäle gelten als nicht aktiv
 }
 
 void PowerAmpChannel::sendVolumeStatusKO(void)

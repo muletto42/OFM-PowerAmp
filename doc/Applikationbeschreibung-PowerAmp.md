@@ -36,7 +36,8 @@ Zusätzlich werden Statusinformationen, Metadaten sowie der Alive-Status zurück
 
 | Parameter | Beschreibung | Einheit / Typ |
 |----------|--------------|---------------|
-| **ChActive** | Kanal aktivieren | Bool |
+| **ChActive** | Kanal in der Kanalauswahl deaktivieren oder aktivieren | Deaktiviert / Aktiviert |
+| **ChSuspended** | Kanal auf dem Kanal-Tab suspendieren | Aus / Ein |
 | **VolumeStepValue** | Schrittweite der Lautstärkeänderung | Zahl |
 | **LimitMaxVolume** | Maximal erlaubte Lautstärke | Zahl (0–100) |
 | **VolumeDay / VolumeNight** | Standardlautstärken für Tag/Nacht | Zahl |
@@ -93,19 +94,19 @@ Der hier angegebene Name wird an verschiedenen Stellen verwendet, um diesen Kana
 <!-- DOC -->
 #### **Kanalaktivität**
 
-Hier kann man einen PowerAmp-Kanal aktivieren.
+Die Aktivierung erfolgt im Tab **Kanalauswahl**. Die Beschreibung bleibt dort auch bei deaktiviertem Kanal sichtbar und bearbeitbar.
 
-#### Inaktiv
-Dieser Kanal ist inaktiv. Alle Einstellungen und Kommunikationsobjekte sind ausgeblendet.
+##### **Deaktiviert**
 
-##### **Aktiv**
+Der Kanal ist ausgeschaltet und sein Kanal-Tab wird nicht angezeigt.
 
-Dieser Kanal ist aktiv und kann vollständig parametriert werden.
+##### **Aktiviert**
 
-##### **Funktionslos**
+Der Kanal-Tab wird angezeigt und kann vollständig parametriert werden.
 
-Dieser Kanal ist inaktiv. Er kann vollständig parametriert sein, sendet und empfängt jedoch keine Telegramme.  
-Dies eignet sich zur Fehlersuche, um einen Kanal testweise außer Betrieb zu nehmen, ohne dessen Konfiguration zu verlieren.
+##### **Suspendiert**
+
+Die Suspendierung wird separat im Kanal-Tab geschaltet. Ein suspendierter Kanal bleibt sichtbar und parametrierbar, sendet und empfängt jedoch keine Telegramme. Dies eignet sich zur Fehlersuche, ohne die Konfiguration zu verlieren.
 
 
 <!-- DOC HelpContext="Lautstaerke" -->
