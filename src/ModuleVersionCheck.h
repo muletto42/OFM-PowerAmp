@@ -2,7 +2,7 @@
 
 // Change the following 3 lines and adopt to your module names
 #define ModuleVersion_ModuleName "PowerAmp"
-#define ModuleVersion_knxprod_h PowerAmp_ModuleVersion
+#define ModuleVersion_knxprod_h AMP_ModuleVersion
 #define ModuleVersion_version_h MODULE_PowerAmp_ETS
 
 // ATTENTION: This file is evaluated during build, by OpenKNXproducer and some build scripts.
