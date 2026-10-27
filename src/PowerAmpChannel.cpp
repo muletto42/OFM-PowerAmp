@@ -226,7 +226,8 @@ void PowerAmpChannel::loop()
     }
     checkAliveStatus();
     handleCustomAutoplay();
-    handleCustomAutoMute();
+    handleCustomAutoMute(); 
+    handleStartupPreset();
 }
 
 void PowerAmpChannel::setup(bool configured)
@@ -250,7 +251,7 @@ void PowerAmpChannel::setup(bool configured)
     currentVolumeLimit     = ParamAMP_LimitMaxVolume;
     currentVolume          = ParamAMP_VolumeDay;
 
-    logInfoP("Channel %u setup done (active=%d, stepValue=%d, currentVol=%d, maxVol=%d)",
+    logDebugP("Channel %u setup done (active=%d, stepValue=%d, currentVol=%d, maxVol=%d)",
              _channelIndex, ParamAMP_ChActive, currentVolumeStepValue, currentVolume, currentVolumeLimit);
     mySerial->setTimeout(1000); // 1000 ms, als Backup
     setKOInitialValues(); 
@@ -267,6 +268,16 @@ void PowerAmpChannel::setup(bool configured)
     KoAMP_ChAutoPlayStatus.value(autoPlayEnabled, DPT_Switch);
     if (openknxPowerAmpModule.debug()) {
         logDebugP("[INIT] Custom Autoplay: %d", autoPlayEnabled);
+    }
+
+    // --- Startup Preset initialisieren ---
+    startupPresetEnabled = ParamAMP_StartPresetOrSceneEnable;
+    if (openknxPowerAmpModule.debug()) {
+        logDebugP("[INIT] StartupPreset enabled: %d, mode: %d, preset: %d, scene: %d",
+                  startupPresetEnabled,
+                  ParamAMP_StartPresetMode,
+                  ParamAMP_Preset,
+                  ParamAMP_StartScene);
     }
 
     // --- AutoMute initialisieren ---
@@ -1182,7 +1193,7 @@ void PowerAmpChannel::updateAlive()
     lastResponseMillis_Alive = millis();
     if (!deviceAlive) {
         deviceAlive = true;
-        logInfoP("[ALIVE] AMP antwortet!");
+        logDebugP("[ALIVE] AMP antwortet!");
 
         // Nach Alive-Wiederkehr ggf. Autoplay triggern
         if (autoPlayEnabled) {
@@ -1197,6 +1208,14 @@ void PowerAmpChannel::updateAlive()
             autoMutePending = false; 
             if (openknxPowerAmpModule.debug()) {
                 logDebugP("[AUTO] Alive erkannt - Custom Automute erneut erlaubt");
+            }
+        }
+        // Nach Alive-Wiederkehr ggf. StartupPreset triggern 
+         if (startupPresetEnabled) {
+            onetimeStartupPresetExecuted = false;
+            startupPresetPending = false; 
+            if (openknxPowerAmpModule.debug()) {
+                logDebugP("[AUTO] Alive erkannt - Custom StartupPreset erneut erlaubt");
             }
         }
     }
@@ -1235,9 +1254,9 @@ void PowerAmpChannel::checkAliveStatus()
         {
             lastAliveState = deviceAlive;
             if (deviceAlive)
-                logInfoP("[ALIVE] AMP erreichbar!");
+                logDebugP("[ALIVE] AMP erreichbar!");
             else
-                logInfoP("[DEAD] AMP antwortet nicht!");
+                logDebugP("[DEAD] AMP antwortet nicht!");
         }
     }
 }
@@ -1263,14 +1282,14 @@ void PowerAmpChannel::unlock()
 
 void PowerAmpChannel::day()
 {
-    logInfoP("day mode");
+    logDebugP("day mode");
     _currentNight = false;
     setDefaultVolume();
 }
 
 void PowerAmpChannel::night()
 {
-    logInfoP("night mode");
+    logDebugP("night mode");
     _currentNight = true;
     setDefaultVolume();
 }
@@ -1319,6 +1338,11 @@ void PowerAmpChannel::processInputKoScene(GroupObject &ko)
     Szenennummer += 1; // DPT_SceneNumber ist 0-basiert, ETS-Szenen sind 1-basiert
     logDebugP("processInputKoScene: Szenennummer %u", Szenennummer);
 
+    applyScene(Szenennummer);
+}
+
+bool PowerAmpChannel::applyScene(uint8_t sceneNumber)
+{
     for (uint8_t i = 0; i < AMP_SCENE_COUNT; i++)
     {
         // sceneBlocks[i].scene enthält den Parameteroffset für ParamAMP_ChSceneX,
@@ -1327,14 +1351,14 @@ void PowerAmpChannel::processInputKoScene(GroupObject &ko)
         uint8_t sceneId = knx.paramByte(sceneBlocks[i].scene);
 
         if (sceneId == 0) continue;             // "Nicht genutzt"
-        if (sceneId != Szenennummer) continue;  // nicht die gesuchte Szene
+        if (sceneId != sceneNumber) continue;  // nicht die gesuchte Szene
 
         uint8_t sceneQuelle = knx.paramByte(sceneBlocks[i].quelle);
         uint8_t sceneVolume = knx.paramByte(sceneBlocks[i].volume);
         uint8_t sceneMute   = knx.paramByte(sceneBlocks[i].mute);   // 0=kein Änderung, 1=Mute, 2=Unmute
         uint8_t scenePreset = knx.paramByte(sceneBlocks[i].preset); // 0=nicht genutzt, 1-8=Preset
 
-        logDebugP("Szene %u: Quelle=%u, Volume=%u, Mute=%u, Preset=%u", Szenennummer, sceneQuelle, sceneVolume, sceneMute, scenePreset);
+        logDebugP("Szene %u: Quelle=%u, Volume=%u, Mute=%u, Preset=%u", sceneNumber, sceneQuelle, sceneVolume, sceneMute, scenePreset);
 
         // Quelle setzen (0 = nicht ändern)
         if (sceneQuelle != 0)
@@ -1364,9 +1388,10 @@ void PowerAmpChannel::processInputKoScene(GroupObject &ko)
         {
             startAndPlayPresetPlaylist_PST(scenePreset);
         }
-        return;
+        return true;
     }
-    logDebugP("Keine passende Szene für Nummer %u", Szenennummer);
+    logDebugP("Keine passende Szene für Nummer %u", sceneNumber);
+    return false;
 }
 
 void PowerAmpChannel::setKOInitialValues(void)
@@ -1405,14 +1430,14 @@ void PowerAmpChannel::handleCustomAutoplay()
     {
         autoPlayPending = false;
         onetimeAutoPlayExecuted = true;
-        logInfoP("[AUTO] Already playing, autoplay cancelled");
+        logDebugP("[AUTO] Already playing, autoplay cancelled");
         return;
     }
 
     // Pending starten
     if (!autoPlayPending)
     {
-        logInfoP("[AUTO] Starte Wiedergabe in 3 Sekunden");
+        logDebugP("[AUTO] Starte Wiedergabe in 3 Sekunden");
         autoPlayStartTime = millis();
         autoPlayPending = true;
         return; // nächster loop()-Tick prüft den Timer
@@ -1448,7 +1473,7 @@ void PowerAmpChannel::handleCustomAutoMute()
     {
         autoMutePending = true;
         autoMuteStartTime = millis();
-        logInfoP("[AUTOMUTE] Mute geplant in %lums", AUTOMUTE_DELAY);
+        logDebugP("[AUTOMUTE] Mute geplant in %lums", AUTOMUTE_DELAY);
         return;
     }
 
@@ -1457,13 +1482,60 @@ void PowerAmpChannel::handleCustomAutoMute()
         setMute_MUT(true);
         onetimeAutoMuteExecuted = true;
         autoMutePending = false;
-        logInfoP("[AUTOMUTE] Mute ausgeführt");
+        logDebugP("[AUTOMUTE] Mute ausgeführt");
+    }
+}
+
+
+void PowerAmpChannel::handleStartupPreset()
+{
+    if (!deviceAlive || !startupPresetEnabled || onetimeStartupPresetExecuted) return;
+
+    if (!startupPresetPending)
+    {
+        startupPresetPending = true;
+        startupPresetStartTime = millis();
+        logDebugP("[STARTUP] Startwert geplant in %lums", startupPreset_DELAY);
+        return;
+    }
+
+    if (millis() - startupPresetStartTime >= startupPreset_DELAY)
+    {
+        if (ParamAMP_StartPresetMode)
+        {
+            uint8_t startupPresetScene = ParamAMP_StartScene;
+            if (startupPresetScene != 0)
+            {
+                applyScene(startupPresetScene);
+                logDebugP("[STARTUP] Szene %u ausgeführt", startupPresetScene);
+            }
+            else
+            {
+                logDebugP("[STARTUP] Keine Szene für Start konfiguriert");
+            }
+        }
+        else
+        {
+            uint8_t startupPreset = ParamAMP_Preset;
+            if (startupPreset != 0)
+            {
+                startAndPlayPresetPlaylist_PST(startupPreset);
+                logDebugP("[STARTUP] Preset %u ausgeführt", startupPreset);
+            }
+            else
+            {
+                logDebugP("[STARTUP] Kein Preset für Start konfiguriert");
+            }
+        }
+
+        onetimeStartupPresetExecuted = true;
+        startupPresetPending = false;
     }
 }
 
 void PowerAmpChannel::resetStatiInfos()
 {
-    logInfoP("[dead] reset Stati");
+    logDebugP("[dead] reset Stati");
     currentVolume = 0;
     string_currentSource = "";
     elapsedTime_ELP = ""; 

@@ -236,6 +236,14 @@ private:
     void updateAlive(void);
 
 
+    // --- Startup Preset ---
+    bool startupPresetPending = false;
+    unsigned long startupPresetStartTime = 0;
+    const unsigned long startupPreset_DELAY = 500; // 500ms nach Alive-Erkennung
+    
+    bool onetimeStartupPresetExecuted = false;   // verhindert mehrfachen Start
+    bool startupPresetEnabled = true;  // ETS-Parameter: soll nach Boot automatisch muten?
+    void handleStartupPreset(void);
 
     // --- Automute ---
     bool autoMutePending = false;
@@ -256,6 +264,7 @@ private:
     void processInputKoDayNight(GroupObject &ko);
     void processInputKoLock(GroupObject &ko);
     void processInputKoScene(GroupObject &ko);
+    bool applyScene(uint8_t sceneNumber);
     void day(void);
     void night(void);
     void setDefaultVolume(void);

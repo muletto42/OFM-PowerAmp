@@ -22,7 +22,7 @@
               
               <!-- Memory Layout
               Union SizeInBit="72" (9 Bytes, Offset 0-8)
-                ├── Byte 0: Flags-A (Active, Suspended, ScenesActive, mute, AutoPlay, AutoMute, AliveCheckBox)
+                ├── Byte 0: Flags-A (Active, Suspended, ScenesActive, mute, AutoPlay, AutoMute, AliveCheckBox, StartPresetEnable)
                 ├── Byte 1: Flags-B (DayNight Bit0-1, Lock Bit2-3)
                 ├── Byte 2: Source
                 ├── Byte 3: VolumeDay
@@ -57,14 +57,17 @@
                 <Parameter Id="%AID%_UP-%TT%%CC%034" Name="%C%AutoMute"          ParameterType="%AID%_PT-OnOffYesNo"       Offset="0" BitOffset="5" Text="AutoMute bei Start" Value="1" />
                 <!-- 1 Bit: AliveCheckBox -->
                 <Parameter Id="%AID%_UP-%TT%%CC%030" Name="%C%AliveCheckBox"     ParameterType="%AID%_PT-CheckBox"         Offset="0" BitOffset="6" Text="AliveEnable"        Value="1" />
-                <!-- Bit 7: reserviert -->
+                <!-- 1 Bit: Start-Preset oder -Szene aktivieren -->
+                <Parameter Id="%AID%_UP-%TT%%CC%035" Name="%C%StartPresetOrSceneEnable" ParameterType="%AID%_PT-OnOffYesNo" Offset="0" BitOffset="7" Text="Mit Preset oder Szene starten" Value="0" />
 
                 <!-- Byte 1: Flags-B -->
                 <!-- 2 Bit: Tag/Nacht (0=aus, 1=Tag(1)/Nacht(0), 2=Tag(0)/Nacht(1)) -->
                 <Parameter Id="%AID%_UP-%TT%%CC%007" Name="%C%DayNight"          ParameterType="%AID%_PT-DayNight"         Offset="1" BitOffset="0" Text="Tag/Nacht-Objekt"  Value="0" />
                 <!-- 2 Bit: Sperre (0=aus, 1=Sperre(1)/Frei(0), 2=Sperre(0)/Frei(1)) -->
                 <Parameter Id="%AID%_UP-%TT%%CC%009" Name="%C%Lock"              ParameterType="%AID%_PT-AMPLock"          Offset="1" BitOffset="2" Text="Zentrale Sperre"   Value="0" />
-                <!-- Bit 4-7: reserviert -->
+                <!-- 1 Bit: Start mit Preset oder Szene -->
+                <Parameter Id="%AID%_UP-%TT%%CC%036" Name="%C%StartPresetMode"   ParameterType="%AID%_PT-StartPresetMode" Offset="1" BitOffset="4" Text="Starten mit" Value="0" />
+                <!-- Bits 5-7: reserviert -->
 
                 <!-- Byte 2: Quelle -->
                 <Parameter Id="%AID%_UP-%TT%%CC%010" Name="%C%Source"            ParameterType="%AID%_PT-Source"           Offset="2" BitOffset="0" Text="Quelle"             Value="0" />
@@ -79,7 +82,7 @@
                 <!-- Byte 7: Max-Lautstärke Limit -->
                 <Parameter Id="%AID%_UP-%TT%%CC%031" Name="%C%LimitMaxVolume"    ParameterType="%AID%_PT-LimitmaxVolume"   Offset="7" BitOffset="0" Text=""                   Value="60" />
                 <!-- Byte 8: Preset -->
-                <Parameter Id="%AID%_UP-%TT%%CC%033" Name="%C%Preset"            ParameterType="%AID%_PT-Preset"           Offset="8" BitOffset="0" Text="Preset"             Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%033" Name="%C%Preset"            ParameterType="%AID%_PT-StartPreset"      Offset="8" BitOffset="0" Text="Preset"             Value="1" />
               </Union>
                           
               <Union SizeInBit="360">
@@ -140,6 +143,10 @@
                 <Parameter Id="%AID%_UP-%TT%%CC%177" Name="Ch%C%ScenePreset7" Offset="43" BitOffset="0" ParameterType="%AID%_PT-ScenePreset" Text="ScenePreset7" Value="0" />
                 <Parameter Id="%AID%_UP-%TT%%CC%178" Name="Ch%C%ScenePreset8" Offset="44" BitOffset="0" ParameterType="%AID%_PT-ScenePreset" Text="ScenePreset8" Value="0" />
               </Union>
+              <Union SizeInBit="8">
+                <Memory CodeSegment="%AID%_RS-04-00000" Offset="54" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%037" Name="%C%StartScene" ParameterType="%AID%_PT-ValueSceneInNr" Offset="0" BitOffset="0" Text="Szene beim Start" Value="0" />
+              </Union>
             </Parameters>
 
             
@@ -156,6 +163,9 @@
               <ParameterRef Id="%AID%_UP-%TT%%CC%032_R-%TT%%CC%03201" RefId="%AID%_UP-%TT%%CC%032" />
               <ParameterRef Id="%AID%_UP-%TT%%CC%034_R-%TT%%CC%03401" RefId="%AID%_UP-%TT%%CC%034" />
               <ParameterRef Id="%AID%_UP-%TT%%CC%030_R-%TT%%CC%03001" RefId="%AID%_UP-%TT%%CC%030" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%035_R-%TT%%CC%03501" RefId="%AID%_UP-%TT%%CC%035" Text="Mit Preset oder Szene starten" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%036_R-%TT%%CC%03601" RefId="%AID%_UP-%TT%%CC%036" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%037_R-%TT%%CC%03701" RefId="%AID%_UP-%TT%%CC%037" />
 
               <!-- Flags-B: DayNight, Lock -->
               <ParameterRef Id="%AID%_UP-%TT%%CC%007_R-%TT%%CC%00701" RefId="%AID%_UP-%TT%%CC%007" />
@@ -171,8 +181,8 @@
               <!-- Alive -->
               <ParameterRef Id="%AID%_UP-%TT%%CC%029_R-%TT%%CC%02901" RefId="%AID%_UP-%TT%%CC%029" Text="Sende Alive Status alle x Sekunden" />
 
-              <!-- Preset -->
-              <ParameterRef Id="%AID%_UP-%TT%%CC%033_R-%TT%%CC%03301" RefId="%AID%_UP-%TT%%CC%033" />
+              <!-- Start-Preset -->
+              <ParameterRef Id="%AID%_UP-%TT%%CC%033_R-%TT%%CC%03301" RefId="%AID%_UP-%TT%%CC%033" Text="Preset beim Start" />
               
               <!-- Szenen-Nummern -->
               <ParameterRef Id="%AID%_UP-%TT%%CC%100_R-%TT%%CC%10001" RefId="%AID%_UP-%TT%%CC%100" />
@@ -427,6 +437,30 @@ K27  Vendor            Dienst / Quelle            Read DPST-16-1
                         <ParameterSeparator Id="%AID%_PS-nnn" Text="AutoMute" UIHint="Headline" />
                         <!-- AutoMuteStatus -->
                         <ParameterRefRef RefId="%AID%_UP-%TT%%CC%034_R-%TT%%CC%03401" IndentLevel="1" HelpContext="AMP-AutoMute"/>
+
+                        <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
+                        <ParameterSeparator Id="%AID%_PS-nnn" Text="Mit Preset oder Szene starten" UIHint="Headline" />
+                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%035_R-%TT%%CC%03501" IndentLevel="1" />
+                        <choose ParamRefId="%AID%_UP-%TT%%CC%035_R-%TT%%CC%03501">
+                          <when test="1">
+                            <choose ParamRefId="%AID%_UP-%TT%%CC%020_R-%TT%%CC%02001">
+                              <when test="0">
+                                <ParameterRefRef RefId="%AID%_UP-%TT%%CC%033_R-%TT%%CC%03301" IndentLevel="1" />
+                              </when>
+                              <when test="1">
+                                <ParameterRefRef RefId="%AID%_UP-%TT%%CC%036_R-%TT%%CC%03601" IndentLevel="1" />
+                                <choose ParamRefId="%AID%_UP-%TT%%CC%036_R-%TT%%CC%03601">
+                                  <when test="0">
+                                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%033_R-%TT%%CC%03301" IndentLevel="1" />
+                                  </when>
+                                  <when test="1">
+                                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%037_R-%TT%%CC%03701" IndentLevel="1" />
+                                  </when>
+                                </choose>
+                              </when>
+                            </choose>
+                          </when>
+                        </choose>
                   
                         <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
                         <ParameterSeparator Id="%AID%_PS-nnn" Text="Alive" UIHint="Headline" />

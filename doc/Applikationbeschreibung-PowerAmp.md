@@ -45,6 +45,13 @@ Zusätzlich werden Statusinformationen, Metadaten sowie der Alive-Status zurück
 | **DayNight** | Aktiviert Tag-/Nachtmodus | Bool |
 | **AliveTimeInterval** | Alive-Meldungsintervall | Sekunden |
 | **AliveCheckBox** | Alive-Status auf den Bus senden | Bool |
+| **Mit Preset oder Szene starten** | Aktiviert Preset- oder Szenenstart nach Erkennung des Alive-Status | Ja / Nein |
+
+Nach erkannter Alive-Verbindung wird das konfigurierte Start-Preset/Szene mit kurzer Verzögerung gestartet.
+
+| **Starten mit** | Wählt bei aktivierten Szenen Preset oder Szene aus | Preset / Szene |
+| **Preset beim Start** | Nummer des zu startenden Presets | Zahl |
+| **Szene beim Start** | Szene, die beim Start angewendet wird (nur bei aktivierten Szenen und Auswahl „Szene“) | Auswahl |
 
 
 ## 🧩 Kommunikationsobjekte (KO)
