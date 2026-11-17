@@ -60,6 +60,19 @@ void PowerAmpModule::loop()
             _channels[i]->loop();
     }
 }
+
+void PowerAmpModule::processAfterStartupDelay()
+{
+    logDebugP("processAfterStartupDelay");
+    logIndentUp();
+    for (uint8_t i = 0; i < OPENKNX_AMP_CHANNEL_COUNT; i++)
+    {
+        if (_channels[i] == nullptr) continue;
+        _channels[i]->processAfterStartupDelay();
+    }
+    logIndentDown();
+}
+
 void PowerAmpModule::setup(bool configured)
 {
     logInfoP("setup() START");
@@ -107,59 +120,6 @@ void PowerAmpModule::setup(bool configured)
     logInfoP("setup() DONE");
 }
 
-// void PowerAmpModule::setup(bool configured)
-// {
-//     // Number of available channels is the minimum of configured and available channels
-//     _numChannels  = OPENKNX_AMP_CHANNEL_COUNT;
-//     for (uint8_t i = 0; i < _numChannels ; i++)
-//     {
-//         // prüfen obs Pins gültig sind
-//         if (_rxPins[i] == 0xFF || _txPins[i] == 0xFF || _rxPins[i] == 0x00 || _txPins[i] == 0x00)
-//         {
-//             logErrorP("Channel %u: invalid RX/TX pin configuration (RX=%d, TX=%d)", i, _rxPins[i], _txPins[i]);
-//             continue;
-//         }
-//         Stream *serial = nullptr;
-//         if (_isHardware[i])
-//         {
-//             SerialUART *hw = getHardwareSerial(_hwPort[i]);
-//             //HardwareSerial *hw = &Serial2
-//             if (hw)
-//             {
-//                 hw->setRX(_rxPins[i]);
-//                 hw->setTX(_txPins[i]);
-//                 hw->begin(BAUD_ARLYIC);
-//                 serial = hw;
-//                 logInfoP("Channel %u: HardwareSerial%d RX=%d TX=%d", i, _hwPort[i], _rxPins[i], _txPins[i]);
-//             }
-//             else
-//             {
-//                 logErrorP("Channel %u: invalid HardwareSerial port %d (RP2040 supports only 1=Serial1, 2=Serial2)", i, _hwPort[i]);
-//                 continue;
-//             }
-//         }
-//         else
-//         {
-//             auto *sw = new SoftwareSerial(_rxPins[i], _txPins[i]);
-//             sw->begin(BAUD_ARLYIC);
-//             _swSerialInstances.push_back(sw);
-//             serial = sw;
-//             logInfoP("Channel %u: SoftwareSerial RX=%d TX=%d", i, _rxPins[i], _txPins[i]);
-//         }
-
-//         // setup() statt _channels[i] = new PowerAmpChannel(i, serial): // alt wird im Konstruktor gemacht, damit man aus dem Flash lesen kann
-//         _channels[i]->setSerial(serial);
-//         _channels[i]->setup(configured);
-//     }
-
-//     if (_flashCacheValid)
-//     {
-//         for (uint8_t i = 0; i < OPENKNX_AMP_CHANNEL_COUNT; i++)
-//             if (_channels[i] != nullptr)
-//                 _channels[i]->restoreFromByte(_flashCache[i]);
-//     }
-// }
-
 // will be called once a KO received a telegram
 void PowerAmpModule::processInputKo(GroupObject &iKo)
 {
@@ -189,12 +149,12 @@ bool PowerAmpModule::processCommand(const std::string command, bool diagnose)
 
     if (command.substr(0, 3) == "amp")
     {
-        if (!diagnose && command == "amp debug")
-        {
-            _debug = !_debug;
+    if (!diagnose && command == "amp debug")
+    {
+        _debug = !_debug;
             logDebugP(_debug ? "AMP Debug enabled" : "AMP Debug disabled");
-            return true;
-        }
+        return true;
+    }
 
         // ---------- amp volume ----------
         if (command.substr(0, 11) == "amp volume ")
@@ -222,7 +182,7 @@ bool PowerAmpModule::processCommand(const std::string command, bool diagnose)
             {
                 value = std::stoi(command.substr(13, 3));
                 if (value != 100)
-                {
+        {
                     logDebugP("Invalid volume value, must be 0-100");
                     return true;
                 }
@@ -236,11 +196,11 @@ bool PowerAmpModule::processCommand(const std::string command, bool diagnose)
             if (value > 100)
             {
                 logDebugP("Volume value out of range (0-100)");
-                return true;
-            }
+            return true;
+        }
 
-            if (_channels[channelIdx] == nullptr)
-            {
+        if (_channels[channelIdx] == nullptr)
+        {
                 logDebugP("Channel %d not initialized", channelIdx + 1);
                 return true;
             }
@@ -259,8 +219,8 @@ bool PowerAmpModule::processCommand(const std::string command, bool diagnose)
             if (command.length() != 12) // z.B. "amp mute 1 1"
             {
                 logDebugP("amp mute command with bad args");
-                return true;
-            }
+        return true;
+    }
 
             const uint16_t channelIdx = std::stoi(command.substr(9, 1)) - 1;
             const uint8_t muteValue = std::stoi(command.substr(11, 1));
@@ -272,13 +232,13 @@ bool PowerAmpModule::processCommand(const std::string command, bool diagnose)
             }
 
             if (muteValue != 0 && muteValue != 1)
-            {
+        {
                 logDebugP("Mute value must be 0 or 1");
-                return true;
-            }
+            return true;
+        }
 
-            if (_channels[channelIdx] == nullptr)
-            {
+        if (_channels[channelIdx] == nullptr)
+        {
                 logDebugP("Channel %d not initialized", channelIdx + 1);
                 return true;
             }
@@ -300,7 +260,7 @@ bool PowerAmpModule::debug()
 
 void PowerAmpModule::setSerialChannelPins(const uint8_t channelPins[][4], uint8_t numChannels)
 {
-    for (uint8_t i = 0; i < numChannels; i++) 
+    for (uint8_t i = 0; i < numChannels; i++)
     {
         _rxPins[i]      = channelPins[i][0];
         _txPins[i]      = channelPins[i][1];

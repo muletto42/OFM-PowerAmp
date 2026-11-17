@@ -50,6 +50,8 @@ private:
     uint8_t currentVolume = 0;
     uint8_t currentVolumeStepValue = 5; // Schrittweite für Lautstärkeänderung
     uint8_t currentVolumeLimit = 100;
+    uint8_t _volumeStatusSent = 255;    // zuletzt auf den Status-KO geschriebener Wert (255 = noch keiner)
+    void processReportedVolume(uint8_t reportedVolume); // vom Verstärker gemeldete Lautstärke verarbeiten
 
     /*//uint currentSource = PT_Source_network;*/
     enumSource currentSource = enumSource::Network;
@@ -106,6 +108,7 @@ private:
     bool lastAliveState = false;
 
     static constexpr uint8_t AMP_SCENE_COUNT = 9;
+    static constexpr uint8_t AMP_SCENE_SOURCE_NO_CHANGE = 255; // PT-SceneSource "Keine Änderung"
     struct SceneParams {
         uint16_t scene;
         uint16_t quelle;
@@ -114,18 +117,25 @@ private:
         uint16_t preset;
     };
 
-    // Szenenblöcke in einer Lookup-Tabelle
-    const SceneParams sceneBlocks[AMP_SCENE_COUNT] = {
-        { ParamAMP_ChScene0, ParamAMP_ChSceneQuelle0, ParamAMP_ChSceneVolume0, ParamAMP_ChSceneMute0, ParamAMP_ChScenePreset0 },
-        { ParamAMP_ChScene1, ParamAMP_ChSceneQuelle1, ParamAMP_ChSceneVolume1, ParamAMP_ChSceneMute1, ParamAMP_ChScenePreset1 },
-        { ParamAMP_ChScene2, ParamAMP_ChSceneQuelle2, ParamAMP_ChSceneVolume2, ParamAMP_ChSceneMute2, ParamAMP_ChScenePreset2 },
-        { ParamAMP_ChScene3, ParamAMP_ChSceneQuelle3, ParamAMP_ChSceneVolume3, ParamAMP_ChSceneMute3, ParamAMP_ChScenePreset3 },
-        { ParamAMP_ChScene4, ParamAMP_ChSceneQuelle4, ParamAMP_ChSceneVolume4, ParamAMP_ChSceneMute4, ParamAMP_ChScenePreset4 },
-        { ParamAMP_ChScene5, ParamAMP_ChSceneQuelle5, ParamAMP_ChSceneVolume5, ParamAMP_ChSceneMute5, ParamAMP_ChScenePreset5 },
-        { ParamAMP_ChScene6, ParamAMP_ChSceneQuelle6, ParamAMP_ChSceneVolume6, ParamAMP_ChSceneMute6, ParamAMP_ChScenePreset6 },
-        { ParamAMP_ChScene7, ParamAMP_ChSceneQuelle7, ParamAMP_ChSceneVolume7, ParamAMP_ChSceneMute7, ParamAMP_ChScenePreset7 },
-        { ParamAMP_ChScene8, ParamAMP_ChSceneQuelle8, ParamAMP_ChSceneVolume8, ParamAMP_ChSceneMute8, ParamAMP_ChScenePreset8 },
+    // Szenenblöcke in einer Lookup-Tabelle.
+    // Enthält die RELATIVEN Parameter-Indizes (AMP_ChSceneX, nicht ParamAMP_ChSceneX!).
+    // Die absolute Adresse wird erst zur Laufzeit per AMP_ParamCalcIndex() mit dem
+    // richtigen _channelIndex berechnet (Muster wie OFM-PresenceModule / OFM-LogicModule).
+    static constexpr SceneParams sceneBlocks[AMP_SCENE_COUNT] = {
+        { AMP_ChScene0, AMP_ChSceneQuelle0, AMP_ChSceneVolume0, AMP_ChSceneMute0, AMP_ChScenePreset0 },
+        { AMP_ChScene1, AMP_ChSceneQuelle1, AMP_ChSceneVolume1, AMP_ChSceneMute1, AMP_ChScenePreset1 },
+        { AMP_ChScene2, AMP_ChSceneQuelle2, AMP_ChSceneVolume2, AMP_ChSceneMute2, AMP_ChScenePreset2 },
+        { AMP_ChScene3, AMP_ChSceneQuelle3, AMP_ChSceneVolume3, AMP_ChSceneMute3, AMP_ChScenePreset3 },
+        { AMP_ChScene4, AMP_ChSceneQuelle4, AMP_ChSceneVolume4, AMP_ChSceneMute4, AMP_ChScenePreset4 },
+        { AMP_ChScene5, AMP_ChSceneQuelle5, AMP_ChSceneVolume5, AMP_ChSceneMute5, AMP_ChScenePreset5 },
+        { AMP_ChScene6, AMP_ChSceneQuelle6, AMP_ChSceneVolume6, AMP_ChSceneMute6, AMP_ChScenePreset6 },
+        { AMP_ChScene7, AMP_ChSceneQuelle7, AMP_ChSceneVolume7, AMP_ChSceneMute7, AMP_ChScenePreset7 },
+        { AMP_ChScene8, AMP_ChSceneQuelle8, AMP_ChSceneVolume8, AMP_ChSceneMute8, AMP_ChScenePreset8 },
     };
+
+    // KO-Wert setzen: vor Ablauf der OpenKNX-Startverzögerung nur setzen (valueNoSend),
+    // danach normal senden (Muster wie OFM-DFA / OFM-LogicModule).
+    void setKoValue(GroupObject &ko, const KNXValue &value, const Dpt &type);
 
     // Private Methode zur Verarbeitung von empfangenen Zeilen
     void handleIncomingData(void);
@@ -137,14 +147,7 @@ private:
     void sendVolumeStatusKO(void);
     void sendSourceStatusKO(void);
 
-    // // Interne Variablen
-    // unsigned long _baud = 115200;
-    // int _txPin = ARYLIC_TX_PIN;
-    // int _rxPin = ARYLIC_RX_PIN;
-    // // SerialUART &_serial;
-    // String _recvBuffer;
-
-        // --- Zeitsteuerung ---
+    // --- Zeitsteuerung ---
     unsigned long lastTriggerTime = 0;  // Wann zuletzt die 60s-Phase gestartet wurde
     unsigned long lastStateTime = 0;    // Wann zuletzt der nächste State aufgerufen wurde
 
@@ -158,6 +161,10 @@ private:
     unsigned long AUTOPLAY_DELAY = 5000;   // ms Wartezeit vor automatischer Wiedergabe
     bool autoPlayPending = false;
     unsigned long autoPlayStartTime = 0;
+    // POP schaltet Play/Pause um -> vor dem POP den Status (STA) abfragen und die Antwort abwarten
+    bool autoPlayStatusQueried = false;
+    unsigned long autoPlayQueryTime = 0;
+    const unsigned long AUTOPLAY_STATUS_WAIT = 1000; // ms Wartezeit auf die STA-Antwort
 
 
     /* Handler für UART Kommandos von Arylic*/
@@ -242,7 +249,7 @@ private:
     const unsigned long startupPreset_DELAY = 500; // 500ms nach Alive-Erkennung
     
     bool onetimeStartupPresetExecuted = false;   // verhindert mehrfachen Start
-    bool startupPresetEnabled = true;  // ETS-Parameter: soll nach Boot automatisch muten?
+    bool startupPresetEnabled = true;  // ETS-Parameter: nach Alive-Erkennung Preset oder Szene starten?
     void handleStartupPreset(void);
 
     // --- Automute ---
@@ -250,17 +257,19 @@ private:
     unsigned long autoMuteStartTime = 0;
     const unsigned long AUTOMUTE_DELAY = 200; // 200ms nach Alive-Erkennung
 
-    bool autoMuteEnabled = true;  // ETS-Parameter: soll nach Boot automatisch muten?
+    bool autoMuteEnabled = true;  // nach Neustart immer ETS-Wert (ParamAMP_AutoMute), per KO bis zum nächsten Neustart änderbar
     bool onetimeAutoMuteExecuted = false;   // verhindert mehrfachen Start
     void handleCustomAutoMute(void);
 
     // --- Autoplay-System ---
-    bool autoPlayEnabled = false;  // ETS-Parameter: soll nach Boot automatisch starten?
+    bool autoPlayEnabled = false;  // nach Neustart immer ETS-Wert (ParamAMP_AutoPlay), per KO bis zum nächsten Neustart änderbar
     bool onetimeAutoPlayExecuted = false;   // verhindert mehrfachen Start
     void handleCustomAutoplay(void);
 
     bool _currentNight = false;
     bool _currentLocked = false;
+    // true (mit Log), wenn die Sperre aktiv ist und Bedienbefehle ignoriert werden sollen
+    bool isLockedFor(const char *action);
     void processInputKoDayNight(GroupObject &ko);
     void processInputKoLock(GroupObject &ko);
     void processInputKoScene(GroupObject &ko);
@@ -287,6 +296,7 @@ public:
     void setup(bool configured) override;
     void loop() override;
     void processInputKo(GroupObject &ko) override;
+    void processAfterStartupDelay(); // called by PowerAmpModule::processAfterStartupDelay()
 
     void setVolume_VOL(uint8_t volume);
     void getVolume_VOL(void);
@@ -300,5 +310,5 @@ public:
 
     void save();     // called by PowerAmpModule::writeFlash()
     void restore();  // called by PowerAmpModule::readFlash()
-   
+
 };

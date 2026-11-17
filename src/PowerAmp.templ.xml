@@ -22,9 +22,9 @@
               
               <!-- Memory Layout
               Union SizeInBit="72" (9 Bytes, Offset 0-8)
-                ├── Byte 0: Flags-A (Active, Suspended, ScenesActive, mute, AutoPlay, AutoMute, AliveCheckBox, StartPresetEnable)
-                ├── Byte 1: Flags-B (DayNight Bit0-1, Lock Bit2-3)
-                ├── Byte 2: Source
+                ├── Byte 0: Flags-A (Active, Suspended, ScenesActive, [Bit3 frei], AutoPlay, AutoMute, AliveCheckBox, StartPresetEnable)
+                ├── Byte 1: Flags-B (DayNight Bit0-1, Lock Bit2-3, StartPresetMode Bit4, [Bit5-7 frei])
+                ├── Byte 2: frei (früher ungenutzter Parameter "Source")
                 ├── Byte 3: VolumeDay
                 ├── Byte 4: VolumeNight
                 ├── Byte 5: VolumeStepValue
@@ -49,8 +49,7 @@
                 <Parameter Id="%AID%_UP-%TT%%CC%014" Name="Ch%C%Suspended"       ParameterType="%AID%_PT-Suspended" Offset="0" BitOffset="1" Text="Suspendiert" Value="0" />
                 <!-- 1 Bit: Szenen -->
                 <Parameter Id="%AID%_UP-%TT%%CC%020" Name="Ch%C%ScenesActive"    ParameterType="%AID%_PT-OnOffYesNo"       Offset="0" BitOffset="2" Text="Szenen aktivieren" Value="0" />
-                <!-- 1 Bit: Mute -->
-                <Parameter Id="%AID%_UP-%TT%%CC%008" Name="%C%mute"              ParameterType="%AID%_PT-mute"             Offset="0" BitOffset="3" Text="Mute"               Value="0" />
+                <!-- Bit 3: frei (früher ungenutzter Parameter "mute") -->
                 <!-- 1 Bit: AutoPlay -->
                 <Parameter Id="%AID%_UP-%TT%%CC%032" Name="%C%AutoPlay"          ParameterType="%AID%_PT-OnOffYesNo"       Offset="0" BitOffset="4" Text="AutoPlay"           Value="1" />
                 <!-- 1 Bit: AutoMute -->
@@ -69,8 +68,7 @@
                 <Parameter Id="%AID%_UP-%TT%%CC%036" Name="%C%StartPresetMode"   ParameterType="%AID%_PT-StartPresetMode" Offset="1" BitOffset="4" Text="Starten mit" Value="0" />
                 <!-- Bits 5-7: reserviert -->
 
-                <!-- Byte 2: Quelle -->
-                <Parameter Id="%AID%_UP-%TT%%CC%010" Name="%C%Source"            ParameterType="%AID%_PT-Source"           Offset="2" BitOffset="0" Text="Quelle"             Value="0" />
+                <!-- Byte 2: frei (früher ungenutzter Parameter "Source") -->
                 <!-- Byte 3: Lautstärke Tag -->
                 <Parameter Id="%AID%_UP-%TT%%CC%004" Name="%C%VolumeDay"         ParameterType="%AID%_PT-Volume"           Offset="3" BitOffset="0" Text=""                   Value="25" />
                 <!-- Byte 4: Lautstärke Nacht -->
@@ -100,15 +98,15 @@
                 <Parameter Id="%AID%_UP-%TT%%CC%108" Name="Ch%C%Scene8" Offset="8"  BitOffset="0" ParameterType="%AID%_PT-ValueSceneInNr" Text="Scene8" Value="0" />
 
                 <!-- Quellen -->
-                <Parameter Id="%AID%_UP-%TT%%CC%120" Name="Ch%C%SceneQuelle0" Offset="9"  BitOffset="0" ParameterType="%AID%_PT-Source" Text="SceneQuelle0" Value="0" />
-                <Parameter Id="%AID%_UP-%TT%%CC%121" Name="Ch%C%SceneQuelle1" Offset="10" BitOffset="0" ParameterType="%AID%_PT-Source" Text="SceneQuelle1" Value="0" />
-                <Parameter Id="%AID%_UP-%TT%%CC%122" Name="Ch%C%SceneQuelle2" Offset="11" BitOffset="0" ParameterType="%AID%_PT-Source" Text="SceneQuelle2" Value="0" />
-                <Parameter Id="%AID%_UP-%TT%%CC%123" Name="Ch%C%SceneQuelle3" Offset="12" BitOffset="0" ParameterType="%AID%_PT-Source" Text="SceneQuelle3" Value="0" />
-                <Parameter Id="%AID%_UP-%TT%%CC%124" Name="Ch%C%SceneQuelle4" Offset="13" BitOffset="0" ParameterType="%AID%_PT-Source" Text="SceneQuelle4" Value="0" />
-                <Parameter Id="%AID%_UP-%TT%%CC%125" Name="Ch%C%SceneQuelle5" Offset="14" BitOffset="0" ParameterType="%AID%_PT-Source" Text="SceneQuelle5" Value="0" />
-                <Parameter Id="%AID%_UP-%TT%%CC%126" Name="Ch%C%SceneQuelle6" Offset="15" BitOffset="0" ParameterType="%AID%_PT-Source" Text="SceneQuelle6" Value="0" />
-                <Parameter Id="%AID%_UP-%TT%%CC%127" Name="Ch%C%SceneQuelle7" Offset="16" BitOffset="0" ParameterType="%AID%_PT-Source" Text="SceneQuelle7" Value="0" />
-                <Parameter Id="%AID%_UP-%TT%%CC%128" Name="Ch%C%SceneQuelle8" Offset="17" BitOffset="0" ParameterType="%AID%_PT-Source" Text="SceneQuelle8" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%120" Name="Ch%C%SceneQuelle0" Offset="9"  BitOffset="0" ParameterType="%AID%_PT-SceneSource" Text="SceneQuelle0" Value="255" />
+                <Parameter Id="%AID%_UP-%TT%%CC%121" Name="Ch%C%SceneQuelle1" Offset="10" BitOffset="0" ParameterType="%AID%_PT-SceneSource" Text="SceneQuelle1" Value="255" />
+                <Parameter Id="%AID%_UP-%TT%%CC%122" Name="Ch%C%SceneQuelle2" Offset="11" BitOffset="0" ParameterType="%AID%_PT-SceneSource" Text="SceneQuelle2" Value="255" />
+                <Parameter Id="%AID%_UP-%TT%%CC%123" Name="Ch%C%SceneQuelle3" Offset="12" BitOffset="0" ParameterType="%AID%_PT-SceneSource" Text="SceneQuelle3" Value="255" />
+                <Parameter Id="%AID%_UP-%TT%%CC%124" Name="Ch%C%SceneQuelle4" Offset="13" BitOffset="0" ParameterType="%AID%_PT-SceneSource" Text="SceneQuelle4" Value="255" />
+                <Parameter Id="%AID%_UP-%TT%%CC%125" Name="Ch%C%SceneQuelle5" Offset="14" BitOffset="0" ParameterType="%AID%_PT-SceneSource" Text="SceneQuelle5" Value="255" />
+                <Parameter Id="%AID%_UP-%TT%%CC%126" Name="Ch%C%SceneQuelle6" Offset="15" BitOffset="0" ParameterType="%AID%_PT-SceneSource" Text="SceneQuelle6" Value="255" />
+                <Parameter Id="%AID%_UP-%TT%%CC%127" Name="Ch%C%SceneQuelle7" Offset="16" BitOffset="0" ParameterType="%AID%_PT-SceneSource" Text="SceneQuelle7" Value="255" />
+                <Parameter Id="%AID%_UP-%TT%%CC%128" Name="Ch%C%SceneQuelle8" Offset="17" BitOffset="0" ParameterType="%AID%_PT-SceneSource" Text="SceneQuelle8" Value="255" />
 
                 <!-- Lautstärken -->
                 <Parameter Id="%AID%_UP-%TT%%CC%140" Name="Ch%C%SceneVolume0" Offset="18" BitOffset="0" ParameterType="%AID%_PT-Volume" Text="SceneVolume0" Value="10" />
@@ -155,11 +153,10 @@
               <ParameterRef Id="%AID%_P-%TT%%CC%001_R-%TT%%CC%00101" RefId="%AID%_P-%TT%%CC%001" />  <!-- Beschreibung des Kanals -->
               
 
-               <!-- Flags-A: Kanalaktivität, Szenen, Mute, AutoPlay, AutoMute, AliveCheckBox -->
+               <!-- Flags-A: Kanalaktivität, Szenen, AutoPlay, AutoMute, AliveCheckBox -->
               <ParameterRef Id="%AID%_UP-%TT%%CC%002_R-%TT%%CC%00201" RefId="%AID%_UP-%TT%%CC%002" />
               <ParameterRef Id="%AID%_UP-%TT%%CC%014_R-%TT%%CC%01401" RefId="%AID%_UP-%TT%%CC%014" />
               <ParameterRef Id="%AID%_UP-%TT%%CC%020_R-%TT%%CC%02001" RefId="%AID%_UP-%TT%%CC%020" />
-              <ParameterRef Id="%AID%_UP-%TT%%CC%008_R-%TT%%CC%00801" RefId="%AID%_UP-%TT%%CC%008" />
               <ParameterRef Id="%AID%_UP-%TT%%CC%032_R-%TT%%CC%03201" RefId="%AID%_UP-%TT%%CC%032" />
               <ParameterRef Id="%AID%_UP-%TT%%CC%034_R-%TT%%CC%03401" RefId="%AID%_UP-%TT%%CC%034" />
               <ParameterRef Id="%AID%_UP-%TT%%CC%030_R-%TT%%CC%03001" RefId="%AID%_UP-%TT%%CC%030" />
@@ -269,8 +266,8 @@ K8   Prev              Vorheriger Titel           Write    DPT-1
 K9   DayNight          Tag / Nacht                Write    DPST-1-24
 K10  Scene             Szene aufrufen             Write    DPST-18-1
 K11  Lock              Sperre                     R+W      DPST-1-1
-K12  AutoPlay          AutoPlay ein/aus           Write    DPST-1-1   
-K13  AutoMute          AutoMute ein/aus           Write    DPST-1-1   
+K12  AutoPlay          AutoPlay ein/aus           Write    DPST-1-1
+K13  AutoMute          AutoMute ein/aus           Write    DPST-1-1
 K14  Preset            Preset starten             Write    DPT-5
 _____________________________________________________________________
 
@@ -279,17 +276,29 @@ K16  SourceStatus      Quelle aktuell             Read DPST-16-1
 K17  MuteStatus        Stumm aktiv                Read DPST-1-1
 K18  PlayingStatus     Wiedergabe aktiv           Read DPST-1-1
 K19  AliveStatus       Gerät erreichbar           Read DPT-1
-K20  AutoPlayStatus    AutoPlay aktiv             Read DPST-1-1   
-K21  AutoMuteStatus    AutoMute aktiv             Read DPST-1-1   
-K22  PresetStatus      Aktiver Preset             Read DPT-5      
+K20  AutoPlayStatus    AutoPlay aktiv             Read DPST-1-1
+K21  AutoMuteStatus    AutoMute aktiv             Read DPST-1-1
+K22  PresetStatus      Aktiver Preset             Read DPT-5
 K23  ElapsedTime       Spielzeit                  Read DPST-16-1
 K24  Title             Titel                      Read DPST-16-1
 K25  Artist            Künstler                   Read DPST-16-1
 K26  Album             Album                      Read DPST-16-1
 K27  Vendor            Dienst / Quelle            Read DPST-16-1
+_____________________________________________________________________
+
+K28  - reserviert -
+K29  - reserviert -
+K30  - reserviert -    Dummy-KO (ohne ComObjectRef, in der ETS unsichtbar), legt AMP_KoBlockSize = 31 fest
 -->
+
             <ComObjectTable>
-              <!-- Die Number="%Kxyz%" muss aufsteigend ohne "Löcher" sein -->
+              <!-- KO-Nummern (%Kxyz%):
+                   - aufsteigend; Lücken sind erlaubt (wie in OFM-DFA, dort als "Kxx reserved" kommentiert)
+                   - die höchste vergebene Nummer + 1 ergibt AMP_KoBlockSize (Abstand zwischen den Kanälen)
+                   - vorhandene Nummern NIE verschieben: sonst ändern sich die KO-Nummern im Gerät, und bei
+                     geänderter Blockgröße verschieben sich zusätzlich alle KOs ab Kanal 2
+                   - entfernte KOs: Nummer als "reserviert" stehen lassen, nicht neu vergeben
+                   - neue KOs nur in die Reserve K28-K30 setzen (siehe Ende der Tabelle) -->
 
               <!-- Steuerung -->
               <ComObject Id="%AID%_O-%TT%%CC%001" Name="Ch%C%VolumeValue"  Text="Amp %Z% Lautstärke Wert"     Number="%K1%"  FunctionText="Lautstärke Wert" ObjectSize="1 Byte" ReadFlag="Disabled" WriteFlag="Enabled"  CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Enabled"  ReadOnInitFlag="Enabled"  DatapointType="DPST-5-1"  />
@@ -321,6 +330,15 @@ K27  Vendor            Dienst / Quelle            Read DPST-16-1
               <ComObject Id="%AID%_O-%TT%%CC%022" Name="Ch%C%SongArtist"     Text="Amp %Z% Künstler"           Number="%K25%" FunctionText="Metadata"       ObjectSize="14 Bytes" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-16-1" />
               <ComObject Id="%AID%_O-%TT%%CC%021" Name="Ch%C%SongAlbum"      Text="Amp %Z% Album"              Number="%K26%" FunctionText="Metadata"       ObjectSize="14 Bytes" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-16-1" />
               <ComObject Id="%AID%_O-%TT%%CC%023" Name="Ch%C%SongVendor"     Text="Amp %Z% Dienst / Quelle"    Number="%K27%" FunctionText="Metadata"       ObjectSize="14 Bytes" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-16-1" />
+
+              <!-- Reserve für künftige KOs Neue KOs NUR hier einsetzen, damit sich die
+                   Blockgröße und damit die KO-Nummern von Kanal 2 nicht mehr ändern. -->
+              <!-- K28 reserved -->
+              <!-- K29 reserved -->
+              <!-- K30 reserved / dummy required for producer (legt die Blockgröße auf 31 fest).
+                   Keine ComObjectRef -> in der ETS unsichtbar. Wird K30 später echt gebraucht,
+                   diesen Dummy durch den echten KO ersetzen. -->
+              <ComObject Id="%AID%_O-%TT%%CC%090" Name="Ch%C%Dummy30"       Text="Dummy"                      Number="%K30%" FunctionText="Dummy"          ObjectSize="1 Bit"    ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Enabled" ReadOnInitFlag="Disabled" DatapointType="DPST-1-1" />
             </ComObjectTable>
       
             <ComObjectRefs>

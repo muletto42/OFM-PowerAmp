@@ -20,6 +20,7 @@ class PowerAmpModule : public OpenKNX::Module
     bool debug();
     void loop() override;
     void setup(bool configured) override;
+    void processAfterStartupDelay() override;
     const std::string name() override;
     const std::string version() override;
     void setSerialChannelPins(const uint8_t pins[][4], uint8_t numChannels);

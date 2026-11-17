@@ -35,8 +35,11 @@
                   <Enumeration Text="Tag (0) / Nacht (1)" Value="2" Id="%ENID%" />
                 </TypeRestriction>
               </ParameterType>
-              <ParameterType Id="%AID%_PT-Source" Name="Source">
+              <!-- Quelle in Szenen: 0..6 = Quelle, identisch zum KO "Quelle wählen" (enumSource),
+                   255 = keine Änderung (im Code: AMP_SCENE_SOURCE_NO_CHANGE) -->
+              <ParameterType Id="%AID%_PT-SceneSource" Name="SceneSource">
                 <TypeRestriction Base="Value" SizeInBit="8">
+                  <Enumeration Text="Keine Änderung" Value="255" Id="%ENID%" />
                   <Enumeration Text="Netzwerk" Value="0" Id="%ENID%" />
                   <Enumeration Text="Bluetooth" Value="1" Id="%ENID%" />
                   <Enumeration Text="USB" Value="2" Id="%ENID%" />
@@ -44,12 +47,6 @@
                   <Enumeration Text="Optical" Value="4" Id="%ENID%" />
                   <Enumeration Text="Coax" Value="5" Id="%ENID%" />
                   <Enumeration Text="USBDAC" Value="6" Id="%ENID%" />
-                </TypeRestriction>
-              </ParameterType>
-              <ParameterType Id="%AID%_PT-mute" Name="mute">
-                <TypeRestriction Base="Value" SizeInBit="1">
-                  <Enumeration Text="aktiv" Value="0" Id="%ENID%" />
-                  <Enumeration Text="stumm" Value="1" Id="%ENID%" />
                 </TypeRestriction>
               </ParameterType>
               <ParameterType Id="%AID%_PT-AMPAliveTimeInterval" Name="ZeitintervallAMPdeviceAlive[s]">
@@ -97,11 +94,7 @@
                     <Enumeration Text="Preset 8"      Value="8" Id="%ENID%" />
                   </TypeRestriction>
               </ParameterType>
-              
-              <ParameterType Id="%AID%_PT-Preset" Name="Preset">
-                <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="0" maxInclusive="8" />
-                <!-- TODO Wertebereich für Preset prüfen-->
-              </ParameterType>
+              <!-- gleicher Bereich wie PT-ScenePreset (1-8). Die Arylic-UART-Doku nennt für PST keinen Bereich. -->
               <ParameterType Id="%AID%_PT-StartPreset" Name="StartPreset">
                 <TypeRestriction Base="Value" SizeInBit="8">
                   <Enumeration Text="Preset 1" Value="1" Id="%ENID%" />
@@ -110,6 +103,8 @@
                   <Enumeration Text="Preset 4" Value="4" Id="%ENID%" />
                   <Enumeration Text="Preset 5" Value="5" Id="%ENID%" />
                   <Enumeration Text="Preset 6" Value="6" Id="%ENID%" />
+                  <Enumeration Text="Preset 7" Value="7" Id="%ENID%" />
+                  <Enumeration Text="Preset 8" Value="8" Id="%ENID%" />
                 </TypeRestriction>
               </ParameterType>
             </ParameterTypes>

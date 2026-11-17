@@ -10,7 +10,7 @@
             "args": [
                 "baggages",
                 "--DocFileName",
-                "doc/Applikationbeschreibung-PowerAmp.md",
+                "doc/Applikationsbeschreibung-PowerAmp.md",
                 "--BaggagesDir",
                 "src/Baggages/Help_de",
                 "--Prefix",

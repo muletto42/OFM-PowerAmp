@@ -58,35 +58,41 @@ void PowerAmpChannel::processInputKo(GroupObject &iKo)
 
     switch (AMP_KoCalcIndex(iKo.asap()))
     {
+        // Bedienbefehle: werden bei aktiver Sperre ignoriert (siehe isLockedFor()).
         case AMP_KoChVolumeStep: // Volume Step
         {
-           // 0 = Decrease ; 1 = Increase
+            // DPT 1.007: 0 = Decrease ; 1 = Increase
             logDebugP("processInputKo: volume_step");
-            bool value = iKo.value(DPT_Step);
-            if (value == 1)
+            if (isLockedFor("Lautstaerke +/-")) break;
+            const bool increase = iKo.value(DPT_Step);
+            
+            int16_t newVolume = currentVolume;
+            if (increase == 1)
             {
                 // 1 = Increase
-                currentVolume = currentVolume + currentVolumeStepValue;
+                newVolume = newVolume + currentVolumeStepValue;
+                if (newVolume > currentVolumeLimit) newVolume = currentVolumeLimit;
             }
-            else if (value == 0)
+            else if (increase == 0)
             {
                 // 0 = Decrease 
 
-                if (currentVolume < currentVolumeStepValue)
+                if (newVolume < currentVolumeStepValue)
                 {
-                    currentVolume = 0;
+                    newVolume = 0;
                 }
                 else
                 {
-                    currentVolume = currentVolume - currentVolumeStepValue;
+                    newVolume = newVolume - currentVolumeStepValue;
                 }  
             }
-            setVolume_VOL(currentVolume);
+            setVolume_VOL((uint8_t)newVolume);
             break;
         }
         case AMP_KoChVolumeValue: // SET
         {
             logDebugP("processInputKo: volume_set");
+            if (isLockedFor("Lautstaerke Wert")) break;
             currentVolume = (uint8_t)KoAMP_ChVolumeValue.value(DPT_Scaling);
             setVolume_VOL(currentVolume);
             break;
@@ -94,6 +100,7 @@ void PowerAmpChannel::processInputKo(GroupObject &iKo)
         case AMP_KoChMuteOnOff:
         {
             logDebugP("processInputKo: mute_onoff");
+            if (isLockedFor("Mute")) break;
             muteStatus_MUT = KoAMP_ChMuteOnOff.value(DPT_Switch);
             setMute_MUT(muteStatus_MUT);
             break;
@@ -101,30 +108,35 @@ void PowerAmpChannel::processInputKo(GroupObject &iKo)
         case AMP_KoChPlayPause:
         {
             logDebugP("processInputKo: play_pause");
+            if (isLockedFor("Play/Pause")) break;
             playPause_POP();
             break;
         }
         case AMP_KoChStop:
         {
             logDebugP("processInputKo: stop");
+            if (isLockedFor("Stop")) break;
             stop_STP();
             break;
         }
         case AMP_KoChNext:
         {
             logDebugP("processInputKo: next");
+            if (isLockedFor("Weiter")) break;
             next_NXT();
             break;
         }
         case AMP_KoChPrev:
         {
             logDebugP("processInputKo: previous");
+            if (isLockedFor("Zurueck")) break;
             previous_PRE();
             break;
         }
         case AMP_KoChSource:
         {
             logDebugP("processInputKo: source");
+            if (isLockedFor("Quelle")) break;
             uint8_t srcVal = KoAMP_ChSource.value(DPT_Value_1_Ucount); // Wert als uint8_t holen
             currentSource = static_cast<enumSource>(srcVal);
             setSource_SRC(currentSource);
@@ -145,6 +157,7 @@ void PowerAmpChannel::processInputKo(GroupObject &iKo)
         case AMP_KoChScene:
         {
             logDebugP("processInputKo: scene");
+            if (isLockedFor("Szene")) break;
             processInputKoScene(iKo);
             break;
         }
@@ -165,6 +178,7 @@ void PowerAmpChannel::processInputKo(GroupObject &iKo)
         case AMP_KoChPreset:
         {
             logDebugP("processInputKo: preset_playlist");
+            if (isLockedFor("Preset")) break;
             uint8_t presetNum = KoAMP_ChPreset.value(DPT_Value_1_Ucount);
             startAndPlayPresetPlaylist_PST(presetNum);
             break;
@@ -254,16 +268,28 @@ void PowerAmpChannel::setup(bool configured)
     logDebugP("Channel %u setup done (active=%d, stepValue=%d, currentVol=%d, maxVol=%d)",
              _channelIndex, ParamAMP_ChActive, currentVolumeStepValue, currentVolume, currentVolumeLimit);
     mySerial->setTimeout(1000); // 1000 ms, als Backup
-    setKOInitialValues(); 
-    
+
+    // --- AutoPlay / AutoMute: nach jedem Neustart immer die ETS-Werte ---
+    // Per KO geänderte Werte gelten nur bis zum nächsten Neustart (keine Flash-Speicherung).
+    autoPlayEnabled = ParamAMP_AutoPlay;
+    autoMuteEnabled = ParamAMP_AutoMute;
+
+    setKOInitialValues(); // setzt die KOs per value(), d.h. sie werden bereits beim Start gesendet (nicht erst nach der Startverzögerung)
+
     // --- Alive-System initialisieren ---
     deviceAlive = false;
     lastResponseMillis_Alive = 0;
     lastAliveMillis_Alive = millis();
 
+    // --- Statusabfrage: erste Sequenz sofort starten, nicht erst nach START_INTERVAL ---
+    // (unsigned-Arithmetik: auch bei millis() < START_INTERVAL korrekt)
+    currentState = -1;
+    lastTriggerTime = millis() - START_INTERVAL;
 
     // --- Autoplay initialisieren ---
     onetimeAutoPlayExecuted = false;
+    autoPlayPending = false;
+    autoPlayStatusQueried = false;
     //autoPlayEnabled = (ParamAMP_AutoPlay == 1); // ETS-Param  wird aus dem flash gelesen
     KoAMP_ChAutoPlayStatus.value(autoPlayEnabled, DPT_Switch);
     if (openknxPowerAmpModule.debug()) {
@@ -323,14 +349,14 @@ void PowerAmpChannel::getDeviceStatus_STA(void) // get device status, available 
     NET,0,33,-2,0,1,1,1,1,0
     */
 }
-void PowerAmpChannel::getVolume_VOL() // get volume, available in network playback and bluetooth
-{
-    if (openknxPowerAmpModule.debug())
-    {
-        logDebugP("[SEND] getVolume from Arylic");
-    }
-    sendRawCommandToArylic("VOL;");
-}
+// void PowerAmpChannel::getVolume_VOL() // get volume, available in network playback and bluetooth
+// {
+//     if (openknxPowerAmpModule.debug())
+//     {
+//         logDebugP("[SEND] getVolume from Arylic");
+//     }
+//     sendRawCommandToArylic("VOL;");
+// }
 void PowerAmpChannel::getSource_SRC() // get source, available in network playback and bluetooth
 {
     if (openknxPowerAmpModule.debug())
@@ -381,6 +407,7 @@ void PowerAmpChannel::startAndPlayPresetPlaylist_PST(uint8_t presetNum) // start
 void PowerAmpChannel::setVolume_VOL(uint8_t volume)
 {
     volume = constrain(volume, 0, currentVolumeLimit); // Begrenze die Lautstärke auf den Bereich 0 bis Vorgabe
+    currentVolume = volume;
     if (openknxPowerAmpModule.debug())
     {
         logDebugP("setVolume: channel %u, volume %d", _channelIndex, volume);
@@ -649,10 +676,10 @@ void PowerAmpChannel::processReceivedUARTCommand(const String &commandType, cons
     auto foundHandler = commandHandlers.find(commandType);
     if (foundHandler != commandHandlers.end()) {
         foundHandler->second(commandValuetrimmed);
-        updateAlive();   // jede gültige Antwort = alive
+            updateAlive();   // jede gültige Antwort = alive
     } else {
         logDebugP("[ERROR] Unknown command: %s", commandType.c_str());
-    }
+        }
 }
 
 void PowerAmpChannel::processSTACommand(const String &commandValue)
@@ -686,7 +713,7 @@ void PowerAmpChannel::processSTACommand(const String &commandValue)
     String new_string_currentSource = statusParts[0];
 
     bool newMute    = statusParts[1].toInt();
-    uint8_t newVolume  = constrain(statusParts[2].toInt(), 0, 100);
+    uint8_t newVolume  = constrain(statusParts[2].toInt(), 0, 100); // vor dem Cast begrenzen (Schutz vor Überlauf bei fehlerhaften Daten)
     currentTrebleTone = statusParts[3].toInt();
     currentBassTone = statusParts[4].toInt();
     netStatus = statusParts[5].toInt();
@@ -696,11 +723,8 @@ void PowerAmpChannel::processSTACommand(const String &commandValue)
     upgradingStatus = statusParts[9].toInt();
 
 
-    if (newVolume != currentVolume)
-    {
-        currentVolume = newVolume;
-        sendVolumeStatusKO();
-    }
+    // Wie bei VOL/BTC: Status-KO bei Änderung senden und Lautstärke-Grenze durchsetzen
+    processReportedVolume(newVolume);
     if (newMute != muteStatus_MUT)
     {
         muteStatus_MUT = newMute;
@@ -732,9 +756,27 @@ bool PowerAmpChannel::isActive()
     return _channelActive && (ParamAMP_ChSuspended == 0); // suspendierte Kanäle gelten als nicht aktiv
 }
 
+// Vom Verstärker gemeldete Lautstärke (VOL- oder STA-Antwort) verarbeiten.
+// Der Status-KO zeigt immer den tatsächlich gemeldeten Wert. Liegt dieser über der
+// ETS-Grenze (z.B. per App oder Fernbedienung verstellt), wird die Grenze aktiv gesetzt.
+void PowerAmpChannel::processReportedVolume(uint8_t reportedVolume)
+{
+    if (reportedVolume > 100) reportedVolume = 100;
+    currentVolume = reportedVolume;
+    if (reportedVolume != _volumeStatusSent)
+        sendVolumeStatusKO();
+
+    if (reportedVolume > currentVolumeLimit)
+    {
+        logInfoP("Lautstaerke %u ueber der Grenze %u - wird begrenzt", reportedVolume, currentVolumeLimit);
+        setVolume_VOL(currentVolumeLimit); // setzt auch currentVolume wieder auf die Grenze
+    }
+}
+
 void PowerAmpChannel::sendVolumeStatusKO(void)
 {
     KoAMP_ChVolumeStatus.value(currentVolume, DPT_Scaling);
+    _volumeStatusSent = currentVolume;
     if (openknxPowerAmpModule.debug())
     {
          logDebugP("[INFO] Volume Status gesendet: %d", currentVolume);
@@ -996,8 +1038,8 @@ void PowerAmpChannel:: handleBluetooth_BTC(const String &v) {
 }
 
 void PowerAmpChannel::handleVolume_VOL(const String &val) {
-    currentVolume = constrain(val.toInt(), 0, currentVolumeLimit);
-    sendVolumeStatusKO();
+    const long reported = constrain(val.toInt(), 0, 100);
+    processReportedVolume(reported);
     if (openknxPowerAmpModule.debug()) {
         logDebugP("[INFO] Volume updated: %d", currentVolume);
     }
@@ -1198,6 +1240,8 @@ void PowerAmpChannel::updateAlive()
         // Nach Alive-Wiederkehr ggf. Autoplay triggern
         if (autoPlayEnabled) {
             onetimeAutoPlayExecuted = false;
+            autoPlayPending = false;
+            autoPlayStatusQueried = false;
             if (openknxPowerAmpModule.debug()) {
                 logDebugP("[AUTO] Alive erkannt - Custom Autoplay erneut erlaubt");
             }
@@ -1242,7 +1286,7 @@ void PowerAmpChannel::checkAliveStatus()
 
         if (ParamAMP_AliveCheckBox == 1)
         {
-            KoAMP_ChAliveStatus.value(deviceAlive, DPT_Switch);
+            setKoValue(KoAMP_ChAliveStatus, deviceAlive, DPT_Switch);
             if (openknxPowerAmpModule.debug())
             {
                 logDebugP("[ALIVE] Alive Status gesendet: %d", deviceAlive);
@@ -1259,6 +1303,17 @@ void PowerAmpChannel::checkAliveStatus()
                 logDebugP("[DEAD] AMP antwortet nicht!");
         }
     }
+}
+
+// Sperre: Beim Sperren wird die Wiedergabe gestoppt. Solange gesperrt ist, werden alle
+// Bedienbefehle über KOs ignoriert (Lautstärke, Mute, Wiedergabe, Quelle, Szene, Preset),
+// Tag/Nacht ändert nur den Modus ohne Lautstärke zu senden, AutoPlay und Start-Preset/-Szene
+// werden übersprungen. Statusmeldungen, Alive und AutoMute laufen weiter.
+bool PowerAmpChannel::isLockedFor(const char *action)
+{
+    if (!_currentLocked) return false;
+    logDebugP("gesperrt - %s ignoriert", action);
+    return true;
 }
 
 void PowerAmpChannel::lock()
@@ -1308,6 +1363,8 @@ void PowerAmpChannel::setDefaultVolume()
 {
     // Dont set during playing
     if (playingStatus_PLA == true) return;
+    // bei Sperre nur den Modus merken, keine Lautstärke senden
+    if (isLockedFor("Tag/Nacht-Lautstaerke")) return;
 
     // select _currentDefaultVolume
     if (_currentNight)
@@ -1334,9 +1391,16 @@ void PowerAmpChannel::processInputKoScene(GroupObject &ko)
     if (!ParamAMP_ChScenesActive)
         return;
 
-    uint8_t Szenennummer = ko.value(DPT_SceneNumber);
-    Szenennummer += 1; // DPT_SceneNumber ist 0-basiert, ETS-Szenen sind 1-basiert
-    logDebugP("processInputKoScene: Szenennummer %u", Szenennummer);
+    // DPT 18.001: Bit 7 = Lernen, Bit 0-5 = Szenennummer (0-basiert) - wie OFM-SwitchActuator
+    const bool learn = ko.value(Dpt(18, 1, 0));
+    const uint8_t Szenennummer = (uint8_t)ko.value(Dpt(18, 1, 1)) + 1; // ETS-Szenen sind 1-basiert
+    logDebugP("processInputKoScene: Szenennummer %u, learn %u", Szenennummer, learn);
+
+    if (learn)
+    {
+        logDebugP("Szene %u: Lernen wird nicht unterstuetzt - ignoriert", Szenennummer);
+        return;
+    }
 
     applyScene(Szenennummer);
 }
@@ -1345,23 +1409,23 @@ bool PowerAmpChannel::applyScene(uint8_t sceneNumber)
 {
     for (uint8_t i = 0; i < AMP_SCENE_COUNT; i++)
     {
-        // sceneBlocks[i].scene enthält den Parameteroffset für ParamAMP_ChSceneX,
-        // der vom OpenKNXproducer generiert wurde – knx.paramByte() ist hier korrekt,
-        // da die generierten ParamAMP_ChSceneX-Makros selbst nur den Offset kapseln.
-        uint8_t sceneId = knx.paramByte(sceneBlocks[i].scene);
+        // sceneBlocks[i] enthält die relativen Parameter-Indizes (AMP_ChSceneX).
+        // AMP_ParamCalcIndex() rechnet sie zur Laufzeit mit _channelIndex in die
+        // absolute Parameteradresse dieses Kanals um.
+        uint8_t sceneId = knx.paramByte(AMP_ParamCalcIndex(sceneBlocks[i].scene));
 
         if (sceneId == 0) continue;             // "Nicht genutzt"
         if (sceneId != sceneNumber) continue;  // nicht die gesuchte Szene
 
-        uint8_t sceneQuelle = knx.paramByte(sceneBlocks[i].quelle);
-        uint8_t sceneVolume = knx.paramByte(sceneBlocks[i].volume);
-        uint8_t sceneMute   = knx.paramByte(sceneBlocks[i].mute);   // 0=kein Änderung, 1=Mute, 2=Unmute
-        uint8_t scenePreset = knx.paramByte(sceneBlocks[i].preset); // 0=nicht genutzt, 1-8=Preset
+        uint8_t sceneQuelle = knx.paramByte(AMP_ParamCalcIndex(sceneBlocks[i].quelle));
+        uint8_t sceneVolume = knx.paramByte(AMP_ParamCalcIndex(sceneBlocks[i].volume));
+        uint8_t sceneMute   = knx.paramByte(AMP_ParamCalcIndex(sceneBlocks[i].mute));   // 0=kein Änderung, 1=Mute, 2=Unmute
+        uint8_t scenePreset = knx.paramByte(AMP_ParamCalcIndex(sceneBlocks[i].preset)); // 0=nicht genutzt, 1-8=Preset
 
         logDebugP("Szene %u: Quelle=%u, Volume=%u, Mute=%u, Preset=%u", sceneNumber, sceneQuelle, sceneVolume, sceneMute, scenePreset);
 
-        // Quelle setzen (0 = nicht ändern)
-        if (sceneQuelle != 0)
+        // Quelle setzen: 0..6 = enumSource (wie KO "Quelle wählen"), 255 = keine Änderung (PT-SceneSource)
+        if (sceneQuelle != AMP_SCENE_SOURCE_NO_CHANGE)
         {
             currentSource = static_cast<enumSource>(sceneQuelle);
             setSource_SRC(currentSource);
@@ -1394,6 +1458,16 @@ bool PowerAmpChannel::applyScene(uint8_t sceneNumber)
     return false;
 }
 
+// KO-Wert setzen: vor Ablauf der OpenKNX-Startverzögerung nur setzen (valueNoSend),
+// danach normal senden.
+void PowerAmpChannel::setKoValue(GroupObject &ko, const KNXValue &value, const Dpt &type)
+{
+    if (openknx.afterStartupDelay())
+        ko.value(value, type);
+    else
+        ko.valueNoSend(value, type);
+}
+
 void PowerAmpChannel::setKOInitialValues(void)
 {
     String empty = "";
@@ -1412,10 +1486,32 @@ void PowerAmpChannel::setKOInitialValues(void)
     KoAMP_ChAutoPlayStatus.value(autoPlayEnabled, DPT_Switch);
     KoAMP_ChAutoMuteStatus.value(autoMuteEnabled, DPT_Switch);
     KoAMP_ChPresetStatus.value((uint8_t)0, DPT_Value_1_Ucount);
+}
+
+void PowerAmpChannel::processAfterStartupDelay()
+{
+    if (!_channelActive) return;
+
+    // AutoPlay/AutoMute-Status (ETS-Startwerte, ggf. inzwischen per KO geändert) senden
+    KoAMP_ChAutoPlayStatus.value(autoPlayEnabled, DPT_Switch);
+    KoAMP_ChAutoMuteStatus.value(autoMuteEnabled, DPT_Switch);
+
+    // Nach Ablauf der Startverzögerung einmal den aktuellen Stand senden.
+    // Hinweis: Meldungen des Verstärkers vor Ablauf der Startverzögerung werden NICHT
+    // zurückgehalten - sendVolumeStatusKO(), sendSourceStatusKO() sowie die MUT-/STA-Handler
+    // schreiben per value() und senden damit sofort.
+    // (openknx.afterStartupDelay() ist hier bereits true, setKoValue sendet also)
+    if (deviceAlive)
+    {
+        sendVolumeStatusKO();
+        sendSourceStatusKO();
+        setKoValue(KoAMP_ChMuteStatus, muteStatus_MUT, DPT_Switch);
+        setKoValue(KoAMP_ChPlayingStatus, playingStatus_PLA, DPT_Switch);
+    }
 
     if (openknxPowerAmpModule.debug())
     {
-        logDebugP("[INIT] KO Initial Values gesetzt");
+        logDebugP("[INIT] processAfterStartupDelay: Status gesendet (alive=%d)", deviceAlive);
     }
 }
 
@@ -1425,44 +1521,60 @@ void PowerAmpChannel::handleCustomAutoplay()
     if (!autoPlayEnabled || onetimeAutoPlayExecuted) return;
     if (!deviceAlive) return;
 
-    // Abbruch: läuft schon
-    if (autoPlayPending && playingStatus_PLA)
+    // Gesperrt: AutoPlay für diesen Start überspringen
+    if (_currentLocked)
     {
         autoPlayPending = false;
+        autoPlayStatusQueried = false;
         onetimeAutoPlayExecuted = true;
-        logDebugP("[AUTO] Already playing, autoplay cancelled");
+        logDebugP("[AUTO] gesperrt - AutoPlay uebersprungen");
+        return;
+    }
+
+    // Abbruch: läuft schon (z.B. durch Start-Preset oder Autoplay des Verstärkers)
+    if (playingStatus_PLA)
+    {
+        autoPlayPending = false;
+        autoPlayStatusQueried = false;
+        onetimeAutoPlayExecuted = true;
+        logDebugP("[AUTO] Wiedergabe laeuft bereits, AutoPlay nicht noetig");
         return;
     }
 
     // Pending starten
     if (!autoPlayPending)
     {
-        logDebugP("[AUTO] Starte Wiedergabe in 3 Sekunden");
+        logDebugP("[AUTO] Starte Wiedergabe in %lu ms", AUTOPLAY_DELAY);
         autoPlayStartTime = millis();
         autoPlayPending = true;
+        autoPlayStatusQueried = false;
         return; // nächster loop()-Tick prüft den Timer
     }
 
-    // Warten auf Bedingungen: Internet + Quelle NET + Timer abgelaufen
-    if (string_currentSource == "NET") 
+    if (millis() - autoPlayStartTime < AUTOPLAY_DELAY) return;
+
+    // Bei Quelle NET auf Internet warten
+    if (string_currentSource == "NET" && !internetStatus) return;
+
+    // POP schaltet zwischen Play und Pause um. Damit eine bereits laufende Wiedergabe
+    // (z.B. durch das Start-Preset) nicht pausiert wird, vorher den Status abfragen
+    // und die Antwort abwarten. Meldet STA "playing", greift oben der Abbruch.
+    if (!autoPlayStatusQueried)
     {
-        if (!internetStatus) return; // Warten auf Internet
-        if (millis() - autoPlayStartTime >= AUTOPLAY_DELAY) {
-            setAutoplay_APL(true);
-            playPause_POP();
-            onetimeAutoPlayExecuted = true;
-            autoPlayPending = false;
-        }
-    } 
-    else 
-    {
-        // Nicht-NET: direkt starten
-        if (millis() - autoPlayStartTime >= AUTOPLAY_DELAY) {
-            playPause_POP();
-            onetimeAutoPlayExecuted = true;
-            autoPlayPending = false;
-        }
+        getDeviceStatus_STA();
+        autoPlayStatusQueried = true;
+        autoPlayQueryTime = millis();
+        return;
     }
+    if (millis() - autoPlayQueryTime < AUTOPLAY_STATUS_WAIT) return;
+
+    if (string_currentSource == "NET")
+        setAutoplay_APL(true);
+    playPause_POP();
+    logDebugP("[AUTO] AutoPlay ausgefuehrt");
+    onetimeAutoPlayExecuted = true;
+    autoPlayPending = false;
+    autoPlayStatusQueried = false;
 }
 
 void PowerAmpChannel::handleCustomAutoMute()
@@ -1501,7 +1613,12 @@ void PowerAmpChannel::handleStartupPreset()
 
     if (millis() - startupPresetStartTime >= startupPreset_DELAY)
     {
-        if (ParamAMP_StartPresetMode)
+        if (_currentLocked)
+        {
+            logDebugP("[STARTUP] gesperrt - Start-Preset/-Szene uebersprungen");
+        }
+        // "Starten mit" ist in der ETS nur bei aktivierten Szenen sichtbar, sonst gilt Preset
+        else if (ParamAMP_StartPresetMode && ParamAMP_ChScenesActive)
         {
             uint8_t startupPresetScene = ParamAMP_StartScene;
             if (startupPresetScene != 0)
@@ -1538,11 +1655,15 @@ void PowerAmpChannel::resetStatiInfos()
     logDebugP("[dead] reset Stati");
     currentVolume = 0;
     string_currentSource = "";
-    elapsedTime_ELP = ""; 
+    elapsedTime_ELP = "";
     songMetadataVendor ="";
     songMetadataAlbum ="";
     songMetadataArtist ="";
     songMetadataTitle ="";
+    // unbekannt, bis der Verstärker wieder antwortet (sonst würde AutoPlay nach
+    // Wiederkehr wegen eines veralteten "playing" fälschlich übersprungen)
+    playingStatus_PLA = false;
+    internetStatus = false;
 
     String empty = "";
     KoAMP_ChVolumeStatus.value((uint8_t)0, DPT_Scaling);

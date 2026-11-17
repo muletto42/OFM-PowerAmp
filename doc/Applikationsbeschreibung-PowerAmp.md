@@ -41,7 +41,7 @@ Zusätzlich werden Statusinformationen, Metadaten sowie der Alive-Status zurück
 | **VolumeStepValue** | Schrittweite der Lautstärkeänderung | Zahl |
 | **LimitMaxVolume** | Maximal erlaubte Lautstärke | Zahl (0–100) |
 | **VolumeDay / VolumeNight** | Standardlautstärken für Tag/Nacht | Zahl |
-| **Lock** | Bedienung sperren | Bool |
+| **Lock** | Bedienung sperren (Bedienbefehle per KO werden ignoriert, siehe „Zentrale Sperre“) | Bool |
 | **DayNight** | Aktiviert Tag-/Nachtmodus | Bool |
 | **AliveTimeInterval** | Alive-Meldungsintervall | Sekunden |
 | **AliveCheckBox** | Alive-Status auf den Bus senden | Bool |
@@ -50,7 +50,7 @@ Zusätzlich werden Statusinformationen, Metadaten sowie der Alive-Status zurück
 Nach erkannter Alive-Verbindung wird das konfigurierte Start-Preset/Szene mit kurzer Verzögerung gestartet.
 
 | **Starten mit** | Wählt bei aktivierten Szenen Preset oder Szene aus | Preset / Szene |
-| **Preset beim Start** | Nummer des zu startenden Presets | Zahl |
+| **Preset beim Start** | Nummer des zu startenden Presets | Preset 1–8 |
 | **Szene beim Start** | Szene, die beim Start angewendet wird (nur bei aktivierten Szenen und Auswahl „Szene“) | Auswahl |
 
 
@@ -148,6 +148,8 @@ Standardwert: **5**.
 Die Lautstärke kann diesen Wert nicht überschreiten.  
 Standardwert: **60 %** (maximal 100 %).
 
+Wird die Lautstärke am Verstärker selbst höher eingestellt (z.B. per App oder Fernbedienung), setzt das Modul sie auf diesen Wert zurück. Der Status meldet immer die tatsächlich vom Verstärker gemeldete Lautstärke.
+
 ### **Sperre**
 
 Einstellungen zur Sperre.
@@ -155,7 +157,16 @@ Einstellungen zur Sperre.
 <!-- DOC -->
 #### **Zentrale Sperre**
 
-Hier wird festgelegt, wie sich der Kanal bei einer zentralen Sperre verhält.
+Hier wird festgelegt, ob und mit welcher Polarität der Kanal über das Objekt "Sperre" gesperrt werden kann.
+
+Beim Sperren wird die Wiedergabe gestoppt. Solange die Sperre aktiv ist, gilt:
+
+- Bedienbefehle über Objekte werden ignoriert: Lautstärke (Wert und +/-), Mute, Play/Pause, Stop, Weiter, Zurück, Quelle, Szene und Preset.
+- Tag/Nacht wird umgeschaltet, die zugehörige Lautstärke aber nicht gesendet.
+- AutoPlay und der Start mit Preset oder Szene werden übersprungen.
+- Statusmeldungen, Alive und AutoMute laufen weiter.
+
+Nach dem Entsperren sind alle Bedienbefehle wieder möglich. Ignorierte Befehle werden nicht nachgeholt.
 
 <!-- DOC -->
 #### **AutoPlay**
@@ -163,10 +174,16 @@ Hier wird festgelegt, wie sich der Kanal bei einer zentralen Sperre verhält.
 Autoplay startet die Wiedergabe nach einem Neustart automatisch.  
 Ist Internetradio als Quelle gewählt, wird gewartet, bis eine Internetverbindung verfügbar ist.
 
+Vor dem Start wird der Wiedergabestatus beim Verstärker abgefragt. Läuft die Wiedergabe bereits (z.B. durch das Start-Preset), wird nichts gesendet, damit sie nicht pausiert wird. Bei aktiver Sperre wird AutoPlay übersprungen.
+
+Nach jedem Neustart gilt die ETS-Einstellung. Über das Objekt "AutoPlay ein/aus" geänderte Werte gelten nur bis zum nächsten Neustart.
+
 <!-- DOC -->
 #### **AutoMute**
 
 Ist Automute aktiv, so wird das Gerät gemutet gestartet. Im Hintergrund läuft ggfs. bereits die Wiedergabe weiter oder wurde gestartet.
+
+Nach jedem Neustart gilt die ETS-Einstellung. Über das Objekt "AutoMute ein/aus" geänderte Werte gelten nur bis zum nächsten Neustart.
 
 
 
@@ -216,4 +233,11 @@ Sind mehrere Szenen mit derselben Nummer aktiv, wird nur die zuerst aktivierte S
 
 <!-- DOC -->
 #### **Szene Verhalten**
-Hier wird das gewünschte Verhalten der Szene definiert.
+Pro Szene kann festgelegt werden, was beim Aufruf passiert:
+
+- **Quelle:** "Keine Änderung" oder die gewünschte Quelle.
+- **Lautstärke:** 0 bedeutet "unverändert". Zum Stummschalten "Mute ein" verwenden.
+- **Mute:** "Keine Änderung", "Mute ein" oder "Mute aus".
+- **Preset:** "Nicht genutzt" oder das zu startende Preset.
+
+Telegramme zum Lernen einer Szene werden ignoriert. Während einer aktiven Sperre werden Szenen nicht ausgeführt.
